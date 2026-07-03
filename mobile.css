@@ -1,0 +1,465 @@
+/* Mobile adaptation overrides. Loaded after the built bundle CSS.
+   Uses !important where it must beat scoped-attribute selectors or
+   JS-driven inline styles from scroll animations. */
+
+@media (max-width: 768px) {
+  /* clip (not hidden) so position:sticky keeps working */
+  html,
+  body {
+    overflow-x: clip !important;
+  }
+  section[id] {
+    scroll-margin-top: 72px !important;
+  }
+
+  /* ---------- Hero ---------- */
+  .main-block {
+    flex-direction: column !important;
+    gap: 40px !important;
+    padding: 12px !important;
+  }
+  .left-container {
+    flex: none !important;
+    width: 100% !important;
+    gap: 48px !important;
+  }
+  .content {
+    width: 100% !important;
+  }
+  .main-title h1 {
+    font-size: clamp(40px, 12.5vw, 64px) !important;
+    line-height: 1.02 !important;
+    letter-spacing: -2px !important;
+  }
+  .gemini-icon {
+    width: 44px !important;
+    height: 44px !important;
+    top: 2px !important;
+    left: 40px !important;
+  }
+  .subtitle {
+    width: 100% !important;
+    font-size: 15px !important;
+    line-height: 1.35 !important;
+  }
+  .text-content {
+    gap: 24px !important;
+  }
+  .btn-cta {
+    font-size: 18px !important;
+  }
+  .menu {
+    display: none !important;
+  }
+  .btn-outline,
+  .btn-filled {
+    font-size: 13px !important;
+    padding: 6px 10px !important;
+  }
+  .image-col {
+    flex: none !important;
+    width: 100% !important;
+  }
+  .main-img-wrap {
+    width: 100% !important;
+    height: 64vh !important;
+    cursor: default !important;
+  }
+  .partners-container {
+    flex-direction: column !important;
+    gap: 10px !important;
+    bottom: 14px !important;
+    width: max-content !important;
+  }
+  .partner-badge {
+    height: 30px !important;
+    font-size: 12px !important;
+  }
+
+  /* ---------- Floating nav ---------- */
+  .floating-nav {
+    width: calc(100% - 24px) !important;
+    top: 12px !important;
+  }
+  .nav-menu {
+    display: none !important;
+  }
+  .nav-btn-outline,
+  .nav-btn-filled {
+    font-size: 13px !important;
+    padding: 6px 10px !important;
+  }
+
+  /* ---------- Mission (scroll text) ---------- */
+  .mission-content {
+    padding: 0 6vw 14vh !important;
+  }
+  .gray-text,
+  .black-text {
+    font-size: clamp(21px, 6.2vw, 34px) !important;
+    line-height: 1.25 !important;
+  }
+  .knot-wrap {
+    width: 210px !important;
+    height: 207px !important;
+    bottom: 24px !important;
+  }
+  .knot-inner {
+    width: 174px !important;
+    height: 178px !important;
+  }
+
+  /* ---------- About cards ---------- */
+  .about-section {
+    height: auto !important;
+    padding: 72px 16px 24px !important;
+  }
+  .about-title {
+    font-size: 40px !important;
+  }
+  .about-sub {
+    font-size: 15px !important;
+  }
+  .about-sub br {
+    display: none;
+  }
+  .cards-row {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+  }
+  .cards-row .card {
+    flex: none !important;
+    height: 470px !important;
+  }
+  /* No hover on touch: keep description always visible */
+  .card-media {
+    inset: 8px 8px 215px !important;
+  }
+  .card-footer {
+    height: 215px !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+  }
+  .card-footer-top {
+    padding-top: 16px !important;
+  }
+  .card-label {
+    font-size: 25px !important;
+  }
+  .card-desc-wrap {
+    opacity: 1 !important;
+    max-height: none !important;
+  }
+  .card-desc {
+    font-size: 13.5px !important;
+    padding-bottom: 16px !important;
+  }
+  .card-arrow svg {
+    width: 22px !important;
+    height: 22px !important;
+  }
+
+  /* ---------- Research cycle ---------- */
+  .research-section {
+    height: auto !important;
+  }
+  .research-sticky {
+    position: static !important;
+    height: auto !important;
+    padding: 72px 16px 48px !important;
+  }
+  /* Neutralize scroll-driven reveal animations */
+  .research-left .reveal-wrap > * {
+    transform: none !important;
+  }
+  .research-section .step-item {
+    transform: none !important;
+  }
+  .research-layout {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+  .research-left {
+    align-self: start !important;
+  }
+  .research-heading {
+    font-size: 34px !important;
+  }
+  .research-desc p,
+  .research-badge {
+    font-size: 14px !important;
+  }
+  .research-right {
+    justify-content: flex-start !important;
+    gap: 24px !important;
+  }
+  .step-title {
+    font-size: 26px !important;
+  }
+  .step-desc {
+    font-size: 14px !important;
+  }
+
+  /* ---------- For whom (Для кого) ---------- */
+  .forwhom-section {
+    height: auto !important;
+  }
+  .forwhom-sticky {
+    position: static !important;
+    height: auto !important;
+    align-items: stretch !important;
+    padding: 48px 16px 16px !important;
+  }
+  .forwhom-grid {
+    flex-direction: column !important;
+    height: auto !important;
+  }
+  .col-left,
+  .col-right {
+    width: 100% !important;
+    overflow: visible !important;
+  }
+  /* Neutralize scroll-driven inline animation styles */
+  .forwhom-section .card {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  .forwhom-section .card-inner {
+    clip-path: none !important;
+  }
+  .card-header-dk {
+    flex: none !important;
+    min-height: 130px !important;
+  }
+  /* These use flex:1 1 0, which collapses to zero height once the
+     sticky 100vh container becomes auto-height */
+  .card-audience,
+  .card-benefits {
+    flex: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+  .dk-title {
+    font-size: 30px !important;
+  }
+  .card-audience .card-inner {
+    padding: 26px 20px !important;
+  }
+  .audience-title {
+    font-size: 21px !important;
+    line-height: 1.2 !important;
+  }
+  .audience-sub {
+    font-size: 14px !important;
+    line-height: 1.35 !important;
+  }
+  .benefits-list p {
+    font-size: 15px !important;
+    line-height: 1.3 !important;
+  }
+  .benefits-label,
+  .format-label {
+    font-size: 15px !important;
+  }
+  .benefits-top,
+  .benefits-bottom {
+    gap: 14px !important;
+  }
+  .card-benefits .card-inner {
+    gap: 24px !important;
+    padding: 20px 16px !important;
+  }
+  .tag {
+    font-size: 13px !important;
+  }
+  .bottom-row {
+    flex: none !important;
+    height: 150px !important;
+  }
+  .forwhom-section .cta-title {
+    font-size: 22px !important;
+  }
+
+  /* ---------- Team ---------- */
+  .team-section {
+    height: auto !important;
+  }
+  .team-sticky {
+    position: static !important;
+    flex-direction: column !important;
+    gap: 24px !important;
+    height: auto !important;
+    padding: 64px 16px 48px !important;
+    overflow: visible !important;
+  }
+  .team-text {
+    clip-path: none !important;
+  }
+  .team-title {
+    font-size: 38px !important;
+    letter-spacing: -1px !important;
+  }
+  .team-subtitle {
+    font-size: 14px !important;
+    padding: 0 8px !important;
+  }
+  .team-card {
+    position: static !important;
+    transform: none !important;
+    opacity: 1 !important;
+    width: 100% !important;
+    max-width: 320px !important;
+  }
+
+  /* ---------- Events ---------- */
+  .events-section {
+    padding: 48px 16px 64px !important;
+  }
+  .events-content {
+    gap: 48px !important;
+  }
+  .events-top {
+    flex-direction: column !important;
+    gap: 36px !important;
+  }
+  .events-text,
+  .events-list {
+    width: 100% !important;
+  }
+  .events-title {
+    font-size: 38px !important;
+  }
+  .events-subtitle {
+    font-size: 14px !important;
+  }
+  .event-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    padding: 20px 0 !important;
+  }
+  .event-name {
+    width: auto !important;
+  }
+  .event-info {
+    gap: 16px !important;
+  }
+  .event-city,
+  .event-date {
+    width: auto !important;
+  }
+  .event-hover-img {
+    display: none !important;
+  }
+  .past-grid {
+    flex-direction: column !important;
+    gap: 28px !important;
+  }
+  .past-card {
+    width: 100% !important;
+  }
+
+  /* ---------- Programs ---------- */
+  .program-section {
+    padding: 64px 16px 64px !important;
+  }
+  .program-title {
+    font-size: 34px !important;
+  }
+  .pcard {
+    padding: 24px 20px !important;
+    gap: 20px !important;
+  }
+  .pcard-name {
+    font-size: 26px !important;
+  }
+  .pcard-desc {
+    font-size: 13.5px !important;
+  }
+  .pcard-stats {
+    flex-wrap: wrap !important;
+    gap: 18px !important;
+  }
+  .pcard-btn {
+    font-size: 15px !important;
+    padding: 12px 20px !important;
+  }
+  /* Program modal */
+  .modal-overlay {
+    padding: 3vh 10px !important;
+  }
+  .modal-panel {
+    padding: 28px 16px 24px !important;
+  }
+  .modal-title {
+    font-size: 28px !important;
+  }
+  .mday {
+    padding: 16px 14px !important;
+  }
+  .mday-head {
+    flex-direction: column !important;
+    gap: 4px !important;
+  }
+  .mtl-row {
+    grid-template-columns: 1fr !important;
+    gap: 4px !important;
+  }
+
+  /* ---------- Footer ---------- */
+  .cta-block {
+    gap: 28px !important;
+    padding: 56px 20px !important;
+  }
+  .footer-section .cta-title {
+    font-size: 27px !important;
+  }
+  .cta-btn span {
+    font-size: 18px !important;
+  }
+  .footer {
+    flex-direction: column !important;
+    gap: 40px !important;
+    min-height: 0 !important;
+    padding: 24px 16px 32px !important;
+  }
+  .footer-left {
+    gap: 40px !important;
+    padding-top: 8px !important;
+  }
+  .footer-center {
+    display: none !important;
+  }
+  .footer-form {
+    width: 100% !important;
+  }
+  .form-title {
+    font-size: 24px !important;
+  }
+  .form-btn span {
+    font-size: 18px !important;
+  }
+  .footer-logo-badge {
+    font-size: 28px !important;
+  }
+  .footer-logo-text {
+    font-size: 24px !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .main-title h1 {
+    font-size: clamp(34px, 11.5vw, 44px) !important;
+  }
+  .gemini-icon {
+    width: 36px !important;
+    height: 36px !important;
+    left: 34px !important;
+  }
+  .about-title,
+  .events-title,
+  .team-title {
+    font-size: 34px !important;
+  }
+}
