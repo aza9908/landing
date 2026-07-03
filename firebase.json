@@ -1,0 +1,10 @@
+{
+  "apphosting": {
+    "backendId": "landing",
+    "rootDir": ".",
+    "ignore": [
+      ".git",
+      "node_modules"
+    ]
+  }
+}
