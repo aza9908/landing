@@ -30,6 +30,7 @@
     font-size: clamp(40px, 12.5vw, 64px) !important;
     line-height: 1.02 !important;
     letter-spacing: -2px !important;
+    white-space: normal !important;
   }
   .gemini-icon {
     width: 44px !important;
@@ -160,7 +161,37 @@
     height: 22px !important;
   }
 
-  /* ---------- Research cycle ---------- */
+  /* ---------- Blog ---------- */
+  .blog-section {
+    padding: 64px 16px 48px !important;
+  }
+  .blog-title {
+    font-size: 38px !important;
+  }
+  .blog-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ---------- Interactive For whom ---------- */
+  .forwhom-section--interactive .forwhom-sticky {
+    padding: 48px 16px 32px !important;
+  }
+  .forwhom-nav-item {
+    font-size: 18px !important;
+  }
+  .forwhom-panel-title {
+    font-size: 26px !important;
+  }
+  .forwhom-panel-desc {
+    font-size: 15px !important;
+  }
+
+  /* ---------- About 2 cards ---------- */
+  .about-section .cards-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ---------- Research cycle (removed) ---------- */
   .research-section {
     height: auto !important;
   }
@@ -303,13 +334,39 @@
   .team-subtitle {
     font-size: 14px !important;
     padding: 0 8px !important;
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+    line-height: 1.45 !important;
+  }
+  .team-cards-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+    width: 100% !important;
   }
   .team-card {
-    position: static !important;
+    position: relative !important;
     transform: none !important;
     opacity: 1 !important;
     width: 100% !important;
-    max-width: 320px !important;
+    max-width: none !important;
+    left: auto !important;
+    top: auto !important;
+  }
+  .forwhom-panel-detail.open {
+    max-height: none !important;
+  }
+  .forwhom-panel-detail p {
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+  }
+  .blog-card-title,
+  .past-title,
+  .pcard-desc {
+    overflow-wrap: anywhere !important;
+  }
+  .blog-subtitle {
+    font-size: 15px !important;
   }
 
   /* ---------- Events ---------- */

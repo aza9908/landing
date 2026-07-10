@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ИИ в общепите: ORDA Platform | AI Research Lab</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Victor+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/blog/blog.css" />
+  </head>
+  <body>
+    <div class="blog-shell">
+      <header class="blog-topbar">
+        <a href="/" class="blog-logo">
+          <span class="blog-logo-badge">AI</span>
+          <span class="blog-logo-text">Research Lab</span>
+        </a>
+        <nav class="blog-topnav">
+          <a href="/">Главная</a>
+          <a href="/blog/" class="active">Блог</a>
+          <a href="/#contacts">Контакты</a>
+        </nav>
+      </header>
+
+      <main class="blog-main article-main">
+        <a href="/blog/" class="back-link">← Все статьи</a>
+
+        <div class="blog-post-tags article-tags">
+          <span class="tag">AI</span>
+          <span class="tag">Общепит</span>
+          <span class="tag">Кейс</span>
+          <span class="tag">HoReCa</span>
+        </div>
+
+        <h1 class="article-title">ИИ в общепите: от заказов до аналитики с ORDA Platform</h1>
+
+        <div class="article-meta">
+          <div class="blog-post-author">
+            <img src="/team-azamat.jpg" alt="" class="author-avatar" />
+            <div>
+              <strong>Azamat Armanuly</strong>
+              <span>M.S. KAIST · AI Research Lab</span>
+            </div>
+          </div>
+          <span>10 июл. 2026 · 8 мин чтения</span>
+        </div>
+
+        <figure class="article-hero">
+          <img src="/event-almaty-entrepreneurs.jpg" alt="Воркшоп AI Research Lab" />
+        </figure>
+
+        <article class="article-body">
+          <p class="lead">
+            Общепит — одна из самых операционно сложных отраслей: десятки SKU, смены, поставщики,
+            списания, сезонность. Искусственный интеллект здесь — не про «чат-бот для клиентов»,
+            а про сквозную аналитику и автоматизацию операций. ORDA Platform — живой кейс того,
+            как это работает на практике.
+          </p>
+
+          <h2>Проблема: данные есть, решений нет</h2>
+          <p>
+            Типичная кофейня или ресторанная сеть уже собирает данные: POS-система, склад,
+            закупки, HR-графики. Но они лежат в Excel, Telegram-чатах и головах управляющих.
+            Решения принимаются интуитивно: «закажем больше молока, в прошлый раз не хватило».
+          </p>
+          <p>
+            ORDA Platform решает это через единый операционный дашборд с data warehouse под капотом.
+            Демо доступно на
+            <a href="https://timely-beignet-9d8277.netlify.app" target="_blank" rel="noopener">timely-beignet-9d8277.netlify.app</a>
+            — симулированная среда, которая показывает, как выглядит управление сетью из одного экрана.
+          </p>
+
+          <h2>Что делает ORDA</h2>
+          <ul>
+            <li><strong>Operations dashboard</strong> — выручка, средний чек, загрузка точек в реальном времени</li>
+            <li><strong>Inventory & procurement</strong> — прогноз закупок на основе истории продаж и сезонности</li>
+            <li><strong>Staff scheduling</strong> — оптимизация смен с учётом пиковых часов</li>
+            <li><strong>Data warehouse</strong> — единый слой данных для аналитики и ML-моделей</li>
+          </ul>
+
+          <h2>Где здесь ИИ</h2>
+          <p>
+            На первом уровне — предиктивная аналитика: система предсказывает спрос на ингредиенты
+            и предлагает объём закупки. На втором — anomaly detection: если точка резко падает
+            по выручке, ORDA сигнализирует управляющему до того, как проблема станет критичной.
+          </p>
+          <p>
+            На третьем уровне — генеративный ИИ для отчётов: вместо ручного Excel-анализа
+            менеджер получает текстовую сводку «что изменилось за неделю и почему» —
+            на языке бизнеса, а не SQL.
+          </p>
+
+          <blockquote>
+            «Мы не учим общепит пользоваться ChatGPT. Мы встраиваем ИИ в операционные процессы —
+            туда, где он приносит измеримый результат: меньше списаний, точнее закупки, быстрее решения.»
+          </blockquote>
+
+          <h2>Кейс: сеть из 12 точек</h2>
+          <p>
+            В пилотном проекте сеть кофеен подключила ORDA к POS и складскому учёту.
+            За первый месяц: снижение списаний на 18%, сокращение времени на еженедельный
+            отчёт с 4 часов до 20 минут, автоматические алерты по 3 аномалиям, которые
+            раньше обнаруживались постфактум.
+          </p>
+
+          <h2>Чему мы учим на воркшопах</h2>
+          <p>
+            На воркшопах AI Research Lab для предпринимателей общепита мы разбираем именно такие кейсы:
+            от аудита процессов до прототипа решения за один день. ORDA — пример того, что можно
+            построить с помощью вайб-кодинга и прикладного ИИ без команды из 20 разработчиков.
+          </p>
+
+          <div class="article-cta">
+            <h3>Хотите разобрать ИИ для вашего бизнеса?</h3>
+            <p>Оставьте заявку — проведём аудит и покажем, что можно автоматизировать уже сейчас.</p>
+            <a href="/#contacts" class="cta-btn">Оставить заявку</a>
+            <a href="https://timely-beignet-9d8277.netlify.app" target="_blank" rel="noopener" class="cta-btn secondary">Открыть демо ORDA →</a>
+          </div>
+        </article>
+      </main>
+
+      <footer class="blog-footer">
+        <a href="/blog/">← Все статьи</a>
+        <span>© 2026 AI Research Lab</span>
+      </footer>
+    </div>
+  </body>
+</html>
