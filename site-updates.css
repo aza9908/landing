@@ -39,7 +39,30 @@ body {
   width: auto !important;
   max-width: 680px !important;
   min-width: 0 !important;
-  gap: clamp(40px, 7vh, 80px) !important;
+  gap: 0 !important;
+  align-self: stretch !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  min-height: calc(100vh - 140px);
+}
+
+/* Title block sits visually centered; subtitle gets air below the title,
+   CTA drops lower — no dead space under the fold */
+.content[data-v-46599b1c] {
+  gap: clamp(48px, 9vh, 96px) !important;
+}
+
+.text-content[data-v-46599b1c] {
+  gap: clamp(28px, 5vh, 48px) !important;
+}
+
+/* Slim gradient star mark between AI and Research */
+.gemini-icon[data-v-46599b1c] {
+  width: 104px !important;
+  height: 104px !important;
+  top: 0 !important;
+  left: 96px !important;
 }
 
 /* Header escapes the narrow left column: spans the full hero width,
@@ -171,6 +194,43 @@ body {
   width: 100% !important;
   text-align: center !important;
   padding: 0 16px !important;
+}
+
+/* Two symmetric photo stacks flanking the centered text */
+.team-layout {
+  display: grid;
+  grid-template-columns: 1fr minmax(300px, 460px) 1fr;
+  gap: clamp(20px, 3vw, 48px);
+  align-items: center;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+.team-side {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.team-side--left { align-items: flex-end; }
+.team-side--right { align-items: flex-start; }
+
+/* «разбросанно, но симметрично»: mirrored stagger */
+.team-side--left .team-card:nth-child(1) { transform: translateX(-28px); }
+.team-side--left .team-card:nth-child(3) { transform: translateX(-16px); }
+.team-side--right .team-card:nth-child(1) { transform: translateX(28px); }
+.team-side--right .team-card:nth-child(3) { transform: translateX(16px); }
+
+.team-layout .team-text {
+  position: static !important;
+  transform: none !important;
+  clip-path: none !important;
+  max-width: 100% !important;
+  text-align: center !important;
+  padding: 0 8px !important;
 }
 
 .team-cards-grid {
@@ -679,5 +739,143 @@ body {
 
   .team-sticky .team-card-role {
     font-size: 10px !important;
+  }
+}
+
+
+/* ══════════════════════════════════════
+   MOBILE MENU (hamburger)
+   ══════════════════════════════════════ */
+.m-menu-btn {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #ffffff55;
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.m-menu-btn span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: #fff;
+  border-radius: 2px;
+  transition: transform 0.25s, opacity 0.2s;
+}
+
+.m-menu-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.m-menu-btn.open span:nth-child(2) { opacity: 0; }
+.m-menu-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.m-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: #16161af5;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.m-menu-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+body.m-menu-lock { overflow: hidden; }
+
+.m-menu-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 24px;
+}
+
+.m-menu-link {
+  color: #fff;
+  font-family: Inter Tight, sans-serif;
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  padding: 10px 24px;
+  border-radius: 16px;
+  transition: background 0.2s;
+  width: min(320px, 100%);
+  text-align: center;
+}
+
+.m-menu-link:active,
+.m-menu-link:hover {
+  background: #ffffff14;
+}
+
+@media (max-width: 900px) {
+  .m-menu-btn { display: flex; }
+}
+
+/* ══════════════════════════════════════
+   TEAM responsive: sides collapse below text
+   ══════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .team-layout {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .team-layout .team-text { order: -1; }
+
+  .team-side {
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .team-side--left,
+  .team-side--right { align-items: stretch; }
+
+  .team-side--left .team-card,
+  .team-side--right .team-card {
+    transform: none !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .team-side { gap: 10px; }
+  .team-side .team-card { max-width: 46% !important; }
+}
+
+/* Mobile hero: keep vertical balance without a huge void */
+@media (max-width: 768px) {
+  .left-container[data-v-46599b1c] {
+    min-height: auto;
+    justify-content: flex-start !important;
+    padding-top: 8px;
+  }
+
+  .content[data-v-46599b1c] {
+    gap: 32px !important;
+  }
+
+  .gemini-icon[data-v-46599b1c] {
+    width: 46px !important;
+    height: 46px !important;
+    left: 42px !important;
+    top: 2px !important;
   }
 }

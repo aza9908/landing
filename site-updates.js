@@ -146,18 +146,26 @@
     if (!sticky || sticky.dataset.gridLayout === 'true') return;
 
     const cards = [...sticky.querySelectorAll('.team-card')];
-    if (!cards.length) return;
+    const text = sticky.querySelector('.team-text');
+    if (cards.length < 6 || !text) return;
 
-    let grid = sticky.querySelector('.team-cards-grid');
-    if (!grid) {
-      grid = document.createElement('div');
-      grid.className = 'team-cards-grid';
-      cards.forEach((card) => {
-        card.style.cssText = 'position:relative;left:auto;top:auto;transform:none;opacity:1;';
-        grid.appendChild(card);
-      });
-      sticky.appendChild(grid);
-    }
+    const layout = document.createElement('div');
+    layout.className = 'team-layout';
+
+    const left = document.createElement('div');
+    left.className = 'team-side team-side--left';
+    const right = document.createElement('div');
+    right.className = 'team-side team-side--right';
+
+    cards.forEach((card, i) => {
+      card.style.cssText = 'position:relative;left:auto;top:auto;opacity:1;';
+      (i < 3 ? left : right).appendChild(card);
+    });
+
+    layout.appendChild(left);
+    layout.appendChild(text);
+    layout.appendChild(right);
+    sticky.appendChild(layout);
 
     sticky.dataset.gridLayout = 'true';
   }
@@ -176,7 +184,65 @@
     );
   }
 
+  function buildMobileMenu() {
+    if (document.querySelector('.m-menu-btn')) return;
+    const links = [
+      ['О нас', '#about'],
+      ['Блог', '/blog/'],
+      ['Корп обучение', '#training'],
+      ['Кто мы', '#team'],
+      ['Мероприятия', '#events'],
+      ['Контакты', '#contacts'],
+    ];
+
+    const overlay = document.createElement('div');
+    overlay.className = 'm-menu-overlay';
+    overlay.innerHTML =
+      '<nav class="m-menu-nav">' +
+      links
+        .map(([t, h]) => `<a href="${h}" class="m-menu-link">${t}</a>`)
+        .join('') +
+      '</nav>';
+    document.body.appendChild(overlay);
+
+    function makeBtn() {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'm-menu-btn';
+      btn.setAttribute('aria-label', 'Меню');
+      btn.innerHTML = '<span></span><span></span><span></span>';
+      btn.addEventListener('click', () => {
+        const open = overlay.classList.toggle('open');
+        document.body.classList.toggle('m-menu-lock', open);
+        document.querySelectorAll('.m-menu-btn').forEach((b) => b.classList.toggle('open', open));
+      });
+      return btn;
+    }
+
+    const heroHeader = document.querySelector('.header .btn-group');
+    if (heroHeader) heroHeader.appendChild(makeBtn());
+    const floatNav = document.querySelector('.floating-nav .nav-btn-group');
+    if (floatNav) floatNav.appendChild(makeBtn());
+
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay || e.target.closest('.m-menu-link')) {
+        overlay.classList.remove('open');
+        document.body.classList.remove('m-menu-lock');
+        document.querySelectorAll('.m-menu-btn').forEach((b) => b.classList.remove('open'));
+        const link = e.target.closest('.m-menu-link');
+        if (link) {
+          const href = link.getAttribute('href');
+          if (href.startsWith('#')) {
+            e.preventDefault();
+            document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+      }
+    });
+  }
+
   waitForApp(() => {
+    buildMobileMenu();
     removeHomeBlogSection();
     fixBlogNavLinks();
     fixEventTags();

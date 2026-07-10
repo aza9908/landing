@@ -6,6 +6,10 @@ const bundlePath = path.join(__dirname, '../assets/index-C9VrdjED.js');
 let js = fs.readFileSync(bundlePath, 'utf8');
 
 const replacements = [
+  // Hero star mark (slim gradient glyph instead of glass square)
+  ['xs=`/star.png`', 'xs=`/star-mark.svg`'],
+  // Footer phone number
+  ['+7 777 345 34 56', '8 (707) 231-49-55'],
   // Events: visible dates (city + date column was empty / clipped)
   [
     'let d=[{name:`AI for work`,city:`г. Астана`,date:``,tag:`Скоро`,img:`/2.png`},{name:`AI for leaders`,city:`г. Астана`,date:``,tag:`Скоро`,img:`/3.png`}]',
