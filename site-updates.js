@@ -36,12 +36,13 @@
   ];
 
   function waitForApp(callback) {
+    let tries = 0;
     const check = () => {
-      const about = document.getElementById('about');
-      if (about) {
-        callback();
+      if (document.querySelector('.main-block') && document.getElementById('about')) {
+        requestAnimationFrame(() => requestAnimationFrame(callback));
         return;
       }
+      if (++tries > 300) return;
       requestAnimationFrame(check);
     };
     if (document.readyState === 'loading') {
@@ -62,6 +63,14 @@
           e.preventDefault();
           window.location.href = '/blog/';
         });
+      }
+    });
+  }
+
+  function fixEventTags() {
+    document.querySelectorAll('.events-section .tag, .events-section [class*="tag"]').forEach((el) => {
+      if (el.textContent.trim().toLowerCase() === 'скоро') {
+        el.textContent = 'Скоро';
       }
     });
   }
@@ -170,6 +179,7 @@
   waitForApp(() => {
     removeHomeBlogSection();
     fixBlogNavLinks();
+    fixEventTags();
     rebuildForWhomSection();
     rebuildTeamSection();
     bindLeadersButton();

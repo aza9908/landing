@@ -212,9 +212,16 @@ a { color: inherit; text-decoration: none; }
 
 .lp-city-wrap {
   position: relative;
+  min-height: 100%;
+}
+
+.lp-cities .lp-city-wrap {
+  display: flex;
+  flex-direction: column;
 }
 
 .lp-city {
+  display: block;
   background: #ffffff08;
   border: 1px solid #ffffff1a;
   border-radius: 18px;
@@ -224,6 +231,9 @@ a { color: inherit; text-decoration: none; }
   -webkit-backdrop-filter: blur(16px);
   transition: border-color 0.25s, background 0.25s, transform 0.25s;
   height: 100%;
+  text-decoration: none;
+  color: inherit;
+  box-sizing: border-box;
 }
 
 .lp-city:hover {
