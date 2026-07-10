@@ -575,3 +575,139 @@ a:hover { text-decoration: underline; }
   .blog-main { padding: 32px 20px 60px; }
   .article-meta { flex-direction: column; align-items: flex-start; }
 }
+
+
+/* ── v6 polish ─────────────────────────────── */
+
+/* Никаких системных подчёркиваний внутри карточек и навигации */
+.blog-post-link,
+.blog-post-link:hover,
+.back-link:hover,
+.blog-topnav a:hover,
+.blog-footer a:hover {
+  text-decoration: none;
+}
+
+.blog-post-link { display: flex; flex-direction: column; height: 100%; color: inherit; }
+.blog-post-body { display: flex; flex-direction: column; flex: 1; }
+.blog-post-footer { margin-top: auto; }
+
+/* Тематические обложки карточек — единая пропорция 16:9 */
+.blog-post-cover--card {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #101018;
+  border-bottom: 1px solid #ffffff0a;
+}
+
+.blog-post-cover--card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.blog-post-card:hover .blog-post-cover--card img {
+  transform: scale(1.03);
+}
+
+/* Автор-бейдж для статей от имени центра */
+.author-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #6c5ce0;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Подзаголовки третьего уровня в статьях */
+.article-body h3 {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 28px 0 10px;
+}
+
+.article-body strong { color: #e8e8f2; }
+
+/* CTA-блок статьи */
+.article-cta {
+  margin-top: 40px;
+  padding: 28px;
+  border: 1px solid #6c5ce044;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #6c5ce014, #6c5ce006);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.article-cta p {
+  margin: 0;
+  color: #e8e8f2;
+  font-family: 'Victor Mono', monospace;
+  font-size: 15px;
+  max-width: 420px;
+}
+
+.article-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  color: #16161a;
+  border-radius: 28px;
+  padding: 12px 22px;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+}
+
+.article-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px #6c5ce033;
+  text-decoration: none;
+}
+
+/* Фокус с клавиатуры */
+.blog-post-link:focus-visible,
+.article-cta-btn:focus-visible,
+.blog-topnav a:focus-visible,
+.back-link:focus-visible {
+  outline: 2px solid #b9a4ff;
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+/* Бережём тех, кто отключил анимации */
+@media (prefers-reduced-motion: reduce) {
+  .blog-post-card,
+  .blog-post-cover--card img,
+  .article-cta-btn {
+    transition: none !important;
+  }
+  .v-node, .p-ring, .g-cell {
+    animation: none !important;
+  }
+}
+
+/* Адаптив статьи и сетки */
+@media (max-width: 700px) {
+  .blog-grid { grid-template-columns: 1fr; }
+  .article-cta { flex-direction: column; align-items: flex-start; }
+  .blog-main { padding: 40px 20px 64px; }
+  .article-meta { flex-direction: column; align-items: flex-start; }
+}

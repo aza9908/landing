@@ -392,3 +392,149 @@ a { color: inherit; text-decoration: none; }
     padding: 32px 20px 56px;
   }
 }
+
+
+/* ── v6: program structure, symmetry, consistency ───────────── */
+
+.lp-eyebrow {
+  color: #c4b5fd;
+  font-family: 'Victor Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+/* Symmetric day/agenda cards */
+.lp-days {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 28px;
+  text-align: left;
+}
+
+.lp-day {
+  background: #ffffff08;
+  border: 1px solid #ffffff1a;
+  border-radius: 18px;
+  padding: 26px 24px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: border-color 0.25s, background 0.25s, transform 0.25s;
+}
+
+.lp-day:hover {
+  border-color: #6c5ce066;
+  background: #ffffff0d;
+  transform: translateY(-3px);
+}
+
+.lp-day-num {
+  display: inline-block;
+  color: #c4b5fd;
+  border: 1px solid #6c5ce055;
+  background: #6c5ce014;
+  border-radius: 16px;
+  padding: 4px 12px;
+  font-family: 'Victor Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.lp-day h3 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+  color: #fff;
+}
+
+.lp-day ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lp-day li {
+  position: relative;
+  padding-left: 18px;
+  color: #ffffff99;
+  font-family: 'Victor Mono', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.lp-day li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: #c4b5fd;
+}
+
+/* Three symmetric result cards */
+.lp-features--3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.lp-features--3 .lp-feature {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  padding: 22px 20px;
+}
+
+.lp-features--3 .lp-feature strong {
+  color: #fff;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Footer — same rhythm as blog and homepage */
+.lp-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 24px clamp(20px, 4vw, 48px);
+  margin: 48px auto 0;
+}
+
+/* Keyboard focus + reduced motion */
+.lp-btn-white:focus-visible,
+.lp-btn-ghost:focus-visible,
+.lp-city:focus-visible,
+.lp-nav a:focus-visible {
+  outline: 2px solid #c4b5fd;
+  outline-offset: 3px;
+  border-radius: 24px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-date-badge,
+  .lp-hero h1 .spark,
+  .lp-stamp {
+    animation: none !important;
+  }
+  .lp-city, .lp-day, .lp-btn-white { transition: none !important; }
+}
+
+@media (max-width: 768px) {
+  .lp-days { grid-template-columns: 1fr; }
+  .lp-features--3 { grid-template-columns: 1fr; }
+  .lp-footer { flex-direction: column; text-align: center; }
+}
+
+@media (min-width: 769px) and (max-width: 980px) {
+  .lp-features--3 { grid-template-columns: 1fr 1fr; }
+  .lp-features--3 .lp-feature:last-child { grid-column: 1 / -1; }
+}

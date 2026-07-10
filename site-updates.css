@@ -21,10 +21,11 @@ body {
 }
 
 .main-block[data-v-46599b1c] {
+  position: relative !important;
   width: 100% !important;
   max-width: 1440px !important;
   margin: 0 auto !important;
-  padding: 16px clamp(20px, 3vw, 40px) !important;
+  padding: 108px clamp(20px, 3vw, 40px) 16px !important;
   display: flex !important;
   flex-direction: row !important;
   justify-content: space-between !important;
@@ -38,12 +39,33 @@ body {
   width: auto !important;
   max-width: 680px !important;
   min-width: 0 !important;
-  gap: 100px !important;
+  gap: clamp(40px, 7vh, 80px) !important;
+}
+
+/* Header escapes the narrow left column: spans the full hero width,
+   so nav links and buttons never overlap */
+.reveal-wrap.reveal-header[data-v-46599b1c] {
+  position: absolute !important;
+  top: 16px !important;
+  left: clamp(20px, 3vw, 40px) !important;
+  right: clamp(20px, 3vw, 40px) !important;
+  width: auto !important;
+  z-index: 60 !important;
 }
 
 .header[data-v-46599b1c] {
   width: 100% !important;
   max-width: 100% !important;
+  flex-shrink: 0 !important;
+  gap: clamp(16px, 2vw, 32px) !important;
+}
+
+.menu[data-v-46599b1c] {
+  gap: clamp(12px, 1.6vw, 22px) !important;
+  min-width: 0 !important;
+}
+
+.btn-group[data-v-46599b1c] {
   flex-shrink: 0 !important;
 }
 
@@ -363,6 +385,49 @@ body {
   line-height: 1.55;
 }
 
+
+/* Events — flexible columns so «г. Астана» and dates are always visible */
+.events-top[data-v-e48cf165] {
+  flex-wrap: wrap !important;
+  gap: clamp(28px, 3vw, 48px) !important;
+  align-items: flex-start !important;
+}
+
+.events-text[data-v-e48cf165] {
+  width: auto !important;
+  flex: 1 1 360px !important;
+  min-width: 300px !important;
+}
+
+.events-list[data-v-e48cf165] {
+  width: auto !important;
+  flex: 1 1 520px !important;
+  min-width: 0 !important;
+  max-width: 720px !important;
+}
+
+.event-row[data-v-e48cf165] {
+  gap: 16px !important;
+}
+
+.event-name[data-v-e48cf165] {
+  width: auto !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+
+.event-info[data-v-e48cf165] {
+  flex-shrink: 0 !important;
+  gap: clamp(14px, 2vw, 32px) !important;
+}
+
+.event-city[data-v-e48cf165],
+.event-date[data-v-e48cf165] {
+  width: auto !important;
+  white-space: nowrap !important;
+  text-align: right !important;
+}
+
 /* ══════════════════════════════════════
    EVENTS & PROGRAMS
    ══════════════════════════════════════ */
@@ -512,9 +577,20 @@ body {
 }
 
 @media (max-width: 900px) {
+  .menu[data-v-46599b1c] {
+    display: none !important;
+  }
+
+  .reveal-wrap.reveal-header[data-v-46599b1c] {
+    left: 12px !important;
+    right: 12px !important;
+    top: 12px !important;
+  }
+
   .main-block[data-v-46599b1c] {
     flex-direction: column !important;
     align-items: center !important;
+    padding-top: 96px !important;
   }
 
   .left-container[data-v-46599b1c],

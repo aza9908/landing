@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-label="Прикладная ИИ-лаборатория в университете">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101018"/>
+      <stop offset="1" stop-color="#191927"/>
+    </linearGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6c5ce0" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#6c5ce0" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#b9a4ff" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#b9a4ff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg)"/>
+  <rect width="800" height="450" fill="url(#glow)"/>
+
+  <!-- grid floor -->
+  <g stroke="#ffffff" stroke-opacity="0.05">
+    <path d="M0 330 H800 M0 360 H800 M0 395 H800 M0 435 H800"/>
+    <path d="M120 300 L40 450 M260 300 L220 450 M400 300 L400 450 M540 300 L580 450 M680 300 L760 450"/>
+  </g>
+
+  <!-- university building -->
+  <g>
+    <rect x="255" y="205" width="290" height="125" fill="#1d1d2c" stroke="#3a3a55" stroke-width="1.5"/>
+    <path d="M240 205 L400 130 L560 205 Z" fill="#232338" stroke="#4a4a6e" stroke-width="1.5"/>
+    <rect x="286" y="230" width="16" height="100" fill="#101018"/>
+    <rect x="330" y="230" width="16" height="100" fill="#101018"/>
+    <rect x="374" y="230" width="16" height="100" fill="#101018"/>
+    <rect x="418" y="230" width="16" height="100" fill="#101018"/>
+    <rect x="462" y="230" width="16" height="100" fill="#101018"/>
+    <rect x="286" y="230" width="16" height="100" fill="#6c5ce0" opacity="0.25"/>
+    <rect x="374" y="230" width="16" height="100" fill="#6c5ce0" opacity="0.45"/>
+    <rect x="462" y="230" width="16" height="100" fill="#6c5ce0" opacity="0.25"/>
+    <circle cx="400" cy="172" r="10" fill="none" stroke="#b9a4ff" stroke-width="1.5"/>
+    <circle cx="400" cy="172" r="3.5" fill="#b9a4ff"/>
+  </g>
+
+  <!-- data beam from campus to the network -->
+  <rect x="392" y="60" width="16" height="72" fill="url(#beam)"/>
+
+  <!-- neural network above the campus -->
+  <g stroke="#6c5ce0" stroke-opacity="0.55" stroke-width="1.2">
+    <path d="M400 62 L250 92 M400 62 L330 40 M400 62 L470 38 M400 62 L556 88"/>
+    <path d="M250 92 L330 40 M470 38 L556 88 M330 40 L470 38"/>
+    <path d="M250 92 L150 60 M556 88 L654 58"/>
+  </g>
+  <g fill="#b9a4ff">
+    <circle cx="400" cy="62" r="7"/>
+    <circle cx="250" cy="92" r="5"/>
+    <circle cx="330" cy="40" r="5"/>
+    <circle cx="470" cy="38" r="5"/>
+    <circle cx="556" cy="88" r="5"/>
+    <circle cx="150" cy="60" r="4" opacity="0.7"/>
+    <circle cx="654" cy="58" r="4" opacity="0.7"/>
+  </g>
+
+  <!-- side data cards: студенты · датасеты · дипломы -->
+  <g font-family="'Victor Mono', ui-monospace, monospace" font-size="13" fill="#9a9ab5">
+    <g>
+      <rect x="60" y="200" width="140" height="52" rx="10" fill="#16161f" stroke="#2e2e46"/>
+      <text x="76" y="222" fill="#e8e8f2">Элективный курс</text>
+      <text x="76" y="240">в кредитной системе</text>
+    </g>
+    <g>
+      <rect x="600" y="200" width="140" height="52" rx="10" fill="#16161f" stroke="#2e2e46"/>
+      <text x="616" y="222" fill="#e8e8f2">Дипломы на данных</text>
+      <text x="616" y="240">индустрии</text>
+    </g>
+  </g>
+</svg>

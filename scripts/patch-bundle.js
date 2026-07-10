@@ -6,6 +6,11 @@ const bundlePath = path.join(__dirname, '../assets/index-C9VrdjED.js');
 let js = fs.readFileSync(bundlePath, 'utf8');
 
 const replacements = [
+  // Events: visible dates (city + date column was empty / clipped)
+  [
+    'let d=[{name:`AI for work`,city:`г. Астана`,date:``,tag:`Скоро`,img:`/2.png`},{name:`AI for leaders`,city:`г. Астана`,date:``,tag:`Скоро`,img:`/3.png`}]',
+    'let d=[{name:`AI for work`,city:`г. Астана`,date:`Осень 2026`,tag:`Скоро`,img:`/2.png`},{name:`AI for leaders`,city:`г. Астана`,date:`Осень 2026`,tag:`Скоро`,img:`/3.png`}]',
+  ],
   // Hero subtitle
   [
     'Центр прикладного ИИ. Мы готовим кадры для цифровой экономики Казахстана: обучаем команды и специалистов практическим навыкам работы с искусственным интеллектом',
