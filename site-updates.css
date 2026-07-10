@@ -1,4 +1,4 @@
-/* ── Symmetric page shell ── */
+/* ── Symmetric, adaptive page shell ── */
 html,
 body {
   overflow-x: clip;
@@ -10,32 +10,48 @@ body {
   margin: 0 auto;
 }
 
-/* Hero: balanced two-column layout */
+/* ══════════════════════════════════════
+   HERO — full-bleed, spread, proportional
+   ══════════════════════════════════════ */
 .hero-page[data-v-46599b1c] {
-  justify-content: center !important;
+  justify-content: stretch !important;
+  align-items: stretch !important;
+  width: 100% !important;
 }
 
 .main-block[data-v-46599b1c] {
-  max-width: 1360px !important;
   width: 100% !important;
+  max-width: 1600px !important;
   margin: 0 auto !important;
-  padding: 16px 32px !important;
-  justify-content: center !important;
+  padding: 20px clamp(20px, 3.5vw, 56px) 24px !important;
+  display: flex !important;
+  justify-content: space-between !important;
   align-items: stretch !important;
-  gap: 32px !important;
+  gap: clamp(28px, 3.5vw, 56px) !important;
+  box-sizing: border-box !important;
 }
 
 .left-container[data-v-46599b1c] {
-  flex: 1 1 0 !important;
+  flex: 1 1 52% !important;
   width: auto !important;
-  max-width: 640px !important;
+  max-width: none !important;
   min-width: 0 !important;
-  gap: 64px !important;
+  gap: clamp(48px, 10vh, 160px) !important;
+}
+
+.header[data-v-46599b1c] {
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
 .content[data-v-46599b1c] {
   width: 100% !important;
   max-width: 100% !important;
+}
+
+.text-content[data-v-46599b1c] {
+  width: 100% !important;
+  max-width: 36em !important;
 }
 
 .subtitle[data-v-46599b1c] {
@@ -44,37 +60,43 @@ body {
 }
 
 .image-col[data-v-46599b1c] {
-  flex: 1 1 0 !important;
+  flex: 1 1 42% !important;
   width: auto !important;
-  max-width: 560px !important;
+  max-width: 640px !important;
   min-width: 0 !important;
   display: flex !important;
-  justify-content: center !important;
+  justify-content: flex-end !important;
+  align-items: stretch !important;
 }
 
 .main-img-wrap[data-v-46599b1c] {
   width: 100% !important;
-  max-width: 560px !important;
-  height: min(82vh, 820px) !important;
+  max-width: 640px !important;
+  height: min(86vh, 900px) !important;
+  flex-shrink: 1 !important;
 }
 
-.header[data-v-46599b1c] {
-  width: 100% !important;
-}
-
-/* Floating nav centered */
+/* Floating nav stays centered */
 .floating-nav[data-v-684879b9] {
+  left: 50% !important;
+  transform: translate(-50%, -160%) !important;
   max-width: min(1142px, calc(100% - 48px)) !important;
 }
 
-/* About: 3 cards, centered */
+.floating-nav.visible[data-v-684879b9] {
+  transform: translate(-50%, 0) !important;
+}
+
+/* ══════════════════════════════════════
+   ABOUT — 3 equal cards, centered
+   ══════════════════════════════════════ */
 .about-section[data-v-3e68c2c0] {
   height: auto !important;
   min-height: 100vh;
-  max-width: 1360px !important;
+  max-width: 1600px !important;
   width: 100% !important;
   margin: 0 auto !important;
-  padding: 100px 32px 48px !important;
+  padding: 100px clamp(20px, 3.5vw, 56px) 48px !important;
   box-sizing: border-box !important;
 }
 
@@ -89,10 +111,12 @@ body {
   width: 100% !important;
 }
 
-/* Team: centered grid instead of floating cards */
+/* ══════════════════════════════════════
+   TEAM — centered symmetric grid
+   ══════════════════════════════════════ */
 .team-section[data-v-090cef5a] {
   height: auto !important;
-  max-width: 1360px !important;
+  max-width: 1600px !important;
   width: 100% !important;
   margin: 0 auto !important;
 }
@@ -104,7 +128,7 @@ body {
   flex-direction: column !important;
   align-items: center !important;
   justify-content: flex-start !important;
-  padding: 80px 32px 64px !important;
+  padding: 80px clamp(20px, 3.5vw, 56px) 64px !important;
   overflow: visible !important;
   gap: 40px !important;
 }
@@ -127,7 +151,7 @@ body {
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   width: 100%;
-  max-width: 960px;
+  max-width: 1100px;
   margin: 0 auto;
   position: relative;
   z-index: 2;
@@ -143,23 +167,20 @@ body {
   max-width: none !important;
 }
 
-/* Footer & contacts centered */
-.footer-section[data-v-7a8b3c1d],
-.footer-section,
-.contacts-section[data-v-8f2e1a0b],
-.contacts-section {
-  max-width: 1360px !important;
-  width: 100% !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  box-sizing: border-box !important;
+.team-sticky .team-card img {
+  filter: grayscale(1);
+  width: 100%;
+  object-fit: cover;
+  aspect-ratio: 3 / 4;
 }
 
-/* Page sections — prevent left drift on wide screens */
+/* ══════════════════════════════════════
+   MISSION / FOR WHOM — centered
+   ══════════════════════════════════════ */
 .mission-section[data-v-62965d40],
 .forwhom-section[data-v-4c8e2f1a],
 .forwhom-section {
-  max-width: 1360px !important;
+  max-width: 1600px !important;
   width: 100% !important;
   margin-left: auto !important;
   margin-right: auto !important;
@@ -174,11 +195,10 @@ body {
   margin: 0 auto !important;
 }
 
-/* For whom interactive */
 .forwhom-section--interactive {
   height: auto !important;
   min-height: auto !important;
-  max-width: 1360px !important;
+  max-width: 1600px !important;
   width: 100% !important;
   margin: 0 auto !important;
 }
@@ -186,7 +206,7 @@ body {
 .forwhom-section--interactive .forwhom-sticky {
   position: static !important;
   height: auto !important;
-  padding: 96px 32px 80px !important;
+  padding: 96px clamp(20px, 3.5vw, 56px) 80px !important;
   align-items: stretch !important;
   justify-content: center !important;
 }
@@ -215,52 +235,50 @@ body {
   background: transparent;
   border: none;
   border-left: 3px solid transparent;
-  padding: 14px 18px;
   text-align: left;
+  padding: 14px 18px;
   font-family: Inter Tight, sans-serif;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 500;
-  line-height: 1.15;
-  transition: color 0.25s, border-color 0.25s, background 0.25s;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+  border-radius: 0 12px 12px 0;
 }
 
-.forwhom-nav-item:hover,
+.forwhom-nav-item:hover {
+  color: #16161a;
+  background: #ffffff66;
+}
+
 .forwhom-nav-item.active {
   color: #16161a;
   border-left-color: #6c5ce0;
-  background: #ffffff80;
+  background: #fff;
 }
 
 .forwhom-panel {
   background: #fff;
-  border-radius: 20px;
-  padding: 40px 44px;
-  min-height: 320px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  border-radius: 24px;
+  padding: 40px 36px;
+  min-height: 280px;
 }
 
 .forwhom-panel-title {
-  color: #16161a;
-  margin: 0;
-  font-family: Inter Tight, sans-serif;
   font-size: 32px;
-  font-weight: 500;
-  line-height: 1.15;
+  font-weight: 600;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
 }
 
 .forwhom-panel-desc {
   color: #79798e;
-  margin: 0;
   font-family: Victor Mono, monospace;
-  font-size: 17px;
+  font-size: 15px;
   line-height: 1.55;
+  margin: 0 0 24px;
 }
 
 .forwhom-panel-btn {
   cursor: pointer;
-  align-self: flex-start;
   color: #fff;
   background: #16161a;
   border: none;
@@ -298,34 +316,65 @@ body {
   line-height: 1.55;
 }
 
-/* Events & programs centered */
-.events-section[data-v-e48cf165],
-.program-section[data-v-e197a197] {
-  max-width: 1360px !important;
+/* ══════════════════════════════════════
+   EVENTS — full-width symmetric grid
+   ══════════════════════════════════════ */
+.events-section[data-v-e48cf165] {
   width: 100% !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 64px clamp(20px, 3.5vw, 56px) 112px !important;
   box-sizing: border-box !important;
 }
 
 .events-content[data-v-e48cf165] {
-  max-width: 100% !important;
+  max-width: 1400px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
 }
 
 .past-grid[data-v-e48cf165] {
   display: grid !important;
-  grid-template-columns: repeat(3, 1fr) !important;
-  gap: 24px !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 28px !important;
   width: 100% !important;
 }
 
 .past-card[data-v-e48cf165] {
   width: 100% !important;
+  flex-shrink: 1 !important;
 }
 
+.past-img[data-v-e48cf165] {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 4 / 3 !important;
+  object-fit: cover !important;
+}
+
+/* ══════════════════════════════════════
+   PROGRAMS — equal two-column cards
+   ══════════════════════════════════════ */
+.program-section[data-v-e197a197] {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 100px clamp(20px, 3.5vw, 56px) 110px !important;
+  box-sizing: border-box !important;
+}
+
+.program-head[data-v-e197a197] {
+  max-width: 1400px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.program-cards[data-v-e197a197],
 .program-cards {
   grid-template-columns: 1fr 1fr !important;
-  max-width: 100% !important;
+  max-width: 1400px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
 }
 
 .pcard-leaders {
@@ -350,6 +399,16 @@ body {
   background: #fff !important;
 }
 
+/* Footer / contacts */
+.footer-section,
+.contacts-section {
+  max-width: 1600px !important;
+  width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  box-sizing: border-box !important;
+}
+
 /* Text visibility */
 .team-subtitle,
 .forwhom-panel-desc,
@@ -371,10 +430,20 @@ body {
   line-height: 1.35;
 }
 
-/* Laptop / tablet */
-@media (max-width: 1200px) {
+/* ── Laptop ── */
+@media (max-width: 1280px) {
   .main-block[data-v-46599b1c] {
-    padding: 16px 24px !important;
+    padding: 16px 28px !important;
+    gap: 24px !important;
+  }
+
+  .image-col[data-v-46599b1c],
+  .main-img-wrap[data-v-46599b1c] {
+    max-width: 520px !important;
+  }
+
+  .main-img-wrap[data-v-46599b1c] {
+    height: min(78vh, 760px) !important;
   }
 
   .cards-row[data-v-3e68c2c0],
@@ -389,20 +458,35 @@ body {
   .team-cards-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+}
 
+@media (max-width: 1024px) {
   .past-grid[data-v-e48cf165] {
     grid-template-columns: 1fr !important;
+    max-width: 560px !important;
+    margin: 0 auto !important;
   }
 }
 
 @media (max-width: 900px) {
   .main-block[data-v-46599b1c] {
     flex-direction: column !important;
+    align-items: center !important;
   }
 
   .left-container[data-v-46599b1c],
   .image-col[data-v-46599b1c] {
     max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .image-col[data-v-46599b1c] {
+    justify-content: center !important;
+  }
+
+  .main-img-wrap[data-v-46599b1c] {
+    max-width: 100% !important;
+    height: min(70vh, 640px) !important;
   }
 
   .forwhom-interactive {
@@ -422,6 +506,7 @@ body {
     border-left: none;
     border-bottom: 3px solid transparent;
     padding: 10px 14px;
+    border-radius: 12px;
   }
 
   .forwhom-nav-item.active {
@@ -435,23 +520,21 @@ body {
 
   .team-cards-grid {
     grid-template-columns: 1fr;
+    max-width: 360px;
   }
 
+  .program-cards[data-v-e197a197],
   .program-cards {
     grid-template-columns: 1fr !important;
   }
 }
 
-@media (max-width: 768px) {
-  .about-section[data-v-3e68c2c0] {
-    padding: 72px 16px 32px !important;
+@media (max-width: 600px) {
+  .main-block[data-v-46599b1c] {
+    padding: 12px 16px !important;
   }
 
-  .team-sticky[data-v-090cef5a] {
-    padding: 64px 16px 48px !important;
-  }
-
-  .forwhom-section--interactive .forwhom-sticky {
-    padding: 48px 16px 32px !important;
+  .left-container[data-v-46599b1c] {
+    gap: 40px !important;
   }
 }
