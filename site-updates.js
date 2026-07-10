@@ -35,36 +35,6 @@
     },
   ];
 
-  const BLOG_POSTS = [
-    {
-      href: '/blog/ai-food-service.html',
-      img: '/event-almaty-entrepreneurs.jpg',
-      tags: ['Кейс', 'Общепит', 'AI'],
-      title: 'ИИ в общепите: от заказов до аналитики',
-      desc: 'Как ORDA Platform помогает ресторанам и кофейням автоматизировать операции, склад и аналитику продаж с помощью искусственного интеллекта.',
-      author: 'Azamat Armanuly',
-      date: '10 июл. 2026',
-    },
-    {
-      href: '/blog/',
-      img: '/event-astana-business-club.jpg',
-      tags: ['AI', 'Бизнес'],
-      title: 'Уровни внедрения ИИ в бизнес',
-      desc: 'От автоматизации рутины до автономного принятия решений — разбираем пять уровней зрелости ИИ в компаниях Казахстана.',
-      author: 'AI Research Lab',
-      date: '2025',
-    },
-    {
-      href: '/blog/',
-      img: '/event-almaty-women-business.jpg',
-      tags: ['Воркшоп', 'Предприниматели'],
-      title: 'One pizza-team: ИИ и масштабирование команд',
-      desc: 'Почему «two-pizza teams» Безоса уже излишне большие — и как предприниматели применяют ИИ для lean-команд.',
-      author: 'AI Research Lab',
-      date: '2025',
-    },
-  ];
-
   function waitForApp(callback) {
     const check = () => {
       const about = document.getElementById('about');
@@ -81,44 +51,19 @@
     }
   }
 
-  function injectBlogSection() {
-    if (document.getElementById('blog')) return;
+  function removeHomeBlogSection() {
+    document.getElementById('blog')?.remove();
+  }
 
-    const about = document.getElementById('about');
-    if (!about) return;
-
-    const section = document.createElement('section');
-    section.id = 'blog';
-    section.className = 'blog-section';
-    section.innerHTML = `
-      <div class="blog-inner">
-        <div class="blog-header">
-          <span class="blog-eyebrow">Our blog</span>
-          <h2 class="blog-title">Блог</h2>
-          <p class="blog-subtitle">Статьи, аналитика и кейсы о применении искусственного интеллекта в бизнесе и образовании</p>
-        </div>
-        <div class="blog-grid">
-          ${BLOG_POSTS.map(
-            (post) => `
-            <a class="blog-card" href="${post.href}" target="_blank" rel="noopener">
-              <img class="blog-card-img" src="${post.img}" alt="" loading="lazy" />
-              <div class="blog-card-body">
-                <div class="blog-card-tags">${post.tags.map((t) => `<span class="blog-tag">${t}</span>`).join('')}</div>
-                <h3 class="blog-card-title">${post.title}</h3>
-                <p class="blog-card-desc">${post.desc}</p>
-                <div class="blog-card-meta">
-                  <span class="blog-card-author">${post.author}</span>
-                  <span class="blog-card-date">${post.date}</span>
-                </div>
-              </div>
-            </a>`
-          ).join('')}
-        </div>
-        <a class="blog-all-link" href="/blog/" target="_blank" rel="noopener">Все статьи →</a>
-      </div>
-    `;
-
-    about.parentNode.insertBefore(section, about.nextSibling);
+  function fixBlogNavLinks() {
+    document.querySelectorAll('a[href="/blog/"], .menu a, .nav-menu a').forEach((link) => {
+      if (link.textContent.trim() === 'Блог') {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          window.location.href = '/blog/';
+        });
+      }
+    });
   }
 
   function rebuildForWhomSection() {
@@ -187,6 +132,27 @@
     renderPanel(0);
   }
 
+  function rebuildTeamSection() {
+    const sticky = document.querySelector('.team-sticky');
+    if (!sticky || sticky.dataset.gridLayout === 'true') return;
+
+    const cards = [...sticky.querySelectorAll('.team-card')];
+    if (!cards.length) return;
+
+    let grid = sticky.querySelector('.team-cards-grid');
+    if (!grid) {
+      grid = document.createElement('div');
+      grid.className = 'team-cards-grid';
+      cards.forEach((card) => {
+        card.style.cssText = 'position:relative;left:auto;top:auto;transform:none;opacity:1;';
+        grid.appendChild(card);
+      });
+      sticky.appendChild(grid);
+    }
+
+    sticky.dataset.gridLayout = 'true';
+  }
+
   function bindLeadersButton() {
     document.addEventListener(
       'click',
@@ -201,34 +167,12 @@
     );
   }
 
-  function fixTeamLayoutMobile() {
-    const sticky = document.querySelector('.team-sticky');
-    if (!sticky || sticky.dataset.layoutFixed === 'true') return;
-
-    const cards = [...sticky.querySelectorAll('.team-card')];
-    if (!cards.length) return;
-
-    if (window.innerWidth <= 1024) {
-      let grid = sticky.querySelector('.team-cards-grid');
-      if (!grid) {
-        grid = document.createElement('div');
-        grid.className = 'team-cards-grid';
-        cards.forEach((card) => grid.appendChild(card));
-        sticky.appendChild(grid);
-      }
-      sticky.dataset.layoutFixed = 'true';
-    }
-  }
-
-  function bindResponsiveFixes() {
-    fixTeamLayoutMobile();
-    window.addEventListener('resize', fixTeamLayoutMobile, { passive: true });
-  }
-
   waitForApp(() => {
-    injectBlogSection();
+    removeHomeBlogSection();
+    fixBlogNavLinks();
     rebuildForWhomSection();
+    rebuildTeamSection();
     bindLeadersButton();
-    bindResponsiveFixes();
+    window.addEventListener('resize', rebuildTeamSection, { passive: true });
   });
 })();

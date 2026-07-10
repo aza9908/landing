@@ -186,9 +186,13 @@
     font-size: 15px !important;
   }
 
-  /* ---------- About 2 cards ---------- */
+  /* ---------- About 3 cards ---------- */
   .about-section .cards-row {
     grid-template-columns: 1fr !important;
+  }
+
+  .cards-row .card {
+    height: 420px !important;
   }
 
   /* ---------- Research cycle (removed) ---------- */
