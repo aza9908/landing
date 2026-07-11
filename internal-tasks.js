@@ -37,6 +37,10 @@
     '.tk-act{display:flex;gap:6px;margin-top:10px}',
     '.tk-btn{flex:1;background:transparent;border:1px solid #ffffff22;border-radius:8px;color:#c9c9dd;font-family:"Victor Mono",monospace;font-size:10.5px;padding:6px 4px;cursor:pointer}',
     '.tk-btn:hover{border-color:#8f7bf0;color:#fff}',
+    '.tk-panel *{touch-action:manipulation}',
+    '.tk-inp,.tk-sel{font-size:16px}',
+    '.tk-deadline-edit{background:transparent;border:none;color:inherit;font:inherit;padding:0;width:auto}',
+    '.tk-chip--click{cursor:pointer;text-decoration:underline dotted}',
     '.tk-btn--del{flex:0 0 34px;color:#ff9aa8}',
     '.tk-empty{color:#55556a;font-family:"Victor Mono",monospace;font-size:11px;text-align:center;padding:14px 4px}',
     '.tk-badge{display:inline-block;font-size:10px;color:#8a8aa5;font-family:"Victor Mono",monospace;margin-left:8px}',
@@ -78,12 +82,30 @@
         card.appendChild(el('p', 'tk-card-t', t.title));
         var meta = el('div', 'tk-meta');
         meta.appendChild(el('span', 'tk-chip tk-chip--p', t.assignee || '—'));
-        if (t.deadline) {
-          meta.appendChild(
-            el('span', 'tk-chip' + (isLate(t) ? ' tk-chip--late' : ''),
-              '⏰ ' + fmtDate(t.deadline) + (isLate(t) ? ' · просрочено' : ''))
-          );
-        }
+        var dl = el('span',
+          'tk-chip tk-chip--click' + (isLate(t) ? ' tk-chip--late' : ''),
+          t.deadline
+            ? '⏰ ' + fmtDate(t.deadline) + (isLate(t) ? ' · просрочено' : '')
+            : '⏰ дедлайн');
+        dl.title = 'Нажмите, чтобы изменить дедлайн';
+        dl.addEventListener('click', function () {
+          var d = el('input', 'tk-inp');
+          d.type = 'date';
+          d.value = t.deadline || '';
+          d.style.cssText = 'width:150px;padding:6px 8px;font-size:16px';
+          dl.replaceWith(d);
+          d.focus();
+          if (d.showPicker) { try { d.showPicker(); } catch (e) {} }
+          function commit() {
+            t.deadline = d.value || '';
+            render();
+            window.AIRL_tasks.save(t);
+            if (d.value) notify('⏰ «' + t.title + '» — новый дедлайн ' + fmtDate(d.value));
+          }
+          d.addEventListener('change', commit);
+          d.addEventListener('blur', commit);
+        });
+        meta.appendChild(dl);
         card.appendChild(meta);
         var act = el('div', 'tk-act');
         STATUSES.forEach(function (s2) {
@@ -91,7 +113,8 @@
           var b = el('button', 'tk-btn', '→ ' + s2.label);
           b.addEventListener('click', function () {
             t.status = s2.id;
-            window.AIRL_tasks.save(t).then(load);
+            render();
+            window.AIRL_tasks.save(t);
             notify('📋 «' + t.title + '» (' + t.assignee + ') → ' + s2.label);
           });
           act.appendChild(b);
@@ -99,7 +122,9 @@
         var del = el('button', 'tk-btn tk-btn--del', '✕');
         del.addEventListener('click', function () {
           if (!confirm('Удалить задачу «' + t.title + '»?')) return;
-          window.AIRL_tasks.remove(t.id).then(load);
+          tasks = tasks.filter(function (x) { return x.id !== t.id; });
+          render();
+          window.AIRL_tasks.remove(t.id);
           notify('🗑 Задача удалена: «' + t.title + '»');
         });
         act.appendChild(del);
@@ -158,11 +183,13 @@
         status: 'todo',
         createdAt: new Date().toISOString(),
       };
-      window.AIRL_tasks.save(t).then(function () {
-        inp.value = '';
-        date.value = '';
-        load();
-      });
+      t.id = 'tmp' + Date.now();
+      tasks.unshift(t);
+      render();
+      inp.value = '';
+      date.value = '';
+      window.AIRL_tasks.save(Object.assign({}, t, { id: t.id.indexOf('tmp') === 0 ? undefined : t.id }))
+        .then(function (id) { if (id) t.id = id; });
       notify('🆕 Новая задача: «' + title + '» — ' + selP.value +
         (date.value ? ', дедлайн ' + fmtDate(date.value) : ''));
     });

@@ -245,8 +245,34 @@
     });
   }
 
+  function placeHeroStar() {
+    const h1 = document.querySelector('.main-title h1');
+    const icon = document.querySelector('.gemini-icon');
+    if (!h1 || !icon) return;
+
+    const cs = getComputedStyle(h1);
+    const canvas = placeHeroStar._c || (placeHeroStar._c = document.createElement('canvas'));
+    const ctx = canvas.getContext('2d');
+    ctx.font = `${cs.fontWeight} ${cs.fontSize}/${cs.lineHeight} ${cs.fontFamily}`;
+    const ls = parseFloat(cs.letterSpacing) || 0;
+
+    const measure = (s) => ctx.measureText(s).width + ls * s.length;
+    const wAI = measure('AI');
+    const gap = measure('AI\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0') - wAI;
+    const size = Math.min(gap * 0.92, parseFloat(cs.fontSize) * 1.05);
+
+    icon.style.setProperty('width', size + 'px', 'important');
+    icon.style.setProperty('height', size + 'px', 'important');
+    icon.style.setProperty('left', (wAI + (gap - size) / 2) + 'px', 'important');
+    icon.style.setProperty('top', (parseFloat(cs.fontSize) * 0.02) + 'px', 'important');
+  }
+
   waitForApp(() => {
     buildMobileMenu();
+    placeHeroStar();
+    window.addEventListener('resize', placeHeroStar);
+    setTimeout(placeHeroStar, 600);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeHeroStar);
     removeHomeBlogSection();
     fixBlogNavLinks();
     fixEventTags();
