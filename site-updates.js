@@ -202,6 +202,10 @@
       links
         .map(([t, h]) => `<a href="${h}" class="m-menu-link">${t}</a>`)
         .join('') +
+      '<div class="m-menu-cta">' +
+      '<a href="#events" class="m-cta-primary m-menu-link-cta">Начать обучение</a>' +
+      '<a href="#contacts" class="m-cta-secondary m-menu-link-cta">Контакты ↗</a>' +
+      '</div>' +
       '</nav>';
     document.body.appendChild(overlay);
 
@@ -225,11 +229,11 @@
     if (floatNav) floatNav.appendChild(makeBtn());
 
     overlay.addEventListener('click', (e) => {
-      if (e.target === overlay || e.target.closest('.m-menu-link')) {
+      if (e.target === overlay || e.target.closest('.m-menu-link, .m-menu-link-cta')) {
         overlay.classList.remove('open');
         document.body.classList.remove('m-menu-lock');
         document.querySelectorAll('.m-menu-btn').forEach((b) => b.classList.remove('open'));
-        const link = e.target.closest('.m-menu-link');
+        const link = e.target.closest('.m-menu-link, .m-menu-link-cta');
         if (link) {
           const href = link.getAttribute('href');
           if (href.startsWith('#')) {

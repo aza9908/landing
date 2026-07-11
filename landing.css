@@ -622,3 +622,18 @@ a { color: inherit; text-decoration: none; }
 
   .lp-partners { margin-top: 40px; }
 }
+
+
+/* ── v8: real Figma backdrop ── */
+.lp-bg {
+  background:
+    radial-gradient(circle at 50% 42%, transparent 0%, #03030655 60%, #030306 100%),
+    url('/lp-hero-bg.png') center top / cover no-repeat,
+    #030306;
+}
+
+.lp-bg canvas { opacity: 0.35; }
+
+.lp-bg::after {
+  background: linear-gradient(180deg, #03030600 55%, #030306 100%);
+}

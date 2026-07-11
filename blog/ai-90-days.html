@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Victor+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/blog/blog.css?v=7" />
+    <link rel="stylesheet" href="/blog/blog.css?v=8" />
   </head>
   <body>
     <div class="blog-shell">
@@ -23,6 +23,7 @@
           <a href="/blog/" class="active">Блог</a>
           <a href="/#contacts">Контакты</a>
         </nav>
+        <button type="button" class="theme-toggle" id="themeToggle" aria-label="Переключить тему">☀️</button>
       </header>
 
       <main class="blog-main article-main">
@@ -127,5 +128,26 @@
         <span>© 2026 AI Research Lab</span>
       </footer>
     </div>
+  
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var KEY = 'airl-blog-theme';
+        function apply(t) {
+          root.setAttribute('data-theme', t);
+          var b = document.getElementById('themeToggle');
+          if (b) b.textContent = t === 'light' ? '🌙' : '☀️';
+        }
+        apply(localStorage.getItem(KEY) || 'dark');
+        document.addEventListener('DOMContentLoaded', function () {
+          apply(localStorage.getItem(KEY) || 'dark');
+          document.getElementById('themeToggle').addEventListener('click', function () {
+            var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            localStorage.setItem(KEY, next);
+            apply(next);
+          });
+        });
+      })();
+    </script>
   </body>
 </html>

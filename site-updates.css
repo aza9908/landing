@@ -647,6 +647,26 @@ body {
     top: 12px !important;
   }
 
+  /* Single-line mobile header: logo + burger only.
+     Text buttons wrapped to a 2nd line and pushed the menu over the title */
+  .header[data-v-46599b1c] {
+    flex-wrap: nowrap !important;
+    padding: 10px 12px !important;
+    gap: 10px !important;
+  }
+
+  .header .btn-group .btn-outline,
+  .header .btn-group .btn-filled,
+  .btn-group[data-v-46599b1c] .btn-outline[data-v-46599b1c],
+  .btn-group[data-v-46599b1c] .btn-filled[data-v-46599b1c] {
+    display: none !important;
+  }
+
+  .floating-nav .nav-btn-group .nav-btn-outline,
+  .floating-nav .nav-btn-group .nav-btn-filled {
+    display: none !important;
+  }
+
   .main-block[data-v-46599b1c] {
     flex-direction: column !important;
     align-items: center !important;
@@ -878,4 +898,73 @@ body.m-menu-lock { overflow: hidden; }
     left: 42px !important;
     top: 2px !important;
   }
+}
+
+
+/* ══════════════════════════════════════
+   v8 — spacing, team density
+   ══════════════════════════════════════ */
+
+/* CTA before footer: was clip-path-hidden -> rendered as a giant blank gap */
+.cta-block[data-v-9b297995] {
+  clip-path: none !important;
+  padding: 72px 32px !important;
+}
+
+.program-section[data-v-e197a197] {
+  padding-top: 88px !important;
+  padding-bottom: 64px !important;
+}
+
+/* Team: denser, larger cards — no emptiness */
+.team-layout {
+  grid-template-columns: 1fr minmax(280px, 400px) 1fr !important;
+  gap: clamp(16px, 2.2vw, 36px) !important;
+}
+
+.team-side { gap: 14px !important; }
+
+.team-sticky .team-card {
+  max-width: 264px !important;
+}
+
+.team-side--left .team-card:nth-child(1) { transform: translateX(-20px); }
+.team-side--left .team-card:nth-child(3) { transform: translateX(-12px); }
+.team-side--right .team-card:nth-child(1) { transform: translateX(20px); }
+.team-side--right .team-card:nth-child(3) { transform: translateX(12px); }
+
+.team-sticky .team-card-name { font-size: 15px !important; }
+.team-sticky .team-card-role { font-size: 11.5px !important; }
+
+
+/* Mobile overlay: primary actions restored inside the menu */
+.m-menu-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+  width: min(320px, 100%);
+}
+
+.m-menu-cta a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
+  border-radius: 28px;
+  font-family: Inter Tight, sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.m-menu-cta .m-cta-primary {
+  background: #fff;
+  color: #16161a;
+}
+
+.m-menu-cta .m-cta-secondary {
+  border: 1px solid #ffffff55;
+  color: #fff;
 }

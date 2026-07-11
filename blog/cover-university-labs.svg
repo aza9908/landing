@@ -58,16 +58,16 @@
   </g>
 
   <!-- side data cards: студенты · датасеты · дипломы -->
-  <g font-family="'Victor Mono', ui-monospace, monospace" font-size="13" fill="#9a9ab5">
+  <g font-family="'Victor Mono', ui-monospace, monospace" font-size="12" fill="#9a9ab5">
     <g>
-      <rect x="60" y="200" width="140" height="52" rx="10" fill="#16161f" stroke="#2e2e46"/>
-      <text x="76" y="222" fill="#e8e8f2">Элективный курс</text>
-      <text x="76" y="240">в кредитной системе</text>
+      <rect x="28" y="196" width="196" height="60" rx="12" fill="#16161f" stroke="#2e2e46"/>
+      <text x="44" y="221" fill="#e8e8f2">Элективный курс</text>
+      <text x="44" y="241">в кредитной системе</text>
     </g>
     <g>
-      <rect x="600" y="200" width="140" height="52" rx="10" fill="#16161f" stroke="#2e2e46"/>
-      <text x="616" y="222" fill="#e8e8f2">Дипломы на данных</text>
-      <text x="616" y="240">индустрии</text>
+      <rect x="576" y="196" width="196" height="60" rx="12" fill="#16161f" stroke="#2e2e46"/>
+      <text x="592" y="221" fill="#e8e8f2">Дипломы на данных</text>
+      <text x="592" y="241">индустрии</text>
     </g>
   </g>
 </svg>

@@ -13,7 +13,7 @@ const replacements = [
   // Events: visible dates (city + date column was empty / clipped)
   [
     'let d=[{name:`AI for work`,city:`г. Астана`,date:``,tag:`Скоро`,img:`/2.png`},{name:`AI for leaders`,city:`г. Астана`,date:``,tag:`Скоро`,img:`/3.png`}]',
-    'let d=[{name:`AI for work`,city:`г. Астана`,date:`Осень 2026`,tag:`Скоро`,img:`/2.png`},{name:`AI for leaders`,city:`г. Астана`,date:`Осень 2026`,tag:`Скоро`,img:`/3.png`}]',
+    'let d=[{name:`AI for work`,city:`г. Астана`,date:``,tag:`Скоро`,img:`/2.png`},{name:`AI for leaders`,city:`г. Астана`,date:``,tag:`Скоро`,img:`/3.png`}]',
   ],
   // Hero subtitle
   [
