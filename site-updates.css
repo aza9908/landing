@@ -916,22 +916,24 @@ body.m-menu-lock { overflow: hidden; }
   padding-bottom: 64px !important;
 }
 
-/* Team: denser, larger cards — no emptiness */
-.team-layout {
-  grid-template-columns: 1fr minmax(280px, 400px) 1fr !important;
-  gap: clamp(16px, 2.2vw, 36px) !important;
+/* Team: denser, larger cards — desktop only */
+@media (min-width: 1025px) {
+  .team-layout {
+    grid-template-columns: 1fr minmax(280px, 400px) 1fr !important;
+    gap: clamp(16px, 2.2vw, 36px) !important;
+  }
+
+  .team-side { gap: 14px !important; }
+
+  .team-sticky .team-card {
+    max-width: 264px !important;
+  }
+
+  .team-side--left .team-card:nth-child(1) { transform: translateX(-20px); }
+  .team-side--left .team-card:nth-child(3) { transform: translateX(-12px); }
+  .team-side--right .team-card:nth-child(1) { transform: translateX(20px); }
+  .team-side--right .team-card:nth-child(3) { transform: translateX(12px); }
 }
-
-.team-side { gap: 14px !important; }
-
-.team-sticky .team-card {
-  max-width: 264px !important;
-}
-
-.team-side--left .team-card:nth-child(1) { transform: translateX(-20px); }
-.team-side--left .team-card:nth-child(3) { transform: translateX(-12px); }
-.team-side--right .team-card:nth-child(1) { transform: translateX(20px); }
-.team-side--right .team-card:nth-child(3) { transform: translateX(12px); }
 
 .team-sticky .team-card-name { font-size: 15px !important; }
 .team-sticky .team-card-role { font-size: 11.5px !important; }
@@ -967,4 +969,45 @@ body.m-menu-lock { overflow: hidden; }
 .m-menu-cta .m-cta-secondary {
   border: 1px solid #ffffff55;
   color: #fff;
+}
+
+
+/* Mobile team: full-width text, clean 2-col photo grid */
+@media (max-width: 1024px) {
+  .team-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 28px !important;
+  }
+
+  .team-layout .team-text {
+    order: -1 !important;
+    width: 100% !important;
+    max-width: 560px !important;
+    margin: 0 auto !important;
+  }
+
+  .team-side {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+    width: 100% !important;
+    max-width: 560px !important;
+    margin: 0 auto !important;
+  }
+
+  .team-side .team-card {
+    max-width: none !important;
+    width: 100% !important;
+    transform: none !important;
+  }
+}
+
+/* Azamat's photo — circular, by request */
+.team-card img[src*="azamat"] {
+  border-radius: 50% !important;
+  aspect-ratio: 1 / 1 !important;
+  object-fit: cover !important;
+  padding: 10px;
+  box-sizing: border-box;
 }
