@@ -844,3 +844,9 @@ body[data-theme='light'] {
 [data-theme='light'] .blog-footer { border-color: #00000012; color: #7a7a8e; }
 [data-theme='light'] .blog-footer a { color: #4a4a5e; }
 [data-theme='light'] .lead { color: #2a2a3a; }
+
+
+/* v10: day-mode fixes for actual hero classes */
+[data-theme='light'] .blog-page-title { color: #16161a; }
+[data-theme='light'] .blog-page-sub { color: #4a4a5e; }
+[data-theme='light'] .blog-page-eyebrow { color: #5646c8; }

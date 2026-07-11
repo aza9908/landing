@@ -666,3 +666,100 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 768px) {
   .lp-btn-back { padding: 9px 16px; font-size: 14px; }
 }
+
+
+/* ── v10: day theme for program pages ── */
+.lp-theme-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #ffffff33;
+  background: transparent;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.lp-theme-toggle:hover { background: #ffffff14; }
+
+[data-theme='light'] .lp-page { background: #eef0f6; color: #1c1c26; }
+[data-theme='light'] .lp-bg {
+  background:
+    radial-gradient(ellipse 50% 40% at 50% 28%, #c9c2f055 0%, transparent 70%),
+    radial-gradient(ellipse 40% 32% at 62% 42%, #8f7bf022 0%, transparent 70%),
+    #eef0f6;
+}
+[data-theme='light'] .lp-bg canvas { opacity: 0.12; }
+[data-theme='light'] .lp-bg::after {
+  background: linear-gradient(180deg, transparent 55%, #eef0f6 100%);
+}
+[data-theme='light'] .lp-header { background: #ffffffd9; border-color: #00000012; }
+[data-theme='light'] .lp-nav a,
+[data-theme='light'] .lp-logo-text { color: #1c1c26; }
+[data-theme='light'] .lp-btn-back { color: #1c1c26; background: #00000008; border-color: #00000022; }
+[data-theme='light'] .lp-btn-white { background: #16161a; color: #fff; }
+[data-theme='light'] .lp-theme-toggle { color: #1c1c26; border-color: #00000022; }
+[data-theme='light'] .lp-hero h1,
+[data-theme='light'] .lp-section h2,
+[data-theme='light'] .lp-day h3,
+[data-theme='light'] .lp-features--3 .lp-feature strong { color: #16161a; }
+[data-theme='light'] .lp-hero p,
+[data-theme='light'] .lp-section > p,
+[data-theme='light'] .lp-day li,
+[data-theme='light'] .lp-feature { color: #4a4a5e; }
+[data-theme='light'] .lp-city,
+[data-theme='light'] .lp-day,
+[data-theme='light'] .lp-feature {
+  background: #ffffff;
+  border-color: #00000014;
+}
+[data-theme='light'] .lp-city-name { background: #00000006; border-color: #00000010; color: #16161a; }
+[data-theme='light'] .lp-city-tag { color: #4a4a5e; border-color: #00000022; }
+[data-theme='light'] .lp-date-badge { color: #5646c8; border-color: #6c5ce055; background: #6c5ce012; }
+[data-theme='light'] .lp-eyebrow,
+[data-theme='light'] .lp-day-num { color: #5646c8; }
+[data-theme='light'] .lp-footer,
+[data-theme='light'] .lp-footer a { color: #4a4a5e; }
+
+/* Mission section: stats fill (v10) */
+.mission-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  max-width: 720px;
+  margin: 48px 0 0;
+}
+
+.mission-stat {
+  border: 1px solid #16161a1f;
+  border-radius: 16px;
+  padding: 22px 20px;
+  background: #ffffff66;
+}
+
+.mission-stat b {
+  display: block;
+  color: #16161a;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 40px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.mission-stat span {
+  color: #55556a;
+  font-family: 'Victor Mono', monospace;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .mission-stats { grid-template-columns: 1fr; gap: 10px; margin-top: 32px; }
+  .mission-stat b { font-size: 32px; }
+}

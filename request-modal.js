@@ -132,6 +132,16 @@
       'Заявка с сайта AI Research Lab' + ctx + '\n' +
       'Имя: ' + name + ' ' + surname + '\n' +
       'Телефон: ' + phone;
+    if (window.AIRL_saveRequest) {
+      window.AIRL_saveRequest({
+        name: name,
+        surname: surname,
+        phone: phone,
+        page: overlay.dataset.context || '',
+        url: location.href,
+      });
+    }
+    if (window.AIRL_notifyTelegram) window.AIRL_notifyTelegram('🔔 ' + text);
     window.open(
       'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(text),
       '_blank'

@@ -245,8 +245,21 @@
     });
   }
 
+  function fillMissionSection() {
+    const content = document.querySelector('.mission-content');
+    if (!content || content.querySelector('.mission-stats')) return;
+    const stats = document.createElement('div');
+    stats.className = 'mission-stats';
+    stats.innerHTML =
+      '<div class="mission-stat"><b>2</b><span>флагманские программы</span></div>' +
+      '<div class="mission-stat"><b>6</b><span>экспертов-практиков</span></div>' +
+      '<div class="mission-stat"><b>2</b><span>города — Алматы и Астана</span></div>';
+    content.appendChild(stats);
+  }
+
   waitForApp(() => {
     buildMobileMenu();
+    fillMissionSection();
     removeHomeBlogSection();
     fixBlogNavLinks();
     fixEventTags();

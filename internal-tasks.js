@@ -1,0 +1,239 @@
+/* AI Research Lab — внутренние задачи (мини-Trello).
+   Открывается из меню («Задачи»). Три колонки статусов, исполнители
+   Азамат / Куаныш / Жанибек, дедлайны с подсветкой просрочки.
+   Хранение: Firestore (если настроен firebase-bridge), иначе localStorage.
+   Обновления уходят в Telegram-канал, когда он будет подключён. */
+(function () {
+  'use strict';
+
+  var PEOPLE = ['Азамат', 'Куаныш', 'Жанибек'];
+  var STATUSES = [
+    { id: 'todo', label: 'Сделать' },
+    { id: 'doing', label: 'В работе' },
+    { id: 'done', label: 'Готово' },
+  ];
+
+  var CSS = [
+    '.tk-overlay{position:fixed;inset:0;z-index:1100;background:#0a0a10d9;backdrop-filter:blur(12px);display:none;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto}',
+    '.tk-overlay.open{display:flex}',
+    '.tk-panel{background:#14141c;border:1px solid #ffffff1f;border-radius:20px;width:min(1080px,100%);padding:24px;margin:auto 0}',
+    '.tk-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap}',
+    '.tk-title{color:#fff;font-family:"Inter Tight",sans-serif;font-size:22px;font-weight:600;margin:0}',
+    '.tk-hint{color:#8a8aa5;font-family:"Victor Mono",monospace;font-size:11px;margin:4px 0 0}',
+    '.tk-close{width:34px;height:34px;border-radius:50%;border:1px solid #ffffff22;background:transparent;color:#fff;cursor:pointer;font-size:14px}',
+    '.tk-new{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;margin-bottom:20px}',
+    '.tk-inp,.tk-sel{background:#0f0f16;border:1px solid #ffffff1f;border-radius:10px;color:#fff;font-family:"Inter Tight",sans-serif;font-size:14px;padding:11px 12px;outline:none;width:100%;box-sizing:border-box}',
+    '.tk-inp:focus,.tk-sel:focus{border-color:#8f7bf0}',
+    '.tk-add{background:#6c5ce0;color:#fff;border:none;border-radius:10px;padding:11px 18px;font-family:"Inter Tight",sans-serif;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}',
+    '.tk-board{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}',
+    '.tk-col{background:#0f0f16;border:1px solid #ffffff12;border-radius:14px;padding:12px;min-height:120px}',
+    '.tk-col-h{color:#b9a4ff;font-family:"Victor Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin:2px 4px 10px;display:flex;justify-content:space-between}',
+    '.tk-card{background:#191924;border:1px solid #ffffff14;border-radius:12px;padding:12px;margin-bottom:8px}',
+    '.tk-card-t{color:#fff;font-family:"Inter Tight",sans-serif;font-size:14px;font-weight:500;margin:0 0 8px;line-height:1.35}',
+    '.tk-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}',
+    '.tk-chip{font-family:"Victor Mono",monospace;font-size:10.5px;padding:3px 9px;border-radius:12px;border:1px solid #ffffff1f;color:#c9c9dd}',
+    '.tk-chip--p{background:#6c5ce01f;border-color:#6c5ce055;color:#c4b5fd}',
+    '.tk-chip--late{background:#e0455c22;border-color:#e0455c66;color:#ff9aa8}',
+    '.tk-act{display:flex;gap:6px;margin-top:10px}',
+    '.tk-btn{flex:1;background:transparent;border:1px solid #ffffff22;border-radius:8px;color:#c9c9dd;font-family:"Victor Mono",monospace;font-size:10.5px;padding:6px 4px;cursor:pointer}',
+    '.tk-btn:hover{border-color:#8f7bf0;color:#fff}',
+    '.tk-btn--del{flex:0 0 34px;color:#ff9aa8}',
+    '.tk-empty{color:#55556a;font-family:"Victor Mono",monospace;font-size:11px;text-align:center;padding:14px 4px}',
+    '.tk-badge{display:inline-block;font-size:10px;color:#8a8aa5;font-family:"Victor Mono",monospace;margin-left:8px}',
+    '@media(max-width:860px){.tk-board{grid-template-columns:1fr}.tk-new{grid-template-columns:1fr 1fr}.tk-new .tk-inp:first-child{grid-column:1/-1}.tk-add{grid-column:1/-1}}',
+  ].join('\n');
+
+  var overlay, boardEl, tasks = [];
+
+  function el(tag, cls, html) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html != null) e.innerHTML = html;
+    return e;
+  }
+
+  function fmtDate(d) {
+    if (!d) return '';
+    var p = d.split('-');
+    return p.length === 3 ? p[2] + '.' + p[1] : d;
+  }
+
+  function isLate(t) {
+    return t.deadline && t.status !== 'done' && t.deadline < new Date().toISOString().slice(0, 10);
+  }
+
+  function notify(msg) {
+    if (window.AIRL_notifyTelegram) window.AIRL_notifyTelegram(msg);
+  }
+
+  function render() {
+    boardEl.innerHTML = '';
+    STATUSES.forEach(function (st) {
+      var col = el('div', 'tk-col');
+      var inCol = tasks.filter(function (t) { return (t.status || 'todo') === st.id; });
+      col.appendChild(el('div', 'tk-col-h', st.label + '<span>' + inCol.length + '</span>'));
+      if (!inCol.length) col.appendChild(el('div', 'tk-empty', '— пусто —'));
+      inCol.forEach(function (t) {
+        var card = el('div', 'tk-card');
+        card.appendChild(el('p', 'tk-card-t', t.title));
+        var meta = el('div', 'tk-meta');
+        meta.appendChild(el('span', 'tk-chip tk-chip--p', t.assignee || '—'));
+        if (t.deadline) {
+          meta.appendChild(
+            el('span', 'tk-chip' + (isLate(t) ? ' tk-chip--late' : ''),
+              '⏰ ' + fmtDate(t.deadline) + (isLate(t) ? ' · просрочено' : ''))
+          );
+        }
+        card.appendChild(meta);
+        var act = el('div', 'tk-act');
+        STATUSES.forEach(function (s2) {
+          if (s2.id === st.id) return;
+          var b = el('button', 'tk-btn', '→ ' + s2.label);
+          b.addEventListener('click', function () {
+            t.status = s2.id;
+            window.AIRL_tasks.save(t).then(load);
+            notify('📋 «' + t.title + '» (' + t.assignee + ') → ' + s2.label);
+          });
+          act.appendChild(b);
+        });
+        var del = el('button', 'tk-btn tk-btn--del', '✕');
+        del.addEventListener('click', function () {
+          if (!confirm('Удалить задачу «' + t.title + '»?')) return;
+          window.AIRL_tasks.remove(t.id).then(load);
+          notify('🗑 Задача удалена: «' + t.title + '»');
+        });
+        act.appendChild(del);
+        card.appendChild(act);
+        col.appendChild(card);
+      });
+      boardEl.appendChild(col);
+    });
+  }
+
+  function load() {
+    window.AIRL_tasks.list().then(function (list) {
+      tasks = list || [];
+      render();
+    });
+  }
+
+  function build() {
+    var style = el('style', null);
+    style.textContent = CSS;
+    document.head.appendChild(style);
+
+    overlay = el('div', 'tk-overlay');
+    var panel = el('div', 'tk-panel');
+
+    var head = el('div', 'tk-head');
+    var hLeft = el('div');
+    hLeft.appendChild(el('h3', 'tk-title', 'Внутренние задачи'));
+    var hint = el('p', 'tk-hint', 'Азамат · Куаныш · Жанибек');
+    hLeft.appendChild(hint);
+    var close = el('button', 'tk-close', '✕');
+    close.addEventListener('click', function () { overlay.classList.remove('open'); });
+    head.appendChild(hLeft);
+    head.appendChild(close);
+    panel.appendChild(head);
+
+    var form = el('div', 'tk-new');
+    var inp = el('input', 'tk-inp');
+    inp.placeholder = 'Новая задача';
+    var selP = el('select', 'tk-sel');
+    PEOPLE.forEach(function (p) {
+      var o = el('option', null, p);
+      o.value = p;
+      selP.appendChild(o);
+    });
+    var date = el('input', 'tk-inp');
+    date.type = 'date';
+    var add = el('button', 'tk-add', '+ Добавить');
+    add.addEventListener('click', function () {
+      var title = inp.value.trim();
+      if (title.length < 2) { inp.focus(); return; }
+      var t = {
+        title: title,
+        assignee: selP.value,
+        deadline: date.value || '',
+        status: 'todo',
+        createdAt: new Date().toISOString(),
+      };
+      window.AIRL_tasks.save(t).then(function () {
+        inp.value = '';
+        date.value = '';
+        load();
+      });
+      notify('🆕 Новая задача: «' + title + '» — ' + selP.value +
+        (date.value ? ', дедлайн ' + fmtDate(date.value) : ''));
+    });
+    form.appendChild(inp);
+    form.appendChild(selP);
+    form.appendChild(date);
+    form.appendChild(add);
+    panel.appendChild(form);
+
+    boardEl = el('div', 'tk-board');
+    panel.appendChild(boardEl);
+
+    if (window.AIRL_tasks) {
+      window.AIRL_tasks.isCloud().then(function (cloud) {
+        hint.innerHTML = 'Азамат · Куаныш · Жанибек <span class="tk-badge">' +
+          (cloud ? '☁ синхронизация: Firestore' : '⚠ локальный режим — подключите Firebase в firebase-bridge.js') +
+          '</span>';
+      });
+    }
+
+    overlay.appendChild(panel);
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) overlay.classList.remove('open');
+    });
+    document.body.appendChild(overlay);
+  }
+
+  window.AIRL_openTasks = function () {
+    if (!overlay) build();
+    overlay.classList.add('open');
+    load();
+  };
+
+  /* Пункт «Задачи» в меню: десктопная навигация + мобильное меню */
+  function addMenuItems() {
+    var mobileNav = document.querySelector('.m-menu-nav');
+    if (mobileNav && !mobileNav.querySelector('[data-tk]')) {
+      var a = el('a', 'm-menu-link', 'Задачи');
+      a.href = '#';
+      a.dataset.tk = '1';
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        document.querySelector('.m-menu-overlay')?.classList.remove('open');
+        document.body.classList.remove('m-menu-lock');
+        window.AIRL_openTasks();
+      });
+      var cta = mobileNav.querySelector('.m-menu-cta');
+      mobileNav.insertBefore(a, cta || null);
+    }
+    ['.menu', '.nav-menu', '.lp-nav', '.blog-topnav'].forEach(function (sel) {
+      var nav = document.querySelector(sel);
+      if (!nav || nav.querySelector('[data-tk]')) return;
+      var ref = nav.querySelector('a, button, span');
+      var a = el('a', null, 'Задачи');
+      a.href = '#';
+      a.dataset.tk = '1';
+      if (ref && ref.className && ref.tagName === 'A') a.className = ref.className;
+      a.style.cursor = 'pointer';
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.AIRL_openTasks();
+      });
+      nav.appendChild(a);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setTimeout(addMenuItems, 600); });
+  } else {
+    setTimeout(addMenuItems, 600);
+  }
+})();
