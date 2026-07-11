@@ -850,3 +850,18 @@ body[data-theme='light'] {
 [data-theme='light'] .blog-page-title { color: #16161a; }
 [data-theme='light'] .blog-page-sub { color: #4a4a5e; }
 [data-theme='light'] .blog-page-eyebrow { color: #5646c8; }
+
+
+/* v13: никакого горизонтального скролла в блоге */
+html, body { overflow-x: hidden; max-width: 100vw; }
+
+.blog-shell img,
+.blog-shell svg,
+.blog-shell video { max-width: 100%; height: auto; }
+
+.blog-shell * { min-width: 0; }
+
+@media (max-width: 768px) {
+  .featured-card { display: flex; flex-direction: column; }
+  .featured-card > * { width: 100% !important; }
+}

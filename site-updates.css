@@ -1048,3 +1048,87 @@ body.m-menu-lock { overflow: hidden; }
     padding-right: 18px !important;
   }
 }
+
+
+/* ══════════════════════════════════════
+   v13 — mobile perfection pass
+   ══════════════════════════════════════ */
+
+/* 2) Все фото команды — строго одинаковые квадраты */
+.team-card-photo,
+.team-card img {
+  aspect-ratio: 1 / 1 !important;
+  width: 100% !important;
+  height: auto !important;
+  object-fit: cover !important;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  /* 1) Звезда в заголовке — по размеру мобильного шрифта clamp(40px,12.5vw,64px) */
+  .gemini-icon[data-v-46599b1c] {
+    width: clamp(42px, 13vw, 67px) !important;
+    height: clamp(42px, 13vw, 67px) !important;
+    left: clamp(37px, 11.6vw, 60px) !important;
+    top: 0 !important;
+  }
+
+  /* 3) Мероприятия: убираем растянутый контейнер — текст и список вместе */
+  .events-section[data-v-e48cf165],
+  .events-content[data-v-e48cf165],
+  .events-top[data-v-e48cf165],
+  .events-text[data-v-e48cf165],
+  .events-list[data-v-e48cf165] {
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
+  .events-top[data-v-e48cf165] {
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+  }
+
+  .events-content[data-v-e48cf165] {
+    justify-content: flex-start !important;
+  }
+
+  /* 5) «Для кого»: табы — аккуратный вертикальный список */
+  .forwhom-nav {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .forwhom-nav-item {
+    width: 100% !important;
+    text-align: left !important;
+    padding: 14px 18px !important;
+    border-radius: 14px !important;
+    font-size: 16px !important;
+    border-bottom: none !important;
+    background: #ffffff88;
+  }
+
+  .forwhom-nav-item.active {
+    background: #16161a !important;
+    color: #fff !important;
+    border-bottom: none !important;
+  }
+
+  .forwhom-interactive {
+    flex-direction: column !important;
+    gap: 20px !important;
+  }
+
+  .forwhom-panel {
+    width: 100% !important;
+  }
+}
+
+/* 5b) Заголовок панели — фирменный шрифт вместо системного serif */
+.forwhom-panel-title {
+  font-family: 'Inter Tight', sans-serif !important;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}

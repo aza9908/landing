@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Заявки с сайта: посетители могут только создавать,
+    // читать — только вы через консоль Firebase
+    match /requests/{doc} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
+    // Внутренние задачи (доска «Задачи»)
+    match /tasks/{doc} {
+      allow read, write: if true;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
