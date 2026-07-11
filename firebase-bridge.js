@@ -5,21 +5,23 @@
    заявки уходят только в WhatsApp, задачи хранятся локально в браузере. */
 
 window.AIRL_FIREBASE_CONFIG = {
-  // apiKey: "AIza...",
-  // authDomain: "ваш-проект.firebaseapp.com",
-  // projectId: "ваш-проект",
-  // storageBucket: "ваш-проект.appspot.com",
-  // messagingSenderId: "...",
-  // appId: "..."
+  apiKey: "AIzaSyDNSjN6mF5R5tVqrVtXeuOu3q6UtUdS39o",
+  authDomain: "landing-page-8e314.firebaseapp.com",
+  projectId: "landing-page-8e314",
+  storageBucket: "landing-page-8e314.firebasestorage.app",
+  messagingSenderId: "796647636375",
+  appId: "1:796647636375:web:22cf9949b2e8f8bbdd58d2",
+  measurementId: "G-V0VD438TFZ"
 };
 
 /* Telegram-уведомления для внутренних задач.
    Когда создадите канал: 1) создайте бота через @BotFather, 2) добавьте бота
    администратором канала, 3) вставьте токен и @имя_канала ниже. */
 window.AIRL_TELEGRAM = {
-  // 1) Создайте бота: напишите @BotFather в Telegram → /newbot → скопируйте токен сюда:
-  botToken: "",
-  // 2) Канал уже создан — добавьте бота администратором канала https://t.me/AIRLtasks
+  /* ВНИМАНИЕ: токен бота виден любому посетителю сайта (клиентский код).
+     Если в канале появится спам — отзовите токен через @BotFather (/revoke)
+     и попросите перенести отправку в Cloud Function. */
+  botToken: "8793362793:AAFPq56gfITGyBDn9IZCcWB-MDxnOEaYSls",
   chatId: "@AIRLtasks"
 };
 
