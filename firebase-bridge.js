@@ -17,8 +17,10 @@ window.AIRL_FIREBASE_CONFIG = {
    Когда создадите канал: 1) создайте бота через @BotFather, 2) добавьте бота
    администратором канала, 3) вставьте токен и @имя_канала ниже. */
 window.AIRL_TELEGRAM = {
-  // botToken: "123456:ABC-DEF...",
-  // chatId: "@airl_tasks"
+  // 1) Создайте бота: напишите @BotFather в Telegram → /newbot → скопируйте токен сюда:
+  botToken: "",
+  // 2) Канал уже создан — добавьте бота администратором канала https://t.me/AIRLtasks
+  chatId: "@AIRLtasks"
 };
 
 (function () {
@@ -133,7 +135,7 @@ window.AIRL_TELEGRAM = {
   /* Telegram-уведомление (работает после вставки токена и chatId) */
   window.AIRL_notifyTelegram = function (text) {
     var t = window.AIRL_TELEGRAM || {};
-    if (!t.botToken || !t.chatId) return Promise.resolve(false);
+    if (!t || !t.botToken || !t.chatId) return Promise.resolve(false);
     return fetch('https://api.telegram.org/bot' + t.botToken + '/sendMessage', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

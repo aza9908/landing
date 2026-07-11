@@ -171,7 +171,7 @@
         var el = e.target.closest('a, button, .lp-stamp');
         if (!el) return;
         if (el.closest('.rq-overlay')) return;
-        var txt = (el.textContent || '').trim();
+        var txt = (el.textContent || '').replace(/\u00A0/g, ' ').trim();
         if (!TRIGGER_RE.test(txt)) return;
         e.preventDefault();
         openModal(pageContext());

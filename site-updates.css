@@ -974,26 +974,24 @@ body.m-menu-lock { overflow: hidden; }
 
 /* Mobile team: full-width text, clean 2-col photo grid */
 @media (max-width: 1024px) {
+  /* Все 6 фото — единая сетка парами (2 в ряд), текст сверху */
   .team-layout {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 28px !important;
-  }
-
-  .team-layout .team-text {
-    order: -1 !important;
-    width: 100% !important;
-    max-width: 560px !important;
-    margin: 0 auto !important;
-  }
-
-  .team-side {
     display: grid !important;
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 12px !important;
-    width: 100% !important;
     max-width: 560px !important;
     margin: 0 auto !important;
+  }
+
+  .team-layout .team-text {
+    grid-column: 1 / -1 !important;
+    order: -1 !important;
+    width: 100% !important;
+    margin: 0 auto 16px !important;
+  }
+
+  .team-side {
+    display: contents !important;
   }
 
   .team-side .team-card {
@@ -1010,4 +1008,43 @@ body.m-menu-lock { overflow: hidden; }
   object-fit: cover !important;
   padding: 10px;
   box-sizing: border-box;
+}
+
+
+/* ══════════════════════════════════════
+   v11 — mobile fixes
+   ══════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Events: no dead space — clear parallax transforms and reserved heights */
+  .events-section[data-v-e48cf165] { padding: 48px 16px 56px !important; }
+  .events-content[data-v-e48cf165] { gap: 28px !important; }
+  .events-top[data-v-e48cf165] { gap: 20px !important; }
+
+  .events-text[data-v-e48cf165],
+  .events-list[data-v-e48cf165],
+  .event-row[data-v-e48cf165] {
+    transform: none !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+  }
+
+  .event-hover-img[data-v-e48cf165] { display: none !important; }
+}
+
+/* Blog: no horizontal overflow / right-side gap on mobile */
+@media (max-width: 768px) {
+  .blog-shell { overflow-x: clip; }
+
+  .blog-topbar {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  .blog-main {
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+  }
 }

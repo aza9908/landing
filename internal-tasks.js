@@ -196,44 +196,36 @@
     load();
   };
 
-  /* Пункт «Задачи» в меню: десктопная навигация + мобильное меню */
-  function addMenuItems() {
-    var mobileNav = document.querySelector('.m-menu-nav');
-    if (mobileNav && !mobileNav.querySelector('[data-tk]')) {
-      var a = el('a', 'm-menu-link', 'Задачи');
+  /* Ссылка «Задачи» — в конце страницы, в футере (белая) */
+  function addFooterLink() {
+    var spots = ['.footer-caption .footer-info', '.lp-footer', '.blog-footer'];
+    spots.forEach(function (sel) {
+      var host = document.querySelector(sel);
+      if (!host || host.querySelector('[data-tk]')) return;
+      var a = el('a', 'tk-footer-link', 'Задачи');
       a.href = '#';
       a.dataset.tk = '1';
       a.addEventListener('click', function (e) {
         e.preventDefault();
-        e.stopPropagation();
-        document.querySelector('.m-menu-overlay')?.classList.remove('open');
-        document.body.classList.remove('m-menu-lock');
         window.AIRL_openTasks();
       });
-      var cta = mobileNav.querySelector('.m-menu-cta');
-      mobileNav.insertBefore(a, cta || null);
-    }
-    ['.menu', '.nav-menu', '.lp-nav', '.blog-topnav'].forEach(function (sel) {
-      var nav = document.querySelector(sel);
-      if (!nav || nav.querySelector('[data-tk]')) return;
-      var ref = nav.querySelector('a, button, span');
-      var a = el('a', null, 'Задачи');
-      a.href = '#';
-      a.dataset.tk = '1';
-      if (ref && ref.className && ref.tagName === 'A') a.className = ref.className;
-      a.style.cursor = 'pointer';
-      a.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        window.AIRL_openTasks();
-      });
-      nav.appendChild(a);
+      host.appendChild(a);
     });
+    if (!document.getElementById('tk-footer-css')) {
+      var st = el('style');
+      st.id = 'tk-footer-css';
+      st.textContent =
+        '.tk-footer-link{color:#fff !important;text-decoration:none;font-family:"Victor Mono",monospace;' +
+        'font-size:13px;opacity:.85;cursor:pointer;display:inline-block;margin-top:6px}' +
+        '.tk-footer-link:hover{opacity:1;text-decoration:underline}' +
+        '.blog-footer .tk-footer-link,[data-theme="light"] .lp-footer .tk-footer-link{color:inherit !important}';
+      document.head.appendChild(st);
+    }
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () { setTimeout(addMenuItems, 600); });
+    document.addEventListener('DOMContentLoaded', function () { setTimeout(addFooterLink, 800); });
   } else {
-    setTimeout(addMenuItems, 600);
+    setTimeout(addFooterLink, 800);
   }
 })();
