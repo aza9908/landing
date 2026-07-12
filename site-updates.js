@@ -267,9 +267,25 @@
     icon.style.setProperty('top', (parseFloat(cs.fontSize) * 0.02) + 'px', 'important');
   }
 
+  function bindTeamCardTaps() {
+    document.querySelectorAll('.team-card').forEach((card) => {
+      if (card.dataset.tapBound) return;
+      card.dataset.tapBound = '1';
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.team-card.tapped').forEach((c) => {
+          if (c !== card) c.classList.remove('tapped');
+        });
+        card.classList.add('tapped');
+        clearTimeout(card._tapT);
+        card._tapT = setTimeout(() => card.classList.remove('tapped'), 900);
+      });
+    });
+  }
+
   waitForApp(() => {
     buildMobileMenu();
     placeHeroStar();
+    setTimeout(bindTeamCardTaps, 800);
     window.addEventListener('resize', placeHeroStar);
     setTimeout(placeHeroStar, 600);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeHeroStar);

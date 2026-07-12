@@ -875,10 +875,7 @@ body.m-menu-lock { overflow: hidden; }
   }
 }
 
-@media (max-width: 600px) {
-  .team-side { gap: 10px; }
-  .team-side .team-card { max-width: 46% !important; }
-}
+
 
 /* Mobile hero: keep vertical balance without a huge void */
 @media (max-width: 768px) {
@@ -974,20 +971,22 @@ body.m-menu-lock { overflow: hidden; }
 
 /* Mobile team: full-width text, clean 2-col photo grid */
 @media (max-width: 1024px) {
-  /* Все 6 фото — единая сетка парами (2 в ряд), текст сверху */
+  /* Команда как лента: сначала «Кто мы», затем 6 карточек по одной,
+     по центру, все строго одного размера */
   .team-layout {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 12px !important;
-    max-width: 560px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 16px !important;
+    max-width: 100% !important;
     margin: 0 auto !important;
   }
 
   .team-layout .team-text {
-    grid-column: 1 / -1 !important;
     order: -1 !important;
     width: 100% !important;
-    margin: 0 auto 16px !important;
+    max-width: 560px !important;
+    margin: 0 auto 20px !important;
   }
 
   .team-side {
@@ -995,10 +994,32 @@ body.m-menu-lock { overflow: hidden; }
   }
 
   .team-side .team-card {
-    max-width: none !important;
-    width: 100% !important;
+    width: min(100%, 340px) !important;
+    max-width: 340px !important;
+    margin: 0 auto !important;
     transform: none !important;
+    padding: 14px !important;
+    border-radius: 20px !important;
+    box-shadow: 0 8px 32px #00000022 !important;
   }
+
+  /* Фото: жёсткий квадрат, никаких унаследованных высот */
+  .team-side .team-card .team-card-photo,
+  .team-side .team-card img {
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    aspect-ratio: 1 / 1 !important;
+    object-fit: cover !important;
+    border-radius: 14px !important;
+    display: block !important;
+  }
+
+  .team-side .team-card .team-card-name,
+  .team-side .team-card-name { font-size: 19px !important; }
+  .team-side .team-card .team-card-role,
+  .team-side .team-card-role { font-size: 13px !important; }
 }
 
 /* Azamat's photo — circular, by request */
@@ -1156,7 +1177,54 @@ body.m-menu-lock { overflow: hidden; }
     object-fit: cover !important;
   }
 
-  .team-layout {
-    grid-auto-rows: auto !important;
+}
+
+
+/* ══════════════════════════════════════
+   v15 — тап-анимация карточек команды
+   ══════════════════════════════════════ */
+.team-card {
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.28s ease,
+              outline-color 0.28s ease !important;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+
+.team-card .team-card-photo {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Десктоп: наведение */
+@media (hover: hover) {
+  .team-card:hover {
+    transform: translateY(-6px) scale(1.015) !important;
+    box-shadow: 0 18px 48px #6c5ce03d !important;
+    outline-color: #6c5ce066;
   }
+
+  .team-card:hover .team-card-photo {
+    transform: scale(1.04);
+  }
+}
+
+/* Мобайл: нажатие — карточка «подпрыгивает» и подсвечивается */
+.team-card:active {
+  transform: scale(0.97) !important;
+}
+
+.team-card.tapped {
+  transform: translateY(-4px) scale(1.02) !important;
+  box-shadow: 0 16px 44px #6c5ce052 !important;
+  outline-color: #8f7bf0;
+}
+
+.team-card.tapped .team-card-photo {
+  transform: scale(1.05);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .team-card, .team-card .team-card-photo { transition: none !important; }
 }
