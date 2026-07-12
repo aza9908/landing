@@ -268,7 +268,7 @@
   }
 
   function bindTeamCardTaps() {
-    document.querySelectorAll('.team-card, .past-card').forEach((card) => {
+    document.querySelectorAll('.team-card').forEach((card) => {
       if (card.dataset.tapBound) return;
       card.dataset.tapBound = '1';
       card.addEventListener('click', () => {
