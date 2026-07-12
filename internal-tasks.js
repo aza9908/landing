@@ -225,7 +225,7 @@
 
   /* Ссылка «Задачи» — в конце страницы, в футере (белая) */
   function addFooterLink() {
-    var spots = ['.footer-caption .footer-info', '.lp-footer', '.blog-footer'];
+    var spots = ['.footer-caption .footer-info', '.blog-footer'];
     spots.forEach(function (sel) {
       var host = document.querySelector(sel);
       if (!host || host.querySelector('[data-tk]')) return;

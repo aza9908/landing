@@ -725,3 +725,48 @@ a { color: inherit; text-decoration: none; }
 [data-theme='light'] .lp-footer,
 [data-theme='light'] .lp-footer a { color: #4a4a5e; }
 
+
+
+/* ── v18: круговой штамп «ОТКРЫТ НАБОР» (по референсу, без стрелки) ── */
+.lp-stamp-open {
+  position: absolute;
+  right: -16px;
+  bottom: -16px;
+  width: 96px;
+  height: 96px;
+  pointer-events: none;
+}
+
+.lp-stamp-open svg {
+  width: 100%;
+  height: 100%;
+  animation: stampSpin 14s linear infinite;
+}
+
+.lp-stamp-open text {
+  fill: #ffffffd9;
+  font-family: 'Victor Mono', monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.22em;
+}
+
+@keyframes stampSpin {
+  to { transform: rotate(360deg); }
+}
+
+[data-theme='light'] .lp-stamp-open text { fill: #16161acc; }
+
+@media (max-width: 768px) {
+  .lp-stamp-open {
+    width: 78px;
+    height: 78px;
+    right: 6px;
+    bottom: -8px;
+  }
+
+  .lp-stamp-open text { font-size: 12.5px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-stamp-open svg { animation: none !important; }
+}

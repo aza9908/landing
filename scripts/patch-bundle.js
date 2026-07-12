@@ -6,6 +6,9 @@ const bundlePath = path.join(__dirname, '../assets/index-C9VrdjED.js');
 let js = fs.readFileSync(bundlePath, 'utf8');
 
 const replacements = [
+  // Ценности: текст заканчивается на «...открытость»
+  ['Практическая польза, научная обоснованность, этичность и безопасность, партнерство и открытость — в основе всего, чему мы учим',
+   'Практическая польза, научная обоснованность, этичность и безопасность, партнерство и открытость'],
   // Hero star mark (slim gradient glyph instead of glass square)
   ['xs=`/star.png`', 'xs=`/star-mark.svg`'],
   // Footer phone number

@@ -43,7 +43,7 @@
     return el;
   }
 
-  var overlay, form, done, errEl, inName, inSurname, inPhone;
+  var overlay, form, done, errEl, inName, inPhone;
 
   function build() {
     var style = document.createElement('style');
@@ -65,14 +65,10 @@
     inName = h('input', 'rq-input');
     inName.placeholder = 'Имя';
     inName.type = 'text';
-    inSurname = h('input', 'rq-input');
-    inSurname.placeholder = 'Фамилия';
-    inSurname.type = 'text';
     inPhone = h('input', 'rq-input');
     inPhone.placeholder = 'Номер телефона';
     inPhone.type = 'tel';
     fields.appendChild(inName);
-    fields.appendChild(inSurname);
     fields.appendChild(inPhone);
     form.appendChild(fields);
     errEl = h('p', 'rq-err', '');
@@ -117,10 +113,9 @@
 
   function sendRequest() {
     var name = inName.value.trim();
-    var surname = inSurname.value.trim();
     var phone = inPhone.value.trim();
-    if (name.length < 2 || surname.length < 2) {
-      errEl.textContent = 'Пожалуйста, укажите имя и фамилию';
+    if (name.length < 2) {
+      errEl.textContent = 'Пожалуйста, укажите имя';
       return;
     }
     if (phone.replace(/\D/g, '').length < 10) {
@@ -130,12 +125,11 @@
     var ctx = overlay.dataset.context ? ' (' + overlay.dataset.context + ')' : '';
     var text =
       'Заявка с сайта AI Research Lab' + ctx + '\n' +
-      'Имя: ' + name + ' ' + surname + '\n' +
+      'Имя: ' + name + '\n' +
       'Телефон: ' + phone;
     if (window.AIRL_saveRequest) {
       window.AIRL_saveRequest({
         name: name,
-        surname: surname,
         phone: phone,
         page: overlay.dataset.context || '',
         url: location.href,
