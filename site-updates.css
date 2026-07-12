@@ -1228,3 +1228,54 @@ body.m-menu-lock { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .team-card, .team-card .team-card-photo { transition: none !important; }
 }
+
+
+/* ══════════════════════════════════════
+   v16 — анимация карточек мероприятий
+   ══════════════════════════════════════ */
+.past-card {
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.28s ease,
+              outline-color 0.28s ease !important;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.past-card .past-img {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  display: block;
+}
+
+@media (hover: hover) {
+  .past-card:hover {
+    transform: translateY(-6px) scale(1.015) !important;
+    box-shadow: 0 18px 48px #6c5ce03d !important;
+    outline-color: #6c5ce066;
+  }
+
+  .past-card:hover .past-img {
+    transform: scale(1.05);
+  }
+}
+
+.past-card:active {
+  transform: scale(0.97) !important;
+}
+
+.past-card.tapped {
+  transform: translateY(-4px) scale(1.02) !important;
+  box-shadow: 0 16px 44px #6c5ce052 !important;
+  outline-color: #8f7bf0;
+}
+
+.past-card.tapped .past-img {
+  transform: scale(1.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .past-card, .past-card .past-img { transition: none !important; }
+}

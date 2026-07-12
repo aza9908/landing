@@ -268,7 +268,7 @@
   }
 
   function bindTeamCardTaps() {
-    document.querySelectorAll('.team-card').forEach((card) => {
+    document.querySelectorAll('.team-card, .past-card').forEach((card) => {
       if (card.dataset.tapBound) return;
       card.dataset.tapBound = '1';
       card.addEventListener('click', () => {
@@ -286,6 +286,7 @@
     buildMobileMenu();
     placeHeroStar();
     setTimeout(bindTeamCardTaps, 800);
+    setTimeout(bindTeamCardTaps, 2500);
     window.addEventListener('resize', placeHeroStar);
     setTimeout(placeHeroStar, 600);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeHeroStar);
