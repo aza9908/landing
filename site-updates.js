@@ -287,6 +287,7 @@
       document.querySelector('.header .logo'),
       document.querySelector('.floating-nav .nav-logo'),
       document.querySelector('.floating-nav .logo'),
+      document.querySelector('.footer-logo'),
     ];
     targets.forEach((el) => {
       if (!el || el.dataset.brandSwapped) return;

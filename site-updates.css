@@ -1267,10 +1267,13 @@ body.m-menu-lock { overflow: hidden; }
 
 .header .logo,
 .floating-nav .nav-logo,
-.floating-nav .logo {
+.floating-nav .logo,
+.footer-logo {
   display: flex;
   align-items: center;
 }
+
+.footer-logo .brand-logo { height: 30px; }
 
 @media (max-width: 768px) {
   .brand-logo { height: 28px; }
