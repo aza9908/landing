@@ -895,3 +895,9 @@ html, body { overflow-x: hidden; max-width: 100vw; }
     white-space: nowrap;
   }
 }
+
+
+/* v20: логотип в блоге (белый на тёмной теме, фирменный на светлой) */
+.blog-logo .brand-logo { height: 30px; width: auto; display: block; }
+[data-theme='light'] .blog-logo .brand-logo { content: url('/logo-airl.png'); }
+@media (max-width: 768px) { .blog-logo .brand-logo { height: 26px; } }

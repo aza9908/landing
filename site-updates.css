@@ -1254,3 +1254,24 @@ body.m-menu-lock { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .past-card { transition: none !important; }
 }
+
+
+/* ══════════════════════════════════════
+   v20 — новый логотип
+   ══════════════════════════════════════ */
+.brand-logo {
+  height: 34px;
+  width: auto;
+  display: block;
+}
+
+.header .logo,
+.floating-nav .nav-logo,
+.floating-nav .logo {
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .brand-logo { height: 28px; }
+}

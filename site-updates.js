@@ -282,8 +282,24 @@
     });
   }
 
+  function swapBrandLogos() {
+    const targets = [
+      document.querySelector('.header .logo'),
+      document.querySelector('.floating-nav .nav-logo'),
+      document.querySelector('.floating-nav .logo'),
+    ];
+    targets.forEach((el) => {
+      if (!el || el.dataset.brandSwapped) return;
+      el.dataset.brandSwapped = '1';
+      el.innerHTML =
+        '<img src="/logo-airl-white.png" alt="AI Research Labs" class="brand-logo" />';
+    });
+  }
+
   waitForApp(() => {
     buildMobileMenu();
+    swapBrandLogos();
+    setTimeout(swapBrandLogos, 1200);
     placeHeroStar();
     setTimeout(bindTeamCardTaps, 800);
     setTimeout(bindTeamCardTaps, 2500);

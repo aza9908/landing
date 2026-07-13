@@ -6,6 +6,9 @@ const bundlePath = path.join(__dirname, '../assets/index-C9VrdjED.js');
 let js = fs.readFileSync(bundlePath, 'utf8');
 
 const replacements = [
+  // Rebrand: AI Research Lab -> AI Research Labs
+  ['Z(`br`),ia(`Lab`)', 'Z(`br`),ia(`Labs`)'],
+  ['AI Research Lab', 'AI Research Labs'],
   // Ценности: текст заканчивается на «...открытость»
   ['Практическая польза, научная обоснованность, этичность и безопасность, партнерство и открытость — в основе всего, чему мы учим',
    'Практическая польза, научная обоснованность, этичность и безопасность, партнерство и открытость'],

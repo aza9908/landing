@@ -1,4 +1,4 @@
-/* Global «Оставить заявку» modal — AI Research Lab.
+/* Global «Оставить заявку» modal — AI Research Labs.
    Self-contained: injects its own styles, binds every CTA on the page.
    Submission opens WhatsApp (8 707 231-49-55) with a prefilled message
    and shows a success state. Swap sendRequest() for a backend later. */
@@ -124,7 +124,7 @@
     }
     var ctx = overlay.dataset.context ? ' (' + overlay.dataset.context + ')' : '';
     var text =
-      'Заявка с сайта AI Research Lab' + ctx + '\n' +
+      'Заявка с сайта AI Research Labs' + ctx + '\n' +
       'Имя: ' + name + '\n' +
       'Телефон: ' + phone;
     if (window.AIRL_saveRequest) {

@@ -1,4 +1,4 @@
-/* AI Research Lab — Firebase bridge.
+/* AI Research Labs — Firebase bridge.
    ВАЖНО: вставьте сюда конфиг вашего проекта из Firebase Console:
    Project settings → General → Your apps → SDK setup and configuration.
    Пока конфиг не вставлен, сайт работает в fallback-режиме:
