@@ -203,7 +203,7 @@
         .map(([t, h]) => `<a href="${h}" class="m-menu-link">${t}</a>`)
         .join('') +
       '<div class="m-menu-cta">' +
-      '<a href="#events" class="m-cta-primary m-menu-link-cta">Начать обучение</a>' +
+      '<a href="https://lms.magauin.kz" target="_blank" rel="noopener" class="m-cta-primary m-menu-link-cta">Начать обучение</a>' +
       '<a href="#contacts" class="m-cta-secondary m-menu-link-cta">Контакты ↗</a>' +
       '</div>' +
       '</nav>';
@@ -282,6 +282,33 @@
     });
   }
 
+  function bindAboutCardTaps() {
+    const cards = document.querySelectorAll('.about-section .cards-row .card');
+    if (!cards.length || cards[0].dataset.tapBound) return;
+
+    let active = null;
+    cards.forEach((card) => {
+      card.dataset.tapBound = '1';
+      card.addEventListener('click', () => {
+        if (active === card) {
+          card.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
+          active = null;
+          return;
+        }
+        if (active) active.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
+        card.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+        active = card;
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (active && !active.contains(e.target)) {
+        active.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
+        active = null;
+      }
+    });
+  }
+
   function swapBrandLogos() {
     const targets = [
       document.querySelector('.header .logo'),
@@ -304,6 +331,8 @@
     placeHeroStar();
     setTimeout(bindTeamCardTaps, 800);
     setTimeout(bindTeamCardTaps, 2500);
+    setTimeout(bindAboutCardTaps, 800);
+    setTimeout(bindAboutCardTaps, 2500);
     window.addEventListener('resize', placeHeroStar);
     setTimeout(placeHeroStar, 600);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeHeroStar);

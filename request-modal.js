@@ -156,7 +156,7 @@
     return 'Главная';
   }
 
-  var TRIGGER_RE = /(оставить заявку|начать обучение|регистрация)/i;
+  var TRIGGER_RE = /(оставить заявку|регистрация)/i;
 
   function bindTriggers() {
     document.addEventListener(

@@ -52,7 +52,7 @@
 
     for (let i = 0; i < dots.length; i++) {
       const d = dots[i];
-      const pulse = 0.35 + 0.65 * Math.sin(t * d.speed + d.phase);
+      const pulse = Math.max(0, 0.35 + 0.65 * Math.sin(t * d.speed + d.phase));
       const x = d.x + Math.sin(t * 0.45 + d.phase) * d.amp;
       const y = d.y + Math.cos(t * 0.38 + d.phase) * (d.amp * 0.7);
 
