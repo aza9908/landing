@@ -1,0 +1,301 @@
+/* ===========================================================================
+   AIRL landing — laptop & mid-width adaptation
+   ---------------------------------------------------------------------------
+   The built bundle only ships one breakpoint (900px), and mobile.css only
+   handles <=768px. Everything between 769px and the design width was falling
+   back to desktop rules that contain hard pixel widths:
+
+     .left-container   flex: 0 0 789px; width: 789px
+     .content          width: 660px
+     .subtitle         width: 644px
+     .events-text      width: 672px   \ both flex-shrink: 0, plus a 32px gap,
+     .events-list      width: 672px   / = 1376px of unshrinkable content
+     .main-title h1    font-size: 104px; white-space: nowrap
+
+   A 13" MacBook Air reports 1280px of CSS width, a 14" Pro 1512px, a 13.6" Air
+   1512px. At 1280px the events row alone overflows by ~96px and the nowrap
+   104px headline overflows by far more — which is why the page looked broken
+   on "other Mac laptops" while being fine on a large external display.
+
+   This file is loaded last so it wins on specificity ties. It converts those
+   fixed widths to fluid ones and lets the headline wrap, without touching the
+   >=1600px desktop presentation the design was built around.
+   =========================================================================== */
+
+/* --- Global overflow guard -------------------------------------------------
+   `clip` rather than `hidden` so position: sticky keeps working. */
+html,
+body {
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+*,
+*::before,
+*::after {
+  min-width: 0;
+}
+
+img,
+video,
+svg {
+  max-width: 100%;
+}
+
+/* ===========================================================================
+   769px – 1599px : laptops, small desktops, tablets in landscape
+   =========================================================================== */
+@media (min-width: 769px) and (max-width: 1599px) {
+  /* ---------- Hero ---------- */
+  .main-block {
+    align-items: center !important;
+    gap: clamp(16px, 2.5vw, 32px) !important;
+    padding: 16px clamp(16px, 3vw, 32px) !important;
+  }
+
+  /* The single most important fix: stop reserving 789 rigid pixels. */
+  .left-container {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: 62% !important;
+    gap: clamp(64px, 12vw, 220px) !important;
+  }
+
+  .content {
+    width: 100% !important;
+    max-width: 660px !important;
+    gap: clamp(28px, 4vw, 64px) !important;
+  }
+
+  .subtitle {
+    width: 100% !important;
+    max-width: 644px !important;
+    font-size: clamp(15px, 1.3vw, 20px) !important;
+    line-height: 1.35 !important;
+  }
+
+  /* The nowrap 104px headline is what pushed the viewport sideways. */
+  .main-title h1 {
+    font-size: clamp(44px, 5.6vw, 104px) !important;
+    line-height: 1.02 !important;
+    letter-spacing: clamp(-5.2px, -0.32vw, -2px) !important;
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .gemini-icon {
+    width: clamp(32px, 3.4vw, 60px) !important;
+    height: clamp(32px, 3.4vw, 60px) !important;
+  }
+
+  .orb {
+    max-width: 60vw !important;
+    filter: blur(24px) !important;
+  }
+
+  .btn-cta {
+    font-size: clamp(15px, 1.2vw, 20px) !important;
+  }
+
+  /* ---------- Events: the 1376px unshrinkable row ---------- */
+  .events-content {
+    gap: clamp(40px, 5vw, 80px) !important;
+    padding-left: clamp(16px, 3vw, 40px) !important;
+    padding-right: clamp(16px, 3vw, 40px) !important;
+  }
+
+  .events-top {
+    gap: clamp(20px, 3vw, 32px) !important;
+    align-items: flex-start !important;
+  }
+
+  .events-text,
+  .events-list {
+    flex: 1 1 0 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: 672px !important;
+    flex-shrink: 1 !important;
+  }
+
+  .events-title {
+    font-size: clamp(32px, 4vw, 72px) !important;
+    line-height: 1.05 !important;
+  }
+
+  .event-name {
+    font-size: clamp(18px, 1.8vw, 32px) !important;
+  }
+
+  .past-grid {
+    flex-wrap: wrap !important;
+    gap: clamp(16px, 2.4vw, 32px) !important;
+  }
+
+  .past-card {
+    flex: 1 1 260px !important;
+    min-width: 0 !important;
+  }
+
+  .past-img {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 4 / 3 !important;
+    object-fit: cover !important;
+  }
+
+  /* ---------- Section headings / text blocks ---------- */
+  .text-block {
+    width: min(92vw, 1300px) !important;
+    padding-left: clamp(16px, 3vw, 40px) !important;
+    padding-right: clamp(16px, 3vw, 40px) !important;
+  }
+
+  .program-head,
+  .program-cards {
+    max-width: min(94vw, 1300px) !important;
+    padding-left: clamp(16px, 3vw, 32px) !important;
+    padding-right: clamp(16px, 3vw, 32px) !important;
+  }
+
+  .program-title {
+    font-size: clamp(32px, 4vw, 64px) !important;
+    line-height: 1.06 !important;
+  }
+
+  .forwhom-grid {
+    max-width: min(94vw, 1400px) !important;
+    gap: clamp(10px, 1.2vw, 16px) !important;
+  }
+
+  .modal-panel {
+    max-width: min(92vw, 880px) !important;
+    padding: clamp(24px, 3vw, 44px) !important;
+  }
+}
+
+/* ===========================================================================
+   769px – 1179px : narrow laptops & tablets — stack the two-column rows
+   =========================================================================== */
+@media (min-width: 769px) and (max-width: 1179px) {
+  .main-block {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: clamp(32px, 5vw, 56px) !important;
+  }
+
+  .left-container {
+    max-width: 100% !important;
+  }
+
+  .content {
+    max-width: 100% !important;
+  }
+
+  .events-top {
+    flex-direction: column !important;
+  }
+
+  .events-text,
+  .events-list {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .program-cards {
+    grid-template-columns: 1fr !important;
+  }
+
+  .forwhom-grid {
+    flex-wrap: wrap !important;
+  }
+
+  .forwhom-grid > * {
+    flex: 1 1 320px !important;
+    min-width: 0 !important;
+  }
+
+  /* The team section positions cards absolutely with vw/vh offsets, which
+     collapses into overlap on shorter laptop viewports. Return it to flow. */
+  .team-section {
+    min-height: auto !important;
+    padding-bottom: 64px !important;
+  }
+
+  .team-card {
+    position: relative !important;
+    inset: auto !important;
+    transform: none !important;
+    opacity: 1 !important;
+    left: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    max-width: 251px !important;
+  }
+
+  .team-section .team-grid-bg ~ * {
+    position: relative;
+  }
+}
+
+/* ===========================================================================
+   Short viewports (MacBook Air 13" is only 800px tall in CSS pixels)
+   Full-height sections force scroll-jacking that hides content.
+   =========================================================================== */
+@media (min-width: 769px) and (max-height: 860px) {
+  .main-block,
+  .events-section,
+  .team-section,
+  .program-section {
+    min-height: auto !important;
+  }
+
+  .left-container {
+    gap: clamp(48px, 9vh, 160px) !important;
+  }
+}
+
+/* ===========================================================================
+   Retina / HiDPI text rendering — Macs render this stack noticeably heavier
+   =========================================================================== */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+/* ===========================================================================
+   Very wide displays — keep the composition centred instead of stretched
+   =========================================================================== */
+@media (min-width: 2100px) {
+  .main-block,
+  .events-content,
+  .text-block {
+    max-width: 1800px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+
+/* ===========================================================================
+   Touch + reduced motion
+   =========================================================================== */
+@media (hover: none) {
+  .event-hover-img {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

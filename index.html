@@ -12,12 +12,18 @@
     <link rel="stylesheet" crossorigin href="/assets/index-CPPYpqm_.css">
     <link rel="stylesheet" href="/mobile.css?v=23">
     <link rel="stylesheet" href="/site-updates.css?v=23">
+      <!-- Laptop / mid-width adaptation. Load after bundle + mobile.css. -->
+    <link rel="stylesheet" href="/responsive-fix.css?v=22">
   </head>
   <body>
     <div id="app"></div>
+    <!-- LMS address. Change this ONE line to repoint every CTA. -->
+    <script>window.AIRL_LMS_URL = 'https://lms.magauin.kz/';</script>
+
     <script src="/site-updates.js?v=23"></script>
   
         <script src="/firebase-bridge.js?v=23"></script>
     <script src="/request-modal.js?v=23" defer></script>
+      <script src="/lms-link.js?v=22" defer></script>
   </body>
 </html>
