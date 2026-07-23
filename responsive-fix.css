@@ -301,63 +301,109 @@ svg {
 }
 
 /* ===========================================================================
-   "О нас" cards — description text clipped mid-sentence
+   "О нас" cards — Миссия / Ценности / Для кого мы
    ---------------------------------------------------------------------------
-   Reported on Ценности / Для кого мы: the paragraph cuts off partway through
-   ("...партнерство и").
+   The bundle builds these cards out of absolutely-positioned layers:
 
-   Cause, from the bundle:
+     .card-media    position: absolute; inset: 8px 8px 130px
+     .card-footer   position: absolute; bottom: 0; height: 130px; overflow: hidden
+     .card--hovered .card-footer   height: 35%      <-- % of the card
+     .card--hovered .card-media    bottom: 35%
 
-     .about-section              height: 100vh
-     .cards-row                  flex: 1
-     .card-footer                height: 130px;  overflow: hidden
-     .card--hovered .card-footer height: 35%          <-- % of the CARD
-     .card--hovered .card-desc-wrap  max-height: 400px
-     .card-desc                  font-size: 20px; line-height: 1.35
+   Because the card's height derives from `.about-section { height: 100vh }`,
+   that 35% is a viewport-derived number. On a 563px-tall laptop window it
+   leaves ~1.3 lines for a four-line paragraph, so the text was cut off. On a
+   1440px display it leaves room for ~12.7, which is why it only ever looked
+   broken on laptops.
 
-   The expanded footer is 35% of a card whose height derives from 100vh, and it
-   clips its overflow. Measured against a 563px-tall viewport (13" MacBook Air
-   with browser chrome):
+   Rather than patch the percentage — which just trades clipped text for a gap
+   between the image and the caption — the card is converted to a flex column:
 
-     card 283px -> footer 99px -> minus the 40px label row -> ~35px of text,
-     about 1.3 lines. The description is four lines, so it is cut off.
+     .card-media    flex: 1   -> takes whatever space is left
+     .card-footer   auto      -> takes exactly what its text needs
 
-   The same arithmetic on a 1440px display leaves room for ~12.7 lines, which
-   is why the section looks correct on a large monitor and broken on a laptop.
-
-   Fix: let the footer size to its content instead of a viewport-derived
-   percentage, scale the type down on short screens, and keep a scroll fallback
-   so text can never be silently lost.
+   Now the image and caption are always flush, the paragraph is never clipped,
+   and neither depends on viewport height. The expand-on-hover animation is
+   preserved: the description still transitions its max-height, and the image
+   yields space smoothly as the footer grows.
    =========================================================================== */
 
-/* Let the expanded footer grow to fit its text. */
+.card {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+/* Image takes the leftover space instead of a fixed inset. */
+.card-media {
+  position: relative !important;
+  inset: auto !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  margin: 8px 8px 0 !important;
+  transition: none !important;
+}
+
+/* Neutralise the percentage offsets that produced the gap. */
+.card--hovered .card-media {
+  bottom: auto !important;
+  inset: auto !important;
+}
+
+.card-media-inner {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 90px !important;
+}
+
+/* Caption sits directly under the image and sizes to its own content. */
+.card-footer {
+  position: relative !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  height: auto !important;
+  flex: 0 0 auto !important;
+  padding: 0 20px 18px !important;
+  overflow: hidden !important;
+}
+
 .card--hovered .card-footer {
   height: auto !important;
-  min-height: 35% !important;
-  max-height: calc(100% - 16px) !important;
-  padding-bottom: 18px !important;
-  justify-content: flex-end !important;
-  gap: 4px !important;
+  justify-content: flex-start !important;
 }
 
-/* Pull the image up far enough that the taller footer has somewhere to live. */
-.card--hovered .card-media {
-  bottom: 52% !important;
+.card-footer-top {
+  padding-top: 16px !important;
 }
 
-/* Never clip the paragraph; scroll only as a last resort. */
+/* The reveal animation, unchanged in feel — only the container is different. */
+.card-desc-wrap {
+  max-height: 0 !important;
+  overflow: hidden !important;
+}
+
 .card--hovered .card-desc-wrap {
-  max-height: none !important;
-  overflow: visible !important;
+  max-height: 420px !important;
 }
 
 .card-desc {
-  padding-bottom: 4px !important;
+  padding-bottom: 0 !important;
+  padding-top: 8px !important;
   overflow-wrap: break-word !important;
-  hyphens: auto !important;
 }
 
-/* ---- short viewports: shrink the type so four lines actually fit ---------- */
+/* ---- fluid type so four lines fit without shrinking the image ------------- */
+.card-label {
+  font-size: clamp(22px, 2.4vw, 40px) !important;
+  line-height: 1.1 !important;
+}
+
+.card-desc {
+  font-size: clamp(12px, 1.15vw, 20px) !important;
+  line-height: 1.35 !important;
+}
+
 @media (max-height: 900px) {
   .about-section {
     padding: 92px 24px 24px !important;
@@ -376,30 +422,19 @@ svg {
     font-size: clamp(20px, 2.1vw, 32px) !important;
   }
 
-  .card-footer-top {
-    padding-top: 14px !important;
-  }
-
   .card-desc {
     font-size: clamp(11px, 1.05vw, 15px) !important;
-    line-height: 1.3 !important;
+  }
+
+  .card-footer-top {
+    padding-top: 12px !important;
   }
 
   .card-footer {
-    height: 96px !important;
-    padding: 0 16px !important;
-  }
-
-  .card-media {
-    inset: 8px 8px 96px !important;
-  }
-
-  .card--hovered .card-media {
-    bottom: 58% !important;
+    padding-bottom: 14px !important;
   }
 }
 
-/* Very short windows — the description needs most of the card. */
 @media (max-height: 680px) {
   .about-title {
     font-size: clamp(28px, 3.6vw, 42px) !important;
@@ -409,16 +444,12 @@ svg {
     font-size: clamp(10px, 0.95vw, 13px) !important;
   }
 
-  .card--hovered .card-media {
-    bottom: 64% !important;
-  }
-
-  .card--hovered .card-footer {
-    min-height: 45% !important;
+  .card-media-inner {
+    min-height: 70px !important;
   }
 }
 
-/* ---- narrow screens: the three-up grid has no room for prose -------------- */
+/* ---- narrow screens: three columns leave no room for prose ---------------- */
 @media (max-width: 900px) {
   .about-section {
     height: auto !important;
@@ -432,11 +463,21 @@ svg {
 
   .card {
     height: auto !important;
-    min-height: 240px !important;
+  }
+
+  /* Give the image a real height here — the flex row is no longer bounded by
+     the section, so `flex: 1` alone would collapse it to nothing. */
+  .card-media {
+    flex: 0 0 auto !important;
+    aspect-ratio: 16 / 10 !important;
+  }
+
+  .card-media-inner {
+    height: 100% !important;
   }
 }
 
-/* Touch devices have no hover, so the description must be visible by default. */
+/* ---- touch: no hover, so the description must be open by default ---------- */
 @media (hover: none) {
   .card-desc-wrap {
     opacity: 1 !important;
@@ -444,16 +485,22 @@ svg {
     overflow: visible !important;
   }
 
-  .card-footer {
-    height: auto !important;
-    min-height: 130px !important;
-    padding-bottom: 18px !important;
+  .card-media {
+    flex: 0 0 auto !important;
+    aspect-ratio: 16 / 10 !important;
   }
 
-  .card-media {
-    position: relative !important;
-    inset: auto !important;
-    aspect-ratio: 4 / 3 !important;
-    margin: 8px !important;
+  .card-media-inner {
+    height: 100% !important;
+    min-height: 140px !important;
+  }
+
+  /* The video only plays on hover; keep the still visible instead. */
+  .card-img {
+    opacity: 1 !important;
+  }
+
+  .card-video {
+    opacity: 0 !important;
   }
 }
