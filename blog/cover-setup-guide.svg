@@ -26,8 +26,8 @@
   <!-- central node: Claude Code -->
   <g>
     <rect x="470" y="250" width="260" height="120" rx="16" fill="#16161a" stroke="url(#accent)" stroke-width="1.5"/>
-    <rect x="530" y="234" width="140" height="30" rx="8" fill="url(#accent)"/>
-    <text x="600" y="254" text-anchor="middle" fill="#fff" font-size="13" font-weight="700" letter-spacing="1">ГЛАВНЫЙ ИНСТРУМЕНТ</text>
+    <rect x="480" y="232" width="240" height="30" rx="8" fill="url(#accent)"/>
+    <text x="600" y="252" text-anchor="middle" fill="#fff" font-size="13" font-weight="700" letter-spacing="1">ГЛАВНЫЙ ИНСТРУМЕНТ</text>
     <!-- claude spark -->
     <g transform="translate(600,296)" stroke="#e88a5a" stroke-width="3" stroke-linecap="round">
       <line x1="0" y1="-16" x2="0" y2="-6"/>
