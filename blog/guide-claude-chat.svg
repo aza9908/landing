@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 360" font-family="'Inter Tight',system-ui,sans-serif">
+  <rect width="900" height="360" fill="#0d0d16"/>
+  <!-- VS Code window -->
+  <rect x="40" y="24" width="820" height="312" rx="12" fill="#1e1e2e" stroke="#2a2a3e"/>
+  <rect x="40" y="24" width="820" height="34" rx="12" fill="#181825"/>
+  <circle cx="62" cy="41" r="5" fill="#ff5f57"/><circle cx="80" cy="41" r="5" fill="#febc2e"/><circle cx="98" cy="41" r="5" fill="#28c840"/>
+  <text x="450" y="45" text-anchor="middle" fill="#6a6a80" font-family="'Victor Mono',monospace" font-size="12">my-first-project — Claude Code</text>
+
+  <!-- left: file tree -->
+  <rect x="40" y="58" width="200" height="278" fill="#181825"/>
+  <text x="60" y="86" fill="#6a6a80" font-family="'Victor Mono',monospace" font-size="12">ПРОЕКТ</text>
+  <text x="60" y="112" fill="#b6b6c6" font-family="'Victor Mono',monospace" font-size="13">📁 src</text>
+  <text x="60" y="134" fill="#b6b6c6" font-family="'Victor Mono',monospace" font-size="13">📄 index.html</text>
+  <text x="60" y="156" fill="#b6b6c6" font-family="'Victor Mono',monospace" font-size="13">📄 style.css</text>
+
+  <!-- right: Claude chat panel -->
+  <rect x="240" y="58" width="620" height="278" fill="#11111b"/>
+  <g transform="translate(272,88)" stroke="#e88a5a" stroke-width="2.2" stroke-linecap="round">
+    <line x1="0" y1="-10" x2="0" y2="-3"/><line x1="0" y1="3" x2="0" y2="10"/>
+    <line x1="-10" y1="0" x2="-3" y2="0"/><line x1="3" y1="0" x2="10" y2="0"/>
+    <line x1="-7" y1="-7" x2="-2.5" y2="-2.5"/><line x1="2.5" y1="2.5" x2="7" y2="7"/>
+    <line x1="7" y1="-7" x2="2.5" y2="-2.5"/><line x1="-2.5" y1="2.5" x2="-7" y2="7"/>
+  </g>
+  <text x="292" y="93" fill="#fff" font-size="15" font-weight="600">Claude Code</text>
+
+  <!-- user message bubble -->
+  <rect x="272" y="120" width="556" height="72" rx="10" fill="#6c5ce0" opacity="0.14"/>
+  <rect x="272" y="120" width="556" height="72" rx="10" fill="none" stroke="#6c5ce055"/>
+  <text x="292" y="148" fill="#e8e8f2" font-family="'Victor Mono',monospace" font-size="14">Сделай простую страницу-визитку обо мне</text>
+  <text x="292" y="172" fill="#e8e8f2" font-family="'Victor Mono',monospace" font-size="14">с именем, профессией и кнопкой «написать».</text>
+
+  <!-- claude reply bubble -->
+  <rect x="272" y="204" width="556" height="60" rx="10" fill="#1a1a26" stroke="#2a2a3e"/>
+  <text x="292" y="230" fill="#b6b6c6" font-family="'Victor Mono',monospace" font-size="13">Готово. Создал index.html и style.css.</text>
+  <text x="292" y="250" fill="#b6b6c6" font-family="'Victor Mono',monospace" font-size="13">Открыть предпросмотр?</text>
+
+  <!-- input -->
+  <rect x="272" y="284" width="556" height="38" rx="9" fill="#0d0d16" stroke="#33334a"/>
+  <text x="292" y="308" fill="#5a5a70" font-family="'Victor Mono',monospace" font-size="13">Напишите, что сделать…</text>
+</svg>

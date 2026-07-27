@@ -901,3 +901,171 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 .blog-logo .brand-logo { height: 30px; width: auto; display: block; }
 [data-theme='light'] .blog-logo .brand-logo { content: url('/logo-airl.png'); }
 @media (max-width: 768px) { .blog-logo .brand-logo { height: 26px; } }
+
+/* ===========================================================================
+   Step-by-step guide components (setup article)
+   =========================================================================== */
+.guide-steps {
+  counter-reset: guidestep;
+  margin: 28px 0 8px;
+}
+
+.guide-step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 18px;
+  padding: 22px 0;
+  border-top: 1px solid #26263a;
+}
+.guide-step:first-child { border-top: none; }
+
+.guide-step::before {
+  counter-increment: guidestep;
+  content: counter(guidestep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #6c5ce0;
+  color: #fff;
+  font-family: 'Inter Tight', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.guide-step-body h3 {
+  margin: 4px 0 8px !important;
+  font-size: 20px !important;
+}
+.guide-step-body p { margin-bottom: 12px; }
+.guide-step-body p:last-child { margin-bottom: 0; }
+
+.guide-figure {
+  margin: 16px 0 4px;
+  border: 1px solid #26263a;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #0d0d16;
+}
+.guide-figure img { display: block; width: 100%; height: auto; }
+.guide-figure figcaption {
+  padding: 10px 16px;
+  font-size: 13px;
+  color: #79798e;
+  border-top: 1px solid #26263a;
+  font-family: 'Victor Mono', monospace;
+}
+
+/* Inline "what you type into Claude" block */
+.guide-say {
+  border: 1px solid #6c5ce044;
+  background: #6c5ce012;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 14px 0;
+}
+.guide-say .guide-say-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Victor Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #b9a4ff;
+  margin-bottom: 8px;
+}
+.guide-say p {
+  margin: 0 !important;
+  color: #e8e8f2;
+  font-family: 'Victor Mono', monospace;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+/* Callout / warning box */
+.guide-note {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 12px;
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin: 20px 0;
+  background: #16161f;
+  border: 1px solid #2c2c40;
+}
+.guide-note.tip { border-color: #6c5ce055; background: #6c5ce012; }
+.guide-note.warn { border-color: #e0b15533; background: #e0b1550f; }
+.guide-note-icon { font-size: 18px; line-height: 1.4; }
+.guide-note p { margin: 0 !important; font-size: 15px; }
+.guide-note strong { color: #fff; }
+
+/* Two-column platform split (Mac / Windows) */
+.guide-os {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 16px 0;
+}
+.guide-os-col {
+  border: 1px solid #26263a;
+  border-radius: 12px;
+  padding: 16px 18px;
+  background: #0f0f18;
+}
+.guide-os-col h4 {
+  font-family: 'Inter Tight', sans-serif;
+  color: #fff;
+  font-size: 15px;
+  margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.guide-os-col p { font-size: 14px !important; margin: 0 !important; color: #b6b6c6; }
+
+/* Recap checklist */
+.guide-checklist {
+  list-style: none;
+  margin: 16px 0 0 !important;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.guide-checklist li {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 10px;
+  align-items: start;
+  padding: 12px 14px;
+  border: 1px solid #26263a;
+  border-radius: 10px;
+  background: #0f0f18;
+  margin: 0 !important;
+}
+.guide-checklist li::before {
+  content: '✓';
+  color: #6c5ce0;
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .guide-os { grid-template-columns: 1fr; }
+  .guide-step { grid-template-columns: 36px 1fr; gap: 12px; }
+  .guide-step::before { width: 36px; height: 36px; font-size: 17px; }
+}
+
+/* Light theme */
+[data-theme='light'] .guide-step { border-color: #e6e6ef; }
+[data-theme='light'] .guide-figure,
+[data-theme='light'] .guide-os-col,
+[data-theme='light'] .guide-checklist li { background: #fff; border-color: #e6e6ef; }
+[data-theme='light'] .guide-figure figcaption { color: #79798e; border-color: #e6e6ef; }
+[data-theme='light'] .guide-os-col p { color: #4a4a5e; }
+[data-theme='light'] .guide-say p,
+[data-theme='light'] .guide-note p { color: #16161a; }
+[data-theme='light'] .guide-note { background: #f4f4fb; border-color: #e6e6ef; }
+[data-theme='light'] .guide-figure { background: #f7f7fc; }

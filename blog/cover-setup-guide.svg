@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" font-family="'Inter Tight',system-ui,sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d0d16"/>
+      <stop offset="1" stop-color="#14141f"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6c5ce0"/>
+      <stop offset="1" stop-color="#8b7bff"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity="0.04"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+
+  <!-- eyebrow -->
+  <text x="80" y="86" fill="#79798e" font-family="'Victor Mono',monospace" font-size="15" letter-spacing="3">// НАСТРОЙКА · VIBE CODING</text>
+
+  <!-- title -->
+  <text x="78" y="150" fill="#fff" font-size="52" font-weight="700" letter-spacing="-1">Claude Code в VS&#160;Code</text>
+  <text x="80" y="200" fill="#b6b6c6" font-size="22" font-weight="400">Пишете задачу словами — ИИ пишет код. Без терминала.</text>
+
+  <!-- central node: Claude Code -->
+  <g>
+    <rect x="470" y="250" width="260" height="120" rx="16" fill="#16161a" stroke="url(#accent)" stroke-width="1.5"/>
+    <rect x="530" y="234" width="140" height="30" rx="8" fill="url(#accent)"/>
+    <text x="600" y="254" text-anchor="middle" fill="#fff" font-size="13" font-weight="700" letter-spacing="1">ГЛАВНЫЙ ИНСТРУМЕНТ</text>
+    <!-- claude spark -->
+    <g transform="translate(600,296)" stroke="#e88a5a" stroke-width="3" stroke-linecap="round">
+      <line x1="0" y1="-16" x2="0" y2="-6"/>
+      <line x1="0" y1="6" x2="0" y2="16"/>
+      <line x1="-16" y1="0" x2="-6" y2="0"/>
+      <line x1="6" y1="0" x2="16" y2="0"/>
+      <line x1="-11" y1="-11" x2="-4" y2="-4"/>
+      <line x1="4" y1="4" x2="11" y2="11"/>
+      <line x1="11" y1="-11" x2="4" y2="-4"/>
+      <line x1="-4" y1="4" x2="-11" y2="11"/>
+    </g>
+    <text x="600" y="340" text-anchor="middle" fill="#fff" font-size="22" font-weight="700">Claude Code</text>
+    <text x="600" y="360" text-anchor="middle" fill="#8a8a9e" font-family="'Victor Mono',monospace" font-size="12">пишет код за вас — словами</text>
+  </g>
+
+  <!-- connector -->
+  <line x1="600" y1="370" x2="600" y2="410" stroke="#3a3a52" stroke-width="2"/>
+  <line x1="230" y1="410" x2="970" y2="410" stroke="#3a3a52" stroke-width="2"/>
+
+  <!-- three feet -->
+  <g font-size="16" font-weight="600">
+    <!-- VS Code -->
+    <line x1="230" y1="410" x2="230" y2="440" stroke="#3a3a52" stroke-width="2"/>
+    <rect x="110" y="440" width="240" height="120" rx="12" fill="#101019" stroke="#2a2a3e"/>
+    <g transform="translate(230,478)">
+      <path d="M18 -14 L18 14 L4 8 L-14 20 L-20 16 L-4 0 L-20 -16 L-14 -20 L4 -8 L18 -14 Z" fill="#3aa0e3"/>
+    </g>
+    <text x="230" y="522" text-anchor="middle" fill="#fff">VS Code</text>
+    <text x="230" y="544" text-anchor="middle" fill="#79798e" font-family="'Victor Mono',monospace" font-size="12" font-weight="400">окно, где живёт Claude</text>
+
+    <!-- GitHub -->
+    <line x1="600" y1="410" x2="600" y2="440" stroke="#3a3a52" stroke-width="2"/>
+    <rect x="480" y="440" width="240" height="120" rx="12" fill="#101019" stroke="#2a2a3e"/>
+    <g transform="translate(600,478)" fill="#fff">
+      <path d="M0 -20 a20 20 0 0 0 -6.3 39 c1 .2 1.4 -.4 1.4 -1 v-3.5 c-5.6 1.2 -6.8 -2.7 -6.8 -2.7 c-.9 -2.3 -2.2 -3 -2.2 -3 c-1.8 -1.3 .1 -1.2 .1 -1.2 c2 .1 3.1 2.1 3.1 2.1 c1.8 3.1 4.7 2.2 5.8 1.7 c.2 -1.3 .7 -2.2 1.3 -2.7 c-4.5 -.5 -9.2 -2.3 -9.2 -10 c0 -2.2 .8 -4 2.1 -5.4 c-.2 -.5 -.9 -2.6 .2 -5.3 c0 0 1.7 -.5 5.5 2 a19 19 0 0 1 10 0 c3.8 -2.6 5.5 -2 5.5 -2 c1.1 2.7 .4 4.8 .2 5.3 c1.3 1.4 2.1 3.2 2.1 5.4 c0 7.7 -4.7 9.4 -9.2 9.9 c.7 .6 1.4 1.9 1.4 3.8 v5.6 c0 .6 .4 1.2 1.4 1 A20 20 0 0 0 0 -20 Z"/>
+    </g>
+    <text x="600" y="522" text-anchor="middle" fill="#fff">GitHub</text>
+    <text x="600" y="544" text-anchor="middle" fill="#79798e" font-family="'Victor Mono',monospace" font-size="12" font-weight="400">облако для вашего кода</text>
+
+    <!-- Claude Pro -->
+    <line x1="970" y1="410" x2="970" y2="440" stroke="#3a3a52" stroke-width="2"/>
+    <rect x="850" y="440" width="240" height="120" rx="12" fill="#101019" stroke="#2a2a3e"/>
+    <g transform="translate(970,478)" stroke="#e88a5a" stroke-width="2.5" stroke-linecap="round">
+      <line x1="0" y1="-13" x2="0" y2="-5"/><line x1="0" y1="5" x2="0" y2="13"/>
+      <line x1="-13" y1="0" x2="-5" y2="0"/><line x1="5" y1="0" x2="13" y2="0"/>
+      <line x1="-9" y1="-9" x2="-3.5" y2="-3.5"/><line x1="3.5" y1="3.5" x2="9" y2="9"/>
+      <line x1="9" y1="-9" x2="3.5" y2="-3.5"/><line x1="-3.5" y1="3.5" x2="-9" y2="9"/>
+    </g>
+    <text x="970" y="522" text-anchor="middle" fill="#fff">Claude Pro</text>
+    <text x="970" y="544" text-anchor="middle" fill="#79798e" font-family="'Victor Mono',monospace" font-size="12" font-weight="400">подписка $20/мес</text>
+  </g>
+</svg>

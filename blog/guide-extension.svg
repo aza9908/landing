@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 360" font-family="'Inter Tight',system-ui,sans-serif">
+  <rect width="900" height="360" fill="#0d0d16"/>
+  <!-- VS Code window mock -->
+  <rect x="40" y="30" width="820" height="300" rx="12" fill="#1e1e2e" stroke="#2a2a3e"/>
+  <!-- title bar -->
+  <rect x="40" y="30" width="820" height="34" rx="12" fill="#181825"/>
+  <circle cx="62" cy="47" r="5" fill="#ff5f57"/><circle cx="80" cy="47" r="5" fill="#febc2e"/><circle cx="98" cy="47" r="5" fill="#28c840"/>
+  <text x="450" y="51" text-anchor="middle" fill="#6a6a80" font-family="'Victor Mono',monospace" font-size="12">Visual Studio Code — Extensions</text>
+
+  <!-- activity bar -->
+  <rect x="40" y="64" width="52" height="266" fill="#181825"/>
+  <!-- extensions icon (highlighted) -->
+  <g transform="translate(66,110)">
+    <rect x="-16" y="-16" width="32" height="32" rx="6" fill="#6c5ce0" opacity="0.18"/>
+    <g fill="#c7c7ff"><rect x="-9" y="-9" width="7" height="7"/><rect x="1" y="-9" width="7" height="7"/><rect x="-9" y="1" width="7" height="7"/><rect x="2" y="2" width="7" height="7" transform="rotate(8 5 5)"/></g>
+  </g>
+
+  <!-- search box -->
+  <rect x="108" y="80" width="360" height="34" rx="7" fill="#11111b" stroke="#33334a"/>
+  <text x="124" y="102" fill="#fff" font-family="'Victor Mono',monospace" font-size="14">Claude Code</text>
+
+  <!-- result card -->
+  <rect x="108" y="128" width="360" height="180" rx="10" fill="#181825" stroke="#3a3a52"/>
+  <g transform="translate(140,164)" stroke="#e88a5a" stroke-width="2.5" stroke-linecap="round">
+    <line x1="0" y1="-12" x2="0" y2="-4"/><line x1="0" y1="4" x2="0" y2="12"/>
+    <line x1="-12" y1="0" x2="-4" y2="0"/><line x1="4" y1="0" x2="12" y2="0"/>
+    <line x1="-8.5" y1="-8.5" x2="-3" y2="-3"/><line x1="3" y1="3" x2="8.5" y2="8.5"/>
+    <line x1="8.5" y1="-8.5" x2="3" y2="-3"/><line x1="-3" y1="3" x2="-8.5" y2="8.5"/>
+  </g>
+  <text x="168" y="160" fill="#fff" font-size="16" font-weight="600">Claude Code</text>
+  <text x="168" y="180" fill="#8a8a9e" font-family="'Victor Mono',monospace" font-size="12">Anthropic</text>
+  <text x="140" y="220" fill="#b6b6c6" font-family="'Victor Mono',monospace" font-size="12">ИИ-ассистент прямо</text>
+  <text x="140" y="238" fill="#b6b6c6" font-family="'Victor Mono',monospace" font-size="12">в редакторе</text>
+  <rect x="140" y="256" width="120" height="36" rx="8" fill="#6c5ce0"/>
+  <text x="200" y="280" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">Install</text>
+
+  <!-- annotation -->
+  <g stroke="#6c5ce0" stroke-width="2" fill="none">
+    <path d="M478 274 C540 274 540 210 500 200"/>
+    <path d="M508 196 L498 200 L505 208"/>
+  </g>
+  <text x="560" y="230" fill="#fff" font-size="16" font-weight="600">Ставим только</text>
+  <text x="560" y="254" fill="#fff" font-size="16" font-weight="600">одно расширение</text>
+  <text x="560" y="282" fill="#79798e" font-family="'Victor Mono',monospace" font-size="12">больше ничего не нужно</text>
+</svg>

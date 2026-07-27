@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300" font-family="'Inter Tight',system-ui,sans-serif">
+  <rect width="900" height="300" fill="#0d0d16"/>
+
+  <!-- download button mock -->
+  <rect x="330" y="30" width="240" height="54" rx="10" fill="#3aa0e3"/>
+  <g transform="translate(372,57)"><path d="M14 -11 L14 11 L3 6 L-11 16 L-16 12 L-3 0 L-16 -13 L-11 -16 L3 -6 L14 -11 Z" fill="#fff"/></g>
+  <text x="470" y="63" text-anchor="middle" fill="#fff" font-size="16" font-weight="600">Скачать VS Code</text>
+  <text x="450" y="106" text-anchor="middle" fill="#79798e" font-family="'Victor Mono',monospace" font-size="13">code.visualstudio.com/download</text>
+
+  <!-- Mac column -->
+  <g>
+    <rect x="70" y="140" width="360" height="130" rx="12" fill="#16161f" stroke="#2a2a3e"/>
+    <text x="98" y="172" fill="#fff" font-size="17" font-weight="600"> Mac</text>
+    <text x="98" y="202" fill="#b6b6c6" font-family="'Victor Mono',monospace" font-size="13">1. Открыть скачанный .zip</text>
+    <text x="98" y="226" fill="#b6b6c6" font-family="'Victor Mono',monospace" font-size="13">2. Перетащить иконку</text>
+    <text x="118" y="248" fill="#b6b6c6" font-family="'Victor Mono',monospace" font-size="13">в папку «Программы»</text>
+  </g>
+
+  <!-- Windows column -->
+  <g>
+    <rect x="470" y="140" width="360" height="130" rx="12" fill="#16161f" stroke="#2a2a3e"/>
+    <g transform="translate(498,162)"><rect x="0" y="0" width="9" height="9" fill="#3aa0e3"/><rect x="11" y="0" width="9" height="9" fill="#3aa0e3"/><rect x="0" y="11" width="9" height="9" fill="#3aa0e3"/><rect x="11" y="11" width="9" height="9" fill="#3aa0e3"/></g>
+    <text x="530" y="172" fill="#fff" font-size="17" font-weight="600">Windows</text>
+    <text x="498" y="202" fill="#b6b6c6" font-family="'Victor Mono',monospace" font-size="13">1. Запустить .exe</text>
+    <text x="498" y="226" fill="#b6b6c6" font-family="'Victor Mono',monospace" font-size="13">2. «Далее» на всех шагах</text>
+    <text x="498" y="248" fill="#b6b6c6" font-family="'Victor Mono',monospace" font-size="13">3. Готово</text>
+  </g>
+</svg>

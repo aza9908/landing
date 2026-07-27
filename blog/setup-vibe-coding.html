@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Как настроить Claude Code в VS Code: пошаговый гайд для новичков | AI Research Labs</title>
+    <meta name="description" content="Пошаговая инструкция для начинающих: как с нуля настроить Claude Code внутри VS Code на Mac и Windows. Google-почта, аккаунт GitHub, установка редактора и первое задание ИИ — без терминала." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Victor+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/blog/blog.css?v=24" />
+  </head>
+  <body>
+    <div class="blog-shell">
+      <header class="blog-topbar">
+        <a href="/" class="blog-logo">
+          <img src="/logo-airl-white.png" alt="AI Research Labs" class="brand-logo" />
+        </a>
+        <nav class="blog-topnav">
+          <a href="/">Главная</a>
+          <a href="/blog/" class="active">Блог</a>
+          <a href="/#contacts">Контакты</a>
+        </nav>
+        <button type="button" class="theme-toggle" id="themeToggle" aria-label="Переключить тему">☀️</button>
+      </header>
+
+      <main class="blog-main article-main">
+        <a href="/blog/" class="back-link">← Все статьи</a>
+
+        <div class="blog-post-tags article-tags">
+          <span class="tag">Гайд</span>
+          <span class="tag">Vibe Coding</span>
+          <span class="tag">Для новичков</span>
+        </div>
+
+        <h1 class="article-title">Как настроить Claude Code в VS Code: пошаговый гайд для новичков</h1>
+
+        <div class="article-meta">
+          <div class="blog-post-author">
+            <span class="author-badge">AI</span>
+            <div>
+              <strong>AI Research Labs</strong>
+              <span>Центр прикладного ИИ</span>
+            </div>
+          </div>
+          <span>2026 · 10 мин чтения</span>
+        </div>
+
+        <figure class="article-hero">
+          <img src="/blog/cover-setup-guide.svg" alt="Схема: Claude Code в центре, вокруг — VS Code, GitHub и подписка Claude Pro" />
+        </figure>
+
+        <article class="article-body">
+          <p class="lead">
+            Этот гайд — для тех, кто никогда не писал код, но хочет собирать сайты и приложения,
+            описывая их словами. Мы поставим всего одну связку: редактор VS Code и внутри него
+            ИИ-помощника Claude Code. Никакого «чёрного окна» терминала — только мышка, кнопки
+            и понятный чат. Пройти всё можно примерно за час.
+          </p>
+
+          <div class="guide-note tip">
+            <span class="guide-note-icon">💡</span>
+            <p><strong>Как читать этот гайд.</strong> Сначала пробегите глазами весь текст
+            до конца, а потом вернитесь и идите строго по шагам. Каждый шаг подписан
+            отдельно для Mac и для Windows, если между ними есть разница.</p>
+          </div>
+
+          <h2>Что мы поставим и зачем</h2>
+          <p>
+            Чтобы «программировать словами», нужно всего три вещи. Вот они простыми аналогиями:
+          </p>
+          <ul>
+            <li><strong>VS Code</strong> — как Microsoft Word, только для кода. Это окно, в котором мы работаем.</li>
+            <li><strong>Claude Code</strong> — ИИ-помощник, который живёт внутри VS Code. Вы пишете ему задачу обычными словами — он пишет код.</li>
+            <li><strong>GitHub</strong> — облако для кода, как Google Диск, но с историей всех изменений. Здесь код хранится и отсюда сайт попадает в интернет.</li>
+          </ul>
+          <p>
+            Сам набор инструментов бесплатный. Платная только подписка Claude Pro —
+            это «зарплата» вашему ИИ-помощнику, около $20 в месяц.
+          </p>
+
+          <h2>Шаг 0. Заведите почту Google (Gmail)</h2>
+          <p>
+            С неё начинается всё остальное. Через Google-почту удобнее всего регистрироваться
+            в GitHub и в Claude — не придётся заводить и запоминать отдельные пароли.
+            <strong>Если у вас уже есть Gmail — этот шаг можно пропустить.</strong>
+          </p>
+
+          <div class="guide-steps">
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Откройте страницу регистрации</h3>
+                <p>Зайдите на <strong>accounts.google.com/signup</strong> в любом браузере.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Заполните имя и придумайте адрес</h3>
+                <p>Google предложит свободные варианты адреса. Выберите спокойный, «взрослый»
+                вариант — его вы будете называть коллегам и указывать в резюме.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Задайте пароль и подтвердите телефон</h3>
+                <p>Google пришлёт код по SMS. Введите его — и почта готова.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="guide-note tip">
+            <span class="guide-note-icon">💡</span>
+            <p><strong>Совет.</strong> Запишите логин и пароль от Google в надёжное место
+            (например, в заметки телефона под кодом). Дальше мы будем входить через этот
+            аккаунт в другие сервисы.</p>
+          </div>
+
+          <h2>Шаг 1. Создайте аккаунт на GitHub через Google</h2>
+          <p>
+            GitHub — это облако, где хранится ваш код. Регистрируемся один раз.
+          </p>
+
+          <figure class="guide-figure">
+            <img src="/blog/guide-github.svg" alt="Регистрация на GitHub: используем существующую Google-почту, вводим username и создаём аккаунт" />
+            <figcaption>Регистрация на github.com/signup — почтой укажите свой Gmail</figcaption>
+          </figure>
+
+          <div class="guide-steps">
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Откройте github.com/signup</h3>
+                <p>В поле почты введите <strong>свой Gmail</strong>, который завели на шаге 0.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Придумайте username</h3>
+                <p>Это имя станет частью адреса ваших проектов: <em>github.com/ваш-username</em>.
+                Возьмите короткое и понятное, например <em>azamat-dev</em>.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Подтвердите почту</h3>
+                <p>GitHub пришлёт код на ваш Gmail. Введите его — и аккаунт готов.
+                Тариф выбирайте <strong>Free</strong>, его хватит на всё обучение.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="guide-note tip">
+            <span class="guide-note-icon">🔗</span>
+            <p><strong>Зачем нужен Gmail именно здесь.</strong> Когда почта GitHub совпадает
+            с вашей Google-почтой, вход в другие сервисы (и восстановление доступа, если
+            забудете пароль) проходит без лишней возни. Поэтому Gmail желательно иметь всем.</p>
+          </div>
+
+          <h2>Шаг 2. Установите VS Code</h2>
+          <p>
+            VS Code — бесплатный редактор от Microsoft, самый популярный в мире.
+            Это то окно, в котором вы будете видеть проект и общаться с Claude.
+          </p>
+
+          <figure class="guide-figure">
+            <img src="/blog/guide-vscode.svg" alt="Скачивание VS Code и установка отдельно для Mac и для Windows" />
+            <figcaption>code.visualstudio.com/download — сайт сам предложит версию под вашу систему</figcaption>
+          </figure>
+
+          <div class="guide-steps">
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Скачайте установщик</h3>
+                <p>Зайдите на <strong>code.visualstudio.com/download</strong> и нажмите большую
+                кнопку под вашу систему. Сайт обычно сам определяет, Mac у вас или Windows.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Установите</h3>
+                <div class="guide-os">
+                  <div class="guide-os-col">
+                    <h4> Mac</h4>
+                    <p>Откройте скачанный файл и перетащите иконку VS Code в папку «Программы».</p>
+                  </div>
+                  <div class="guide-os-col">
+                    <h4>▦ Windows</h4>
+                    <p>Запустите скачанный .exe и жмите «Далее» на всех экранах — настройки по умолчанию подходят.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Откройте VS Code</h3>
+                <p>Запустите программу. Слева будут файлы проекта, посередине — рабочая область.
+                Пока просто убедитесь, что редактор открывается.</p>
+              </div>
+            </div>
+          </div>
+
+          <h2>Шаг 3. Поставьте расширение Claude Code</h2>
+          <p>
+            Расширение — это «надстройка» к редактору. Нам нужна ровно одна: <strong>Claude Code</strong>.
+            Она добавляет ИИ-помощника прямо в окно VS Code.
+          </p>
+
+          <figure class="guide-figure">
+            <img src="/blog/guide-extension.svg" alt="Панель расширений в VS Code: ищем Claude Code и нажимаем Install" />
+            <figcaption>Панель Extensions → поиск «Claude Code» → кнопка Install</figcaption>
+          </figure>
+
+          <div class="guide-steps">
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Откройте панель расширений</h3>
+                <p>Слева в VS Code найдите иконку из четырёх квадратиков (Extensions).
+                На Mac её также открывает <em>Cmd+Shift+X</em>, на Windows — <em>Ctrl+Shift+X</em>.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Найдите Claude Code</h3>
+                <p>В строке поиска наберите <strong>Claude Code</strong>. Нужное расширение — от Anthropic.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Нажмите Install</h3>
+                <p>Дождитесь окончания установки. Больше ничего ставить не нужно —
+                Claude сам умеет форматировать код, находить ошибки и сохранять изменения.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="guide-note warn">
+            <span class="guide-note-icon">⚠️</span>
+            <p><strong>Не ставьте лишнее.</strong> Новичку легко закопаться в десятках расширений.
+            Для старта достаточно одного Claude Code — остальное только запутает.</p>
+          </div>
+
+          <h2>Шаг 4. Войдите в Claude и оформите подписку</h2>
+          <p>
+            Чтобы помощник заработал, нужен аккаунт Claude и подписка Pro.
+          </p>
+
+          <div class="guide-steps">
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Создайте аккаунт Claude</h3>
+                <p>Зайдите на <strong>claude.ai</strong> и войдите <strong>через Google</strong> —
+                тем же Gmail. Отдельный пароль заводить не придётся.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Оформите Claude Pro</h3>
+                <p>На странице <strong>claude.ai/upgrade</strong> выберите тариф Pro (около $20/мес).
+                Бесплатного тарифа для полноценной работы с Claude Code не хватает.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Подключите Claude Code к аккаунту</h3>
+                <p>Вернитесь в VS Code, откройте панель Claude Code (иконка искры слева)
+                и нажмите «Войти». Откроется браузер — подтвердите вход тем же аккаунтом Claude.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="guide-note tip">
+            <span class="guide-note-icon">💳</span>
+            <p><strong>Оплата из Казахстана.</strong> Карты Kaspi и Halyk напрямую часто
+            не проходят. Обычно оформляют виртуальную долларовую карту (например, Wise)
+            и пополняют её через Kaspi — способ полностью легальный.</p>
+          </div>
+
+          <h2>Шаг 5. Дайте Claude первое задание</h2>
+          <p>
+            Всё готово. Теперь самое приятное — просто попросите Claude что-нибудь сделать
+            обычными словами.
+          </p>
+
+          <figure class="guide-figure">
+            <img src="/blog/guide-claude-chat.svg" alt="Панель Claude Code в VS Code: пользователь пишет задачу словами, Claude отвечает, что создал файлы" />
+            <figcaption>Панель Claude Code: пишете задачу словами — он создаёт файлы</figcaption>
+          </figure>
+
+          <div class="guide-say">
+            <span class="guide-say-label">✦ Пишем Claude</span>
+            <p>Сделай простую страницу-визитку обо мне: имя, профессия и кнопка «написать мне». Потом покажи, как её открыть в браузере.</p>
+          </div>
+
+          <p>
+            Claude создаст нужные файлы и подскажет, как открыть предпросмотр. Если что-то
+            хочется поменять — просто напишите об этом следующим сообщением, например:
+          </p>
+
+          <div class="guide-say">
+            <span class="guide-say-label">✦ Пишем Claude</span>
+            <p>Сделай фон тёмным, а кнопку — фиолетовой и покрупнее.</p>
+          </div>
+
+          <p>
+            Когда результат нравится, попросите сохранить его в облако GitHub:
+          </p>
+
+          <div class="guide-say">
+            <span class="guide-say-label">✦ Пишем Claude</span>
+            <p>Сохрани проект и загрузи его на мой GitHub с понятным описанием.</p>
+          </div>
+
+          <div class="guide-note tip">
+            <span class="guide-note-icon">🗣️</span>
+            <p><strong>Главный принцип.</strong> Не бойтесь «глупых» вопросов и обычного языка.
+            Claude для того и нужен: вы формулируете задачу словами, он превращает её в код
+            и объясняет, что сделал.</p>
+          </div>
+
+          <h2>Короткий чек-лист</h2>
+          <p>Пройдитесь по нему — если все пункты отмечены, вы готовы работать.</p>
+          <ul class="guide-checklist">
+            <li>Есть почта Google (Gmail)</li>
+            <li>Создан аккаунт на GitHub через этот Gmail</li>
+            <li>Установлен VS Code (Mac или Windows)</li>
+            <li>Поставлено расширение Claude Code — и только оно</li>
+            <li>Оформлена подписка Claude Pro и выполнен вход</li>
+            <li>Claude выполнил первое задание, написанное словами</li>
+          </ul>
+
+          <div class="article-cta">
+            <p>Хотите освоить vibe coding с наставником и на реальных задачах?</p>
+            <a href="/#contacts" class="article-cta-btn">Записаться на обучение ↗</a>
+          </div>
+        </article>
+      </main>
+
+      <footer class="blog-footer">
+        <a href="/">← На главную</a>
+        <span>© 2026 AI Research Labs</span>
+      </footer>
+    </div>
+
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var KEY = 'airl-blog-theme';
+        function apply(t) {
+          root.setAttribute('data-theme', t);
+          var b = document.getElementById('themeToggle');
+          if (b) b.textContent = t === 'light' ? '🌙' : '☀️';
+        }
+        apply(localStorage.getItem(KEY) || 'dark');
+        document.addEventListener('DOMContentLoaded', function () {
+          apply(localStorage.getItem(KEY) || 'dark');
+          document.getElementById('themeToggle').addEventListener('click', function () {
+            var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            localStorage.setItem(KEY, next);
+            apply(next);
+          });
+        });
+      })();
+    </script>
+
+        <script src="/firebase-bridge.js?v=24"></script>
+    <script src="/internal-tasks.js?v=24" defer></script>
+    <script src="/request-modal.js?v=24" defer></script>
+  </body>
+</html>
