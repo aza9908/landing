@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Диагностика — AI Research Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0B0B12;--card:#12121C;--line:#2A2A3C;--text:#EDEDF5;--muted:#9A9AB0;
+  --accent:#5B5BCA;--accent-2:#8A8AE0;--err:#E2707A}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--text);
+  font-family:"Inter Tight",Inter,-apple-system,"Segoe UI",Roboto,sans-serif;
+  line-height:1.5;padding:32px 20px 80px}
+.page{max-width:640px;margin:0 auto}
+.brand{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-2);
+  font-weight:700;margin-bottom:28px}
+h1{font-size:32px;font-weight:800;letter-spacing:-.02em;line-height:1.12}
+h2{font-size:19px;font-weight:700;margin-top:36px}
+.sub{margin-top:12px;color:var(--muted);font-size:15px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:26px;margin-top:24px}
+label{display:block;margin-top:20px;font-size:14px;font-weight:600;color:#C8C8DA}
+label .hint{display:block;margin-top:4px;font-size:12.5px;font-weight:400;color:#6B6B85}
+input,select,textarea{width:100%;margin-top:8px;padding:12px 14px;font-size:15px;
+  font-family:inherit;color:var(--text);background:var(--ink);border:1px solid var(--line);
+  border-radius:10px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(91,91,202,.25)}
+textarea{min-height:96px;resize:vertical}
+.code-in{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:22px;
+  letter-spacing:.16em;text-align:center;text-transform:uppercase}
+button{width:100%;margin-top:26px;padding:15px;font-size:16px;font-weight:700;
+  font-family:inherit;color:#fff;background:var(--accent);border:0;border-radius:11px;cursor:pointer}
+button:hover{background:#6C6CD8}
+button[disabled]{opacity:.6;cursor:default}
+button.ghost{background:transparent;border:1px solid var(--line);color:var(--muted);margin-top:12px}
+button.ghost:hover{background:#1A1A28;color:var(--text)}
+.err{margin-top:10px;font-size:13px;color:var(--err);display:none}
+.err.on{display:block}
+.task{border:1px solid var(--line);border-radius:12px;padding:18px;margin-top:16px;
+  background:rgba(255,255,255,.015)}
+.task .n{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--accent-2);
+  font-weight:700;letter-spacing:.1em}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.row label{margin-top:14px}
+.check{display:flex;align-items:flex-start;gap:10px;margin-top:20px;
+  font-size:14px;color:#C8C8DA;cursor:pointer}
+.check input{width:18px;height:18px;margin-top:1px;flex:0 0 18px;accent-color:var(--accent)}
+.steps{margin-top:22px;border-top:1px solid var(--line)}
+.steps div{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--line);
+  font-size:14.5px;color:#C8C8DA}
+.steps span{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--accent-2);
+  font-weight:700;padding-top:2px}
+.mark{width:60px;height:60px;margin:0 auto 20px;border-radius:50%;
+  background:rgba(91,91,202,.16);border:1px solid var(--accent);display:flex;
+  align-items:center;justify-content:center;font-size:28px;color:var(--accent-2)}
+.center{text-align:center}
+.foot{margin-top:26px;font-size:12.5px;color:#5A5A70;text-align:center;line-height:1.6}
+.hidden{display:none}
+.badge{display:inline-block;margin-top:14px;padding:6px 12px;font-size:12.5px;
+  border:1px solid var(--line);border-radius:999px;color:var(--muted)}
+@media(max-width:520px){h1{font-size:26px}.card{padding:20px 18px}.row{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:no-preference){.card{animation:in .25s ease}}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="brand">AI Research Lab</div>
+
+  <!-- Экран 1 — код группы -->
+  <section id="gate">
+    <h1>Диагностика перед воркшопом</h1>
+    <div class="sub">Введите код группы — его выдаёт менеджер после созвона.
+      Анкета занимает 7–10 минут и заполняется один раз каждым сотрудником.</div>
+    <div class="card">
+      <label for="code">Код группы</label>
+      <input id="code" class="code-in" maxlength="12" placeholder="KZN-0000" autocomplete="off">
+      <div class="err" id="codeErr"></div>
+      <button id="codeGo">Продолжить</button>
+    </div>
+    <div class="foot">Кода нет? Оставьте заявку на главной — мы созвонимся и выдадим код.</div>
+  </section>
+
+  <!-- Экран 2 — анкета -->
+  <section id="form" class="hidden">
+    <h1>Расскажите про свою работу</h1>
+    <div class="sub">Отвечайте своими словами, как есть. Красиво формулировать не нужно —
+      важна правда, а не гладкость.</div>
+    <div class="badge" id="company"></div>
+
+    <div class="card">
+      <label>ФИО<span class="hint">Нужно только чтобы не было дублей. В отчёты не попадает.</span>
+        <input id="fio" maxlength="80"></label>
+
+      <label>Должность
+        <input id="role" maxlength="80" placeholder="Менеджер по продажам"></label>
+
+      <label>Отдел
+        <select id="dept">
+          <option>Маркетинг</option><option>Продажи</option><option>Бэк-офис</option>
+          <option>Тренеры</option><option>Сопровождение</option><option>Производство</option>
+          <option>Финансы</option><option>Другое</option>
+        </select></label>
+
+      <h2>Задачи, которые съедают время</h2>
+      <div id="tasks"></div>
+      <button class="ghost" id="addTask" type="button">Добавить ещё задачу</button>
+
+      <h2>Что мешает</h2>
+      <label>Что в этих задачах бесит больше всего
+        <span class="hint">Например: «переписываю одно и то же в третий раз», «жду данные от коллег»</span>
+        <textarea id="pain" maxlength="900"></textarea></label>
+
+      <label>В каких программах работаете
+        <span class="hint">1С, Bitrix24, AmoCRM, Google Sheets, WhatsApp, Excel — через запятую</span>
+        <input id="tools" maxlength="200"></label>
+
+      <label>Какая часть этой работы делается руками
+        <select id="manual">
+          <option value="0">Почти всё автоматически — 0%</option>
+          <option value="0.25">Четверть руками — 25%</option>
+          <option value="0.5">Половина руками — 50%</option>
+          <option value="0.75" selected>Большая часть руками — 75%</option>
+          <option value="1">Всё руками — 100%</option>
+        </select></label>
+
+      <label>Что бы вы поручили помощнику, если бы он у вас был
+        <span class="hint">Самый полезный вопрос. Пишите как есть, даже если кажется, что так нельзя.</span>
+        <textarea id="wish" maxlength="900"></textarea></label>
+
+      <label class="check"><input type="checkbox" id="conf">
+        <span>В этих задачах есть конфиденциальные данные — договоры, персональные
+        данные, зарплаты, медицинские сведения</span></label>
+
+      <div class="err" id="formErr"></div>
+      <button id="send">Отправить ответы</button>
+      <div class="foot">Ответы видит только команда AI Research Lab и методолог вашей компании.
+        В отчёт попадают процессы, а не имена.</div>
+    </div>
+  </section>
+
+  <!-- Экран 3 — спасибо -->
+  <section id="done" class="hidden">
+    <div class="card center">
+      <div class="mark">✓</div>
+      <h1>Спасибо</h1>
+      <div class="sub">Ответы записаны. Дальше — наша работа.</div>
+      <div class="steps" style="text-align:left">
+        <div><span>01</span><div>Собираем ответы всей вашей команды.</div></div>
+        <div><span>02</span><div>Считаем, сколько часов в месяц уходит на каждый процесс,
+          и выбираем те, с которых стоит начать.</div></div>
+        <div><span>03</span><div>На воркшопе вы будете делать инструмент под свою задачу,
+          а не абстрактный пример.</div></div>
+      </div>
+      <button onclick="location.reload()">Заполнить за другого сотрудника</button>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   Настройки. Те же значения, что в airl-lead.js на лендинге.
+------------------------------------------------------------------ */
+var CFG = {
+  project: "landing-page-8e314",
+  key: "AIzaSyDNSjN6mF5R5tVqrVtXeuOu3q6UtUdS39o"
+};
+
+var BASE = "https://firestore.googleapis.com/v1/projects/" + CFG.project +
+           "/databases/(default)/documents/";
+
+var FREQ = ["Несколько раз в день","Ежедневно","Еженедельно","Ежемесячно",
+            "Ежеквартально","По событию","Реже"];
+
+var state = { code: "", company: "" };
+
+/* --- кодирование значений для Firestore REST --------------------- */
+function enc(v){
+  if (v === null || v === undefined) return {nullValue:null};
+  if (typeof v === "boolean") return {booleanValue:v};
+  if (typeof v === "number") return Number.isInteger(v)
+      ? {integerValue:String(v)} : {doubleValue:v};
+  if (Array.isArray(v)) return {arrayValue:{values:v.map(enc)}};
+  if (typeof v === "object") {
+    var f = {};
+    Object.keys(v).forEach(function(k){ f[k] = enc(v[k]); });
+    return {mapValue:{fields:f}};
+  }
+  return {stringValue:String(v)};
+}
+function fields(obj){
+  var f = {};
+  Object.keys(obj).forEach(function(k){ f[k] = enc(obj[k]); });
+  return f;
+}
+
+function $(id){ return document.getElementById(id); }
+function showErr(id, text){
+  var n = $(id); n.textContent = text || ""; n.classList.toggle("on", !!text);
+}
+function show(section){
+  ["gate","form","done"].forEach(function(s){
+    $(s).classList.toggle("hidden", s !== section);
+  });
+  window.scrollTo(0,0);
+}
+
+/* --- экран 1: проверка кода -------------------------------------- */
+$("code").addEventListener("keydown", function(e){
+  if (e.key === "Enter") $("codeGo").click();
+});
+
+$("codeGo").addEventListener("click", function(){
+  var code = $("code").value.trim().toUpperCase();
+  showErr("codeErr", "");
+  if (code.length < 4) { showErr("codeErr", "Код слишком короткий"); return; }
+
+  var btn = $("codeGo");
+  btn.disabled = true; btn.textContent = "Проверяем…";
+
+  fetch(BASE + "groups_public/" + encodeURIComponent(code) + "?key=" + CFG.key)
+    .then(function(r){
+      if (r.status === 404) throw new Error("Такого кода нет. Проверьте раскладку и дефис.");
+      if (!r.ok) throw new Error("Не получилось проверить код. Попробуйте ещё раз.");
+      return r.json();
+    })
+    .then(function(doc){
+      var f = doc.fields || {};
+      var active = f.active && f.active.booleanValue;
+      if (!active) throw new Error("Код больше не активен. Напишите менеджеру.");
+      state.code = code;
+      state.company = (f.company && f.company.stringValue) || "";
+      $("company").textContent = state.company
+        ? state.company + " · код " + code : "Код " + code;
+      show("form");
+    })
+    .catch(function(e){
+      showErr("codeErr", e.message);
+    })
+    .then(function(){
+      btn.disabled = false; btn.textContent = "Продолжить";
+    });
+});
+
+/* --- экран 2: блоки задач ---------------------------------------- */
+var taskCount = 0;
+function addTask(){
+  if (taskCount >= 4) return;
+  taskCount++;
+  var n = taskCount;
+  var d = document.createElement("div");
+  d.className = "task";
+  d.innerHTML =
+    '<div class="n">ЗАДАЧА ' + (n < 10 ? "0" + n : n) + '</div>' +
+    '<label>Что за задача<span class="hint">С чего начинается и чем заканчивается</span>' +
+      '<input class="t-name" maxlength="200" placeholder="Готовлю КП после встречи с клиентом"></label>' +
+    '<div class="row">' +
+      '<label>Как часто<select class="t-freq">' +
+        FREQ.map(function(f){ return '<option>' + f + '</option>'; }).join("") +
+      '</select></label>' +
+      '<label>Сколько раз в месяц<input class="t-runs" type="number" min="0" placeholder="30"></label>' +
+      '<label>Сколько минут занимает раз<input class="t-min" type="number" min="0" placeholder="45"></label>' +
+      '<label>Сколько человек участвует<input class="t-people" type="number" min="1" value="1"></label>' +
+    '</div>';
+  $("tasks").appendChild(d);
+  if (taskCount >= 4) $("addTask").classList.add("hidden");
+}
+addTask(); addTask();
+$("addTask").addEventListener("click", addTask);
+
+/* --- отправка ----------------------------------------------------- */
+$("send").addEventListener("click", function(){
+  showErr("formErr", "");
+
+  var tasks = [].slice.call(document.querySelectorAll(".task")).map(function(t){
+    return {
+      task: t.querySelector(".t-name").value.trim(),
+      frequency: t.querySelector(".t-freq").value,
+      runs_per_month: parseInt(t.querySelector(".t-runs").value, 10) || 0,
+      minutes: parseInt(t.querySelector(".t-min").value, 10) || 0,
+      people: parseInt(t.querySelector(".t-people").value, 10) || 1
+    };
+  }).filter(function(t){ return t.task.length > 2; });
+
+  var data = {
+    fio: $("fio").value.trim(),
+    role: $("role").value.trim(),
+    department: $("dept").value,
+    timing: tasks,
+    tasks: tasks.map(function(t){ return t.task; }).join(" | "),
+    pain: $("pain").value.trim(),
+    tools: $("tools").value.trim(),
+    manual_share: parseFloat($("manual").value),
+    wish: $("wish").value.trim(),
+    confidential: $("conf").checked,
+    created_at: new Date().toISOString()
+  };
+
+  if (data.fio.length < 2) { showErr("formErr", "Напишите, пожалуйста, ФИО"); return; }
+  if (data.role.length < 2) { showErr("formErr", "Напишите должность"); return; }
+  if (!tasks.length) { showErr("formErr", "Опишите хотя бы одну задачу"); return; }
+  if (data.pain.length < 10) {
+    showErr("formErr", "Напишите пару предложений о том, что мешает — это самое важное поле");
+    return;
+  }
+
+  var btn = $("send");
+  btn.disabled = true; btn.textContent = "Отправляем…";
+
+  fetch(BASE + "groups/" + encodeURIComponent(state.code) + "/responses?key=" + CFG.key, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({fields: fields(data)})
+  })
+  .then(function(r){
+    if (!r.ok) throw new Error("Не получилось отправить (" + r.status + "). Проверьте интернет.");
+    show("done");
+  })
+  .catch(function(e){ showErr("formErr", e.message); })
+  .then(function(){ btn.disabled = false; btn.textContent = "Отправить ответы"; });
+});
+
+/* Код можно передать ссылкой: /diagnostics.html?code=KZN-4821 */
+(function(){
+  var m = location.search.match(/[?&]code=([^&]+)/);
+  if (m) { $("code").value = decodeURIComponent(m[1]); $("codeGo").click(); }
+})();
+</script>
+</body>
+</html>

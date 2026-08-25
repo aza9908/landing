@@ -11,6 +11,50 @@ service cloud.firestore {
     match /tasks/{doc} {
       allow read, write: if true;
     }
+
+    // Заявки с формы «Оставить заявку» (агент диагностики): писать может
+    // любой, читать из браузера — никто.
+    match /leads/{leadId} {
+      allow create: if request.resource.data.keys().hasOnly(
+                         ['company','name','phone','team_size','wish','source','status','created_at'])
+                    && request.resource.data.company is string
+                    && request.resource.data.company.size() >= 2
+                    && request.resource.data.company.size() <= 120
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() <= 120
+                    && request.resource.data.phone is string
+                    && request.resource.data.phone.size() <= 40
+                    && request.resource.data.get('wish', '').size() <= 500;
+      allow read, update, delete: if false;
+    }
+
+    // Витрина кода группы: страница диагностики проверяет по ней код.
+    match /groups_public/{code} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Сами группы и ответы сотрудников: доступ только через Cloud Functions.
+    match /groups/{code} {
+      allow read, write: if false;
+
+      match /responses/{responseId} {
+        allow create: if exists(/databases/$(database)/documents/groups_public/$(code))
+                      && get(/databases/$(database)/documents/groups_public/$(code)).data.active == true
+                      && request.resource.data.fio is string
+                      && request.resource.data.fio.size() >= 2
+                      && request.resource.data.fio.size() <= 120
+                      && request.resource.data.role is string
+                      && request.resource.data.role.size() <= 120
+                      && request.resource.data.department is string
+                      && request.resource.data.timing.size() <= 4
+                      && request.resource.data.get('pain', '').size() <= 900
+                      && request.resource.data.get('wish', '').size() <= 900
+                      && request.resource.data.get('tools', '').size() <= 200;
+        allow read, update, delete: if false;
+      }
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
