@@ -13,6 +13,10 @@ const ExcelJS = require("exceljs");
 
 const FIRST = 8;
 const LAST = 107;
+
+// Направления компании: фиксированный порядок, чтобы Сводка и Настройки
+// всегда показывали все четыре, даже если по какому-то нет ни одного ответа.
+const TEAMS = ["HR", "Finance", "Marketing & Sales", "CEO"];
 const ACCENT = "FF5B5BCA";
 const INK = "FF1F2430";
 
@@ -299,13 +303,12 @@ async function buildRegistry(data) {
   wb.created = new Date();
 
   const processes = data.processes || [];
-  const teams = [...new Set(processes.map((p) => p.team).filter(Boolean))];
   const owners = [...new Set(processes.map((p) => p.owner).filter(Boolean))].sort();
 
   buildStart(wb.addWorksheet("Старт"), data);
   buildRegistrySheet(wb.addWorksheet("Реестр процессов"), data);
-  buildSummary(wb.addWorksheet("Сводка"), teams);
-  buildSettings(wb.addWorksheet("Настройки"), teams, owners);
+  buildSummary(wb.addWorksheet("Сводка"), TEAMS);
+  buildSettings(wb.addWorksheet("Настройки"), TEAMS, owners);
 
   // Excel сам пересчитает формулы при открытии.
   wb.calcProperties = { fullCalcOnLoad: true };

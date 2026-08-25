@@ -86,7 +86,7 @@ exports.group = onRequest(OPTIONS, async (req, res) => {
 
     let code = "";
     for (let i = 0; i < 10; i++) {
-      const candidate = `${prefix}-${Math.floor(1000 + Math.random() * 9000)}`;
+      const candidate = `${prefix}${Math.floor(1000 + Math.random() * 9000)}`;
       const exists = await db.doc(`groups_public/${candidate}`).get();
       if (!exists.exists) { code = candidate; break; }
     }

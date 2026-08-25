@@ -98,7 +98,7 @@ pre.wa{margin-top:14px;padding:14px;background:var(--ink);border:1px solid var(-
     <!-- группа -->
     <section class="card">
       <div class="head"><h2>Группа</h2><span class="pill" id="state">не выбрана</span></div>
-      <label>Код группы <input id="code" class="mono" placeholder="KZN-4821"></label>
+      <label>Код группы <input id="code" class="mono" placeholder="KZN4821"></label>
       <div class="row">
         <button id="load">Показать</button>
         <button class="ghost" id="close">Закрыть приём</button>
@@ -330,7 +330,7 @@ $("runLesson").addEventListener("click", function(){
     .then(function(){ busy($("runLesson"), false); });
 });
 
-/* Код можно открыть ссылкой: /admin.html?code=KZN-4821 */
+/* Код можно открыть ссылкой: /admin.html?code=KZN4821 */
 (function(){
   var m = location.search.match(/[?&]code=([^&]+)/);
   if (m && token) { $("code").value = decodeURIComponent(m[1]).toUpperCase(); load(); }

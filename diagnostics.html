@@ -40,29 +40,45 @@ button.ghost{background:transparent;border:1px solid var(--line);color:var(--mut
 button.ghost:hover{background:#1A1A28;color:var(--text)}
 .err{margin-top:10px;font-size:13px;color:var(--err);display:none}
 .err.on{display:block}
-.task{border:1px solid var(--line);border-radius:12px;padding:18px;margin-top:16px;
-  background:rgba(255,255,255,.015)}
-.task .n{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--accent-2);
-  font-weight:700;letter-spacing:.1em}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .row label{margin-top:14px}
-.check{display:flex;align-items:flex-start;gap:10px;margin-top:20px;
-  font-size:14px;color:#C8C8DA;cursor:pointer}
-.check input{width:18px;height:18px;margin-top:1px;flex:0 0 18px;accent-color:var(--accent)}
+.mark{width:60px;height:60px;margin:0 auto 20px;border-radius:50%;
+  background:rgba(91,91,202,.16);border:1px solid var(--accent);display:flex;
+  align-items:center;justify-content:center;font-size:28px;color:var(--accent-2)}
+.center{text-align:center}
 .steps{margin-top:22px;border-top:1px solid var(--line)}
 .steps div{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--line);
   font-size:14.5px;color:#C8C8DA}
 .steps span{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--accent-2);
   font-weight:700;padding-top:2px}
-.mark{width:60px;height:60px;margin:0 auto 20px;border-radius:50%;
-  background:rgba(91,91,202,.16);border:1px solid var(--accent);display:flex;
-  align-items:center;justify-content:center;font-size:28px;color:var(--accent-2)}
-.center{text-align:center}
 .foot{margin-top:26px;font-size:12.5px;color:#5A5A70;text-align:center;line-height:1.6}
 .hidden{display:none}
 .badge{display:inline-block;margin-top:14px;padding:6px 12px;font-size:12.5px;
   border:1px solid var(--line);border-radius:999px;color:var(--muted)}
-@media(max-width:520px){h1{font-size:26px}.card{padding:20px 18px}.row{grid-template-columns:1fr}}
+
+/* --- чат --- */
+.progress-wrap{margin-top:18px;height:4px;background:var(--line);border-radius:99px;overflow:hidden}
+.progress-bar{height:100%;background:var(--accent);border-radius:99px;transition:width .3s ease}
+.progress-label{margin-top:8px;font-size:12px;color:#6B6B85}
+.transcript{margin-top:24px;display:flex;flex-direction:column;gap:14px}
+.msg-q{max-width:88%;font-size:13.5px;color:var(--muted)}
+.msg-q b{display:block;font-size:14.5px;color:#C8C8DA;font-weight:600;margin-top:2px}
+.msg-a{align-self:flex-end;max-width:82%;background:rgba(91,91,202,.16);
+  border:1px solid rgba(91,91,202,.4);border-radius:14px 14px 3px 14px;
+  padding:10px 14px;font-size:14.5px;color:var(--text);white-space:pre-wrap}
+.qcard{margin-top:18px}
+.qcard .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--accent-2);font-weight:700}
+.qcard h2{margin-top:8px;font-size:20px}
+.qcard .hint{margin-top:8px;font-size:13px;color:#6B6B85;line-height:1.5}
+.choices{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+.choice-btn{width:100%;margin:0;padding:14px 16px;text-align:left;font-size:15px;
+  font-weight:600;color:var(--text);background:var(--ink);border:1px solid var(--line);
+  border-radius:11px;cursor:pointer;transition:border-color .15s,background .15s}
+.choice-btn:hover{border-color:var(--accent);background:#161624}
+.task-name{margin-top:18px}
+@media(max-width:520px){h1{font-size:26px}.card{padding:20px 18px}.row{grid-template-columns:1fr}
+  .msg-a{max-width:92%}}
 @media(prefers-reduced-motion:no-preference){.card{animation:in .25s ease}}
 @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 </style>
@@ -75,71 +91,35 @@ button.ghost:hover{background:#1A1A28;color:var(--text)}
   <section id="gate">
     <h1>Диагностика перед воркшопом</h1>
     <div class="sub">Введите код группы — его выдаёт менеджер после созвона.
-      Анкета занимает 7–10 минут и заполняется один раз каждым сотрудником.</div>
+      Разговор занимает 5–7 минут и заполняется один раз каждым сотрудником.</div>
     <div class="card">
       <label for="code">Код группы</label>
-      <input id="code" class="code-in" maxlength="12" placeholder="KZN-0000" autocomplete="off">
+      <input id="code" class="code-in" maxlength="12" placeholder="KZN0000" autocomplete="off">
       <div class="err" id="codeErr"></div>
       <button id="codeGo">Продолжить</button>
     </div>
     <div class="foot">Кода нет? Оставьте заявку на главной — мы созвонимся и выдадим код.</div>
   </section>
 
-  <!-- Экран 2 — анкета -->
-  <section id="form" class="hidden">
+  <!-- Экран 2 — чат -->
+  <section id="chat" class="hidden">
     <h1>Расскажите про свою работу</h1>
     <div class="sub">Отвечайте своими словами, как есть. Красиво формулировать не нужно —
       важна правда, а не гладкость.</div>
     <div class="badge" id="company"></div>
 
-    <div class="card">
-      <label>ФИО<span class="hint">Нужно только чтобы не было дублей. В отчёты не попадает.</span>
-        <input id="fio" maxlength="80"></label>
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="progress-label" id="progressLabel"></div>
 
-      <label>Должность
-        <input id="role" maxlength="80" placeholder="Менеджер по продажам"></label>
+    <div class="transcript" id="transcript"></div>
 
-      <label>Отдел
-        <select id="dept">
-          <option>Маркетинг</option><option>Продажи</option><option>Бэк-офис</option>
-          <option>Тренеры</option><option>Сопровождение</option><option>Производство</option>
-          <option>Финансы</option><option>Другое</option>
-        </select></label>
-
-      <h2>Задачи, которые съедают время</h2>
-      <div id="tasks"></div>
-      <button class="ghost" id="addTask" type="button">Добавить ещё задачу</button>
-
-      <h2>Что мешает</h2>
-      <label>Что в этих задачах бесит больше всего
-        <span class="hint">Например: «переписываю одно и то же в третий раз», «жду данные от коллег»</span>
-        <textarea id="pain" maxlength="900"></textarea></label>
-
-      <label>В каких программах работаете
-        <span class="hint">1С, Bitrix24, AmoCRM, Google Sheets, WhatsApp, Excel — через запятую</span>
-        <input id="tools" maxlength="200"></label>
-
-      <label>Какая часть этой работы делается руками
-        <select id="manual">
-          <option value="0">Почти всё автоматически — 0%</option>
-          <option value="0.25">Четверть руками — 25%</option>
-          <option value="0.5">Половина руками — 50%</option>
-          <option value="0.75" selected>Большая часть руками — 75%</option>
-          <option value="1">Всё руками — 100%</option>
-        </select></label>
-
-      <label>Что бы вы поручили помощнику, если бы он у вас был
-        <span class="hint">Самый полезный вопрос. Пишите как есть, даже если кажется, что так нельзя.</span>
-        <textarea id="wish" maxlength="900"></textarea></label>
-
-      <label class="check"><input type="checkbox" id="conf">
-        <span>В этих задачах есть конфиденциальные данные — договоры, персональные
-        данные, зарплаты, медицинские сведения</span></label>
-
-      <div class="err" id="formErr"></div>
-      <button id="send">Отправить ответы</button>
-      <div class="foot">Ответы видит только команда AI Research Lab и методолог вашей компании.
-        В отчёт попадают процессы, а не имена.</div>
+    <div class="card qcard" id="qcard">
+      <div class="eyebrow" id="qEyebrow"></div>
+      <h2 id="qText"></h2>
+      <div class="hint" id="qHint"></div>
+      <div id="qBody"></div>
+      <div class="err" id="qErr"></div>
+      <button id="qNext">Далее</button>
     </div>
   </section>
 
@@ -175,8 +155,16 @@ var BASE = "https://firestore.googleapis.com/v1/projects/" + CFG.project +
 
 var FREQ = ["Несколько раз в день","Ежедневно","Еженедельно","Ежемесячно",
             "Ежеквартально","По событию","Реже"];
+var DEPARTMENTS = ["HR", "Finance", "Marketing & Sales", "CEO"];
+var MANUAL_SHARE = [
+  ["0", "Почти всё автоматически — 0%"],
+  ["0.25", "Четверть руками — 25%"],
+  ["0.5", "Половина руками — 50%"],
+  ["0.75", "Большая часть руками — 75%"],
+  ["1", "Всё руками — 100%"]
+];
 
-var state = { code: "", company: "" };
+var state = { code: "", company: "", answers: { timing: [] } };
 
 /* --- кодирование значений для Firestore REST --------------------- */
 function enc(v){
@@ -199,11 +187,8 @@ function fields(obj){
 }
 
 function $(id){ return document.getElementById(id); }
-function showErr(id, text){
-  var n = $(id); n.textContent = text || ""; n.classList.toggle("on", !!text);
-}
 function show(section){
-  ["gate","form","done"].forEach(function(s){
+  ["gate","chat","done"].forEach(function(s){
     $(s).classList.toggle("hidden", s !== section);
   });
   window.scrollTo(0,0);
@@ -216,15 +201,15 @@ $("code").addEventListener("keydown", function(e){
 
 $("codeGo").addEventListener("click", function(){
   var code = $("code").value.trim().toUpperCase();
-  showErr("codeErr", "");
-  if (code.length < 4) { showErr("codeErr", "Код слишком короткий"); return; }
+  $("codeErr").classList.remove("on");
+  if (code.length < 4) { $("codeErr").textContent = "Код слишком короткий"; $("codeErr").classList.add("on"); return; }
 
   var btn = $("codeGo");
   btn.disabled = true; btn.textContent = "Проверяем…";
 
   fetch(BASE + "groups_public/" + encodeURIComponent(code) + "?key=" + CFG.key)
     .then(function(r){
-      if (r.status === 404) throw new Error("Такого кода нет. Проверьте раскладку и дефис.");
+      if (r.status === 404) throw new Error("Такого кода нет. Проверьте раскладку и код группы.");
       if (!r.ok) throw new Error("Не получилось проверить код. Попробуйте ещё раз.");
       return r.json();
     })
@@ -236,80 +221,280 @@ $("codeGo").addEventListener("click", function(){
       state.company = (f.company && f.company.stringValue) || "";
       $("company").textContent = state.company
         ? state.company + " · код " + code : "Код " + code;
-      show("form");
+      show("chat");
+      startChat();
     })
     .catch(function(e){
-      showErr("codeErr", e.message);
+      $("codeErr").textContent = e.message; $("codeErr").classList.add("on");
     })
     .then(function(){
       btn.disabled = false; btn.textContent = "Продолжить";
     });
 });
 
-/* --- экран 2: блоки задач ---------------------------------------- */
+/* --- экран 2: чат --------------------------------------------------
+   Фиксированная последовательность из девяти шагов: имя, должность,
+   направление — и шесть вопросов по теме, которые реально вскрывают
+   боль (задача, что бесит, инструменты, ручной труд, чего не хватает,
+   конфиденциальность). Задачу можно описать не одну — тогда она не
+   сдвигает общий счётчик, а просто добавляется поверх.
+--------------------------------------------------------------------- */
+
+var BASE_STEPS = [
+  { key: "fio", kind: "text", eyebrow: "1 из 9", q: "Как вас зовут?",
+    hint: "Нужно только чтобы не было дублей среди ответов. В отчёт имя не попадает — там только отдел и роль.",
+    placeholder: "Асель Нурланова", maxlength: 80,
+    validate: function(v){ return v.trim().length >= 2 ? "" : "Напишите, пожалуйста, имя"; } },
+
+  { key: "role", kind: "text", eyebrow: "2 из 9", q: "Какая у вас должность?",
+    placeholder: "Менеджер по продажам", maxlength: 80,
+    validate: function(v){ return v.trim().length >= 2 ? "" : "Напишите должность"; } },
+
+  { key: "department", kind: "choice", eyebrow: "3 из 9", q: "В каком направлении вы работаете?",
+    options: DEPARTMENTS.map(function(d){ return [d, d]; }) },
+
+  { key: "task", kind: "task", eyebrow: "4 из 9",
+    q: "Расскажите про задачу, которая отнимает больше всего времени",
+    hint: "С чего начинается и чем заканчивается, например «Готовлю КП после встречи с клиентом»." },
+
+  { key: "pain", kind: "textarea", eyebrow: "5 из 9", q: "Что бесит больше всего в этой работе?",
+    hint: "Например: «переписываю одно и то же в третий раз», «жду данные от коллег».",
+    maxlength: 900,
+    validate: function(v){ return v.trim().length >= 10 ? "" : "Напишите пару предложений — это самое важное поле"; } },
+
+  { key: "tools", kind: "text", eyebrow: "6 из 9", q: "В каких программах и инструментах вы работаете?",
+    hint: "1С, Bitrix24, AmoCRM, Google Sheets, WhatsApp, Excel — через запятую.", maxlength: 200 },
+
+  { key: "manual", kind: "choice", eyebrow: "7 из 9", q: "Какая часть этой работы делается руками?",
+    options: MANUAL_SHARE },
+
+  { key: "wish", kind: "textarea", eyebrow: "8 из 9",
+    q: "Что бы вы поручили помощнику, если бы он у вас появился?",
+    hint: "Самый полезный вопрос. Пишите как есть, даже если кажется, что так нельзя.",
+    maxlength: 900 },
+
+  { key: "confidential", kind: "yesno", eyebrow: "9 из 9",
+    q: "Есть ли в этих задачах конфиденциальные данные?",
+    hint: "Договоры, персональные данные, зарплаты, медицинские сведения.",
+    options: [["yes", "Да"], ["no", "Нет"]] }
+];
+
+var TASK_MORE_OPTIONS = [["yes", "Да, есть ещё"], ["no", "Нет, этого достаточно"]];
+
+var flow = [];       // развёрнутая последовательность шагов (с учётом доп. задач)
+var pos = 0;         // индекс текущего шага в flow
 var taskCount = 0;
-function addTask(){
-  if (taskCount >= 4) return;
-  taskCount++;
-  var n = taskCount;
-  var d = document.createElement("div");
-  d.className = "task";
-  d.innerHTML =
-    '<div class="n">ЗАДАЧА ' + (n < 10 ? "0" + n : n) + '</div>' +
-    '<label>Что за задача<span class="hint">С чего начинается и чем заканчивается</span>' +
-      '<input class="t-name" maxlength="200" placeholder="Готовлю КП после встречи с клиентом"></label>' +
-    '<div class="row">' +
-      '<label>Как часто<select class="t-freq">' +
-        FREQ.map(function(f){ return '<option>' + f + '</option>'; }).join("") +
-      '</select></label>' +
-      '<label>Сколько раз в месяц<input class="t-runs" type="number" min="0" placeholder="30"></label>' +
-      '<label>Сколько минут занимает раз<input class="t-min" type="number" min="0" placeholder="45"></label>' +
-      '<label>Сколько человек участвует<input class="t-people" type="number" min="1" value="1"></label>' +
-    '</div>';
-  $("tasks").appendChild(d);
-  if (taskCount >= 4) $("addTask").classList.add("hidden");
+
+function startChat(){
+  flow = BASE_STEPS.slice(0, 4);  // до задачи включительно; дальше достраивается по ответам
+  pos = 0;
+  taskCount = 0;
+  $("transcript").innerHTML = "";
+  renderStep();
 }
-addTask(); addTask();
-$("addTask").addEventListener("click", addTask);
 
-/* --- отправка ----------------------------------------------------- */
-$("send").addEventListener("click", function(){
-  showErr("formErr", "");
+function recapText(step, value){
+  if (step.kind === "choice" || step.kind === "yesno" || step.kind === "task-more") {
+    var opt = (step.options || []).filter(function(o){ return o[0] === value; })[0];
+    return opt ? opt[1] : value;
+  }
+  if (step.kind === "task") {
+    return "«" + value.task + "» — " + value.frequency + ", " + value.runs_per_month +
+      " раз/мес, " + value.minutes + " мин, участников " + value.people;
+  }
+  return value;
+}
 
-  var tasks = [].slice.call(document.querySelectorAll(".task")).map(function(t){
-    return {
-      task: t.querySelector(".t-name").value.trim(),
-      frequency: t.querySelector(".t-freq").value,
-      runs_per_month: parseInt(t.querySelector(".t-runs").value, 10) || 0,
-      minutes: parseInt(t.querySelector(".t-min").value, 10) || 0,
-      people: parseInt(t.querySelector(".t-people").value, 10) || 1
-    };
-  }).filter(function(t){ return t.task.length > 2; });
+function pushTranscript(step, value){
+  var q = document.createElement("div");
+  q.className = "msg-q";
+  q.innerHTML = "<b>" + step.q + "</b>";
+  var a = document.createElement("div");
+  a.className = "msg-a";
+  a.textContent = recapText(step, value);
+  $("transcript").appendChild(q);
+  $("transcript").appendChild(a);
+}
 
-  var data = {
-    fio: $("fio").value.trim(),
-    role: $("role").value.trim(),
-    department: $("dept").value,
-    timing: tasks,
-    tasks: tasks.map(function(t){ return t.task; }).join(" | "),
-    pain: $("pain").value.trim(),
-    tools: $("tools").value.trim(),
-    manual_share: parseFloat($("manual").value),
-    wish: $("wish").value.trim(),
-    confidential: $("conf").checked,
-    created_at: new Date().toISOString()
-  };
+function updateProgress(step){
+  var n = parseInt(step.eyebrow, 10) || 1;
+  var total = 9;
+  $("progressBar").style.width = Math.round((n / total) * 100) + "%";
+  $("progressLabel").textContent = "Вопрос " + step.eyebrow;
+}
 
-  if (data.fio.length < 2) { showErr("formErr", "Напишите, пожалуйста, ФИО"); return; }
-  if (data.role.length < 2) { showErr("formErr", "Напишите должность"); return; }
-  if (!tasks.length) { showErr("formErr", "Опишите хотя бы одну задачу"); return; }
-  if (data.pain.length < 10) {
-    showErr("formErr", "Напишите пару предложений о том, что мешает — это самое важное поле");
+function renderStep(){
+  var step = flow[pos];
+  updateProgress(step);
+  $("qEyebrow").textContent = step.eyebrow;
+  $("qText").textContent = step.q;
+  $("qHint").textContent = step.hint || "";
+  $("qHint").style.display = step.hint ? "" : "none";
+  $("qErr").classList.remove("on");
+
+  var body = $("qBody");
+  body.innerHTML = "";
+  var next = $("qNext");
+  next.style.display = "";
+  next.textContent = "Далее";
+
+  if (step.kind === "text") {
+    var inp = document.createElement("input");
+    inp.type = "text"; inp.id = "stepInput"; inp.maxLength = step.maxlength || 200;
+    inp.placeholder = step.placeholder || "";
+    inp.addEventListener("keydown", function(e){ if (e.key === "Enter") next.click(); });
+    body.appendChild(inp);
+    setTimeout(function(){ inp.focus(); }, 150);
+  }
+
+  else if (step.kind === "textarea") {
+    var ta = document.createElement("textarea");
+    ta.id = "stepInput"; ta.maxLength = step.maxlength || 900;
+    body.appendChild(ta);
+    setTimeout(function(){ ta.focus(); }, 150);
+  }
+
+  else if (step.kind === "choice") {
+    next.style.display = "none";
+    var wrap = document.createElement("div");
+    wrap.className = "choices";
+    step.options.forEach(function(o){
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "choice-btn"; b.textContent = o[1];
+      b.addEventListener("click", function(){ commit(step, o[0]); });
+      wrap.appendChild(b);
+    });
+    body.appendChild(wrap);
+  }
+
+  else if (step.kind === "yesno") {
+    next.style.display = "none";
+    var wrap2 = document.createElement("div");
+    wrap2.className = "choices";
+    step.options.forEach(function(o){
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "choice-btn"; b.textContent = o[1];
+      b.addEventListener("click", function(){ commit(step, o[0]); });
+      wrap2.appendChild(b);
+    });
+    body.appendChild(wrap2);
+  }
+
+  else if (step.kind === "task") {
+    var d = document.createElement("div");
+    d.innerHTML =
+      '<div class="task-name"><input id="tName" maxlength="200" placeholder="Готовлю КП после встречи с клиентом"></div>' +
+      '<div class="row">' +
+        '<label>Как часто<select id="tFreq">' +
+          FREQ.map(function(f){ return '<option>' + f + '</option>'; }).join("") +
+        '</select></label>' +
+        '<label>Раз в месяц<input id="tRuns" type="number" min="0" placeholder="30"></label>' +
+        '<label>Минут за раз<input id="tMin" type="number" min="0" placeholder="45"></label>' +
+        '<label>Участников<input id="tPeople" type="number" min="1" value="1"></label>' +
+      '</div>';
+    body.appendChild(d);
+    setTimeout(function(){ $("tName").focus(); }, 150);
+  }
+
+  else if (step.kind === "task-more") {
+    next.style.display = "none";
+    var wrap3 = document.createElement("div");
+    wrap3.className = "choices";
+    step.options.forEach(function(o){
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "choice-btn"; b.textContent = o[1];
+      b.addEventListener("click", function(){ commit(step, o[0]); });
+      wrap3.appendChild(b);
+    });
+    body.appendChild(wrap3);
+  }
+}
+
+$("qNext").addEventListener("click", function(){
+  var step = flow[pos];
+  var input = $("stepInput");
+  var value = input ? input.value : "";
+
+  if (step.kind === "text" || step.kind === "textarea") {
+    var err = step.validate ? step.validate(value) : "";
+    if (err) { $("qErr").textContent = err; $("qErr").classList.add("on"); return; }
+    commit(step, value.trim());
     return;
   }
 
-  var btn = $("send");
-  btn.disabled = true; btn.textContent = "Отправляем…";
+  if (step.kind === "task") {
+    var task = $("tName").value.trim();
+    if (task.length < 3) {
+      $("qErr").textContent = "Опишите задачу — с чего начинается и чем заканчивается";
+      $("qErr").classList.add("on");
+      return;
+    }
+    commit(step, {
+      task: task,
+      frequency: $("tFreq").value,
+      runs_per_month: parseInt($("tRuns").value, 10) || 0,
+      minutes: parseInt($("tMin").value, 10) || 0,
+      people: parseInt($("tPeople").value, 10) || 1
+    });
+  }
+});
+
+function commit(step, value){
+  pushTranscript(step, value);
+
+  if (step.key === "task") {
+    state.answers.timing.push(value);
+    taskCount++;
+    if (taskCount < 4) {
+      // спрашиваем, нужна ли ещё одна задача, но общий счётчик не двигаем
+      flow.splice(pos + 1, 0, {
+        key: "task_more", kind: "task-more", eyebrow: "4 из 9",
+        q: "Есть ещё задача, которая отнимает много времени?",
+        options: TASK_MORE_OPTIONS
+      });
+    }
+  } else if (step.key === "task_more") {
+    if (value === "yes") {
+      flow.splice(pos + 1, 0, {
+        key: "task", kind: "task", eyebrow: "4 из 9",
+        q: "Расскажите про ещё одну задачу",
+        hint: "С чего начинается и чем заканчивается."
+      });
+    } else if (flow.length === pos + 1) {
+      // доп. вопросов больше нет — достраиваем хвост базовой цепочки
+      flow = flow.concat(BASE_STEPS.slice(4));
+    }
+  } else {
+    state.answers[step.key] = value;
+  }
+
+  pos++;
+  if (pos >= flow.length) {
+    // "задача" была последним известным шагом — если хвост ещё не пристроен, пристраиваем
+    flow = flow.concat(BASE_STEPS.slice(4));
+  }
+  if (pos >= flow.length) { submit(); return; }
+  renderStep();
+}
+
+/* --- отправка ----------------------------------------------------- */
+function submit(){
+  var timing = state.answers.timing || [];
+  var data = {
+    fio: state.answers.fio,
+    role: state.answers.role,
+    department: state.answers.department,
+    timing: timing,
+    tasks: timing.map(function(t){ return t.task; }).join(" | "),
+    pain: state.answers.pain,
+    tools: state.answers.tools || "",
+    manual_share: parseFloat(state.answers.manual),
+    wish: state.answers.wish,
+    confidential: state.answers.confidential === "yes",
+    created_at: new Date().toISOString()
+  };
+
+  $("qcard").innerHTML = '<div class="center" style="padding:20px 0">Отправляем…</div>';
 
   fetch(BASE + "groups/" + encodeURIComponent(state.code) + "/responses?key=" + CFG.key, {
     method: "POST",
@@ -320,11 +505,15 @@ $("send").addEventListener("click", function(){
     if (!r.ok) throw new Error("Не получилось отправить (" + r.status + "). Проверьте интернет.");
     show("done");
   })
-  .catch(function(e){ showErr("formErr", e.message); })
-  .then(function(){ btn.disabled = false; btn.textContent = "Отправить ответы"; });
-});
+  .catch(function(e){
+    $("qcard").innerHTML =
+      '<div class="err on" style="margin-top:0">' + e.message + '</div>' +
+      '<button id="retry">Попробовать ещё раз</button>';
+    $("retry").addEventListener("click", submit);
+  });
+}
 
-/* Код можно передать ссылкой: /diagnostics.html?code=KZN-4821 */
+/* Код можно передать ссылкой: /diagnostics.html?code=KZN4821 */
 (function(){
   var m = location.search.match(/[?&]code=([^&]+)/);
   if (m) { $("code").value = decodeURIComponent(m[1]); $("codeGo").click(); }
