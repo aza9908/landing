@@ -65,7 +65,7 @@
     'button.go[disabled]{opacity:.6;cursor:default}',
     '.note{margin-top:18px;text-align:center}',
     '.note p{font-size:14.5px;line-height:1.5;color:#6B6B85;margin-bottom:10px}',
-    '.note a{display:block;padding:14px;font-size:23px;font-weight:700;letter-spacing:-.01em;',
+    '.note a{display:block;padding:14px;font-size:15.5px;font-weight:700;',
     'color:#8A8AE0;background:#000;border:1px solid #2A2A3C;border-radius:10px;',
     'text-decoration:none;box-sizing:border-box}',
     '.note a:hover{background:#0d0d14;border-color:#5B5BCA}',

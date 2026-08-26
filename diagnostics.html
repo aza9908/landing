@@ -40,10 +40,10 @@ button[disabled]{opacity:.6;cursor:default}
   align-items:center;justify-content:center;font-size:28px;color:var(--accent-2)}
 .center{text-align:center}
 .steps{margin-top:22px;border-top:1px solid var(--line)}
-.steps div{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--line);
-  font-size:16px;color:#C8C8DA}
-.steps span{font-family:ui-monospace,Menlo,monospace;font-size:13px;color:var(--accent-2);
-  font-weight:700;padding-top:2px}
+.steps div{display:flex;align-items:baseline;gap:14px;padding:14px 0;border-bottom:1px solid var(--line);
+  font-size:16px;line-height:1.5;color:#C8C8DA}
+.steps span{flex:0 0 22px;font-family:ui-monospace,Menlo,monospace;font-size:13px;
+  color:var(--accent-2);font-weight:700;line-height:1.5}
 .foot{margin-top:26px;font-size:14px;color:#5A5A70;text-align:center;line-height:1.6}
 .hidden{display:none}
 .badge{display:inline-block;margin-top:14px;padding:6px 12px;font-size:14px;
@@ -62,7 +62,7 @@ button[disabled]{opacity:.6;cursor:default}
   border:1px solid var(--line);border-radius:18px;padding:16px 18px;margin-top:20px}
 .chat-avatar{width:46px;height:46px;flex:0 0 46px;border-radius:50%;
   background:linear-gradient(135deg,var(--accent),var(--accent-2));
-  display:flex;align-items:center;justify-content:center;font-size:22px}
+  display:flex;align-items:center;justify-content:center}
 .chat-header-text{flex:1;min-width:0}
 .chat-name{font-size:16.5px;font-weight:700;letter-spacing:-.01em}
 .chat-status{margin-top:2px;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}
@@ -150,7 +150,18 @@ button[disabled]{opacity:.6;cursor:default}
   <!-- Экран 3 — чат -->
   <section id="chat" class="hidden">
     <div class="chat-header">
-      <div class="chat-avatar">🤖</div>
+      <div class="chat-avatar">
+        <svg viewBox="0 0 64 56" width="26" height="24" fill="none" aria-hidden="true">
+          <line x1="20" y1="14" x2="20" y2="6" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/>
+          <line x1="44" y1="14" x2="44" y2="6" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/>
+          <circle cx="20" cy="6" r="3" fill="#fff"/>
+          <circle cx="44" cy="6" r="3" fill="#fff"/>
+          <rect x="6" y="14" width="52" height="32" rx="12" stroke="#fff" stroke-width="3.2"/>
+          <path d="M22 46 L16 54 L16 46 Z" fill="#fff"/>
+          <circle cx="24" cy="30" r="4.2" fill="#fff"/>
+          <circle cx="40" cy="30" r="4.2" fill="#fff"/>
+        </svg>
+      </div>
       <div class="chat-header-text">
         <h1 class="chat-name">AI Research Lab</h1>
         <div class="chat-status"><span class="status-dot"></span>Диагностика · онлайн</div>
@@ -556,12 +567,40 @@ var speak = function () {};
   }
   var speakerBtn = $("speakerBtn");
   var on = false;
+  var chosenVoice = null;
+
+  // Голоса системные, звучат по-разному в зависимости от ОС и браузера —
+  // выбираем наиболее живой из того, что реально есть на устройстве
+  // человека, а не единственный дефолтный (часто самый простой/роботный).
+  // Список голосов иногда приходит не сразу, а после voiceschanged —
+  // поэтому пересчитываем выбор и на этом событии тоже.
+  var FEMALE_HINTS = /milena|irina|ирина|katya|катя|elena|елена|anna|анна|alyona|алёна|tatyana|татьяна|oksana|оксана|female|женск/i;
+
+  function pickVoice() {
+    var voices = window.speechSynthesis.getVoices() || [];
+    var ru = voices.filter(function (v) { return /^ru/i.test(v.lang); });
+    if (!ru.length) { chosenVoice = null; return; }
+    var female = ru.filter(function (v) { return FEMALE_HINTS.test(v.name); });
+    chosenVoice = female[0] || ru[0];
+  }
+
+  pickVoice();
+  if (window.speechSynthesis.addEventListener) {
+    window.speechSynthesis.addEventListener("voiceschanged", pickVoice);
+  }
 
   speak = function (text) {
     if (!on || !text) return;
+    // getVoices() часто пустой в первый момент после загрузки страницы —
+    // список настоящих голосов браузер отдаёт чуть позже, через
+    // voiceschanged. Если это событие ещё не подоспело к первой фразе,
+    // пробуем выбрать голос ещё раз прямо сейчас, а не молчим до
+    // следующего ответа с уже устаревшим (пустым) выбором.
+    if (!chosenVoice) pickVoice();
     window.speechSynthesis.cancel();
     var u = new SpeechSynthesisUtterance(text);
     u.lang = "ru-RU";
+    if (chosenVoice) u.voice = chosenVoice;
     window.speechSynthesis.speak(u);
   };
 
