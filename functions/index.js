@@ -206,12 +206,25 @@ exports.interview = onRequest(OPTIONS_PUBLIC, async (req, res) => {
     // разговор дойдёт до платного вызова модели.
     const { history } = await peekLimits(db, code, sessionId);
 
-    const turn = await runInterviewTurn({
-      department,
-      history: sanitizeHistory(history),
-      message,
-      isStart
-    });
+    let turn;
+    try {
+      turn = await runInterviewTurn({
+        department,
+        history: sanitizeHistory(history),
+        message,
+        isStart
+      });
+    } catch (e) {
+      // Сюда попадают только сбои самого вызова модели (сеть, лимит запросов
+      // у ключа, временная неполадка Anthropic) — сотруднику не нужно видеть
+      // сырой ответ API, это ни о чём ему не скажет. Настоящую причину
+      // логируем отдельно, чтобы её было видно в логах функции.
+      console.error("interview: model call failed", e.status || "", e.message);
+      const friendly = e.retryable
+        ? "Сейчас сервис перегружен. Попробуйте отправить сообщение ещё раз через минуту."
+        : "Не получилось получить ответ. Попробуйте отправить сообщение ещё раз.";
+      return fail(res, new Error(friendly));
+    }
 
     let replyToStore = turn.reply;
     let responseBody;

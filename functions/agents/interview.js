@@ -97,7 +97,7 @@ async function runInterviewTurn({ department, history, message, isStart }) {
         .filter(Boolean)
         .join("\n");
 
-  const turn = await askJson({ system, prompt, maxTokens: 2000, temperature: 0.4 });
+  const turn = await askJson({ system, prompt, maxTokens: 2000 });
   if (typeof turn.reply !== "string" || !turn.reply.trim()) {
     throw new Error("Модель вернула пустой ответ.");
   }

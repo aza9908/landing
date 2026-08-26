@@ -128,8 +128,7 @@ async function runLesson1({ db, storage, code }) {
   const result = await askJson({
     system: SYSTEM,
     prompt: packPortrait(portrait),
-    maxTokens: 16000,
-    temperature: 0.4
+    maxTokens: 16000
   });
 
   result.company = result.company || portrait.company;

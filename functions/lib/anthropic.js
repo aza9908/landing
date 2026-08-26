@@ -11,10 +11,17 @@
 const MODEL = "claude-sonnet-5";
 const URL = "https://api.anthropic.com/v1/messages";
 
-async function ask({ system, prompt, maxTokens = 8000, temperature = 0.2 }) {
-  const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) throw new Error("Нет ANTHROPIC_API_KEY. Задайте секрет функции.");
+// 429 (перегружен по rate limit) и 5xx (временная неполадка на стороне
+// Anthropic) стоит повторить — особенно в чате, где несколько сотрудников
+// могут писать одновременно и упереться в лимит запросов в минуту у ключа.
+// 4xx кроме 429 — ошибка в самом запросе, повторять бессмысленно.
+const RETRY_DELAYS_MS = [400, 1200];
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function callOnce({ key, system, prompt, maxTokens }) {
   const res = await fetch(URL, {
     method: "POST",
     headers: {
@@ -22,10 +29,12 @@ async function ask({ system, prompt, maxTokens = 8000, temperature = 0.2 }) {
       "x-api-key": key,
       "anthropic-version": "2023-06-01"
     },
+    // `temperature` для этой модели API больше не принимает (400
+    // invalid_request_error) — параметр из запроса убран совсем, а не
+    // просто перестал передаваться по умолчанию.
     body: JSON.stringify({
       model: MODEL,
       max_tokens: maxTokens,
-      temperature,
       system,
       messages: [{ role: "user", content: prompt }]
     })
@@ -33,14 +42,34 @@ async function ask({ system, prompt, maxTokens = 8000, temperature = 0.2 }) {
 
   if (!res.ok) {
     const body = await res.text();
-    throw new Error(`Anthropic ${res.status}: ${body.slice(0, 400)}`);
+    const e = new Error(`Anthropic ${res.status}: ${body.slice(0, 400)}`);
+    e.status = res.status;
+    e.retryable = res.status === 429 || res.status >= 500;
+    throw e;
   }
 
-  const data = await res.json();
-  return (data.content || [])
-    .filter((b) => b.type === "text")
-    .map((b) => b.text)
-    .join("\n");
+  return res.json();
+}
+
+async function ask({ system, prompt, maxTokens = 8000 }) {
+  const key = process.env.ANTHROPIC_API_KEY;
+  if (!key) throw new Error("Нет ANTHROPIC_API_KEY. Задайте секрет функции.");
+
+  let lastError;
+  for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
+    try {
+      const data = await callOnce({ key, system, prompt, maxTokens });
+      return (data.content || [])
+        .filter((b) => b.type === "text")
+        .map((b) => b.text)
+        .join("\n");
+    } catch (e) {
+      lastError = e;
+      if (!e.retryable || attempt === RETRY_DELAYS_MS.length) throw e;
+      await sleep(RETRY_DELAYS_MS[attempt]);
+    }
+  }
+  throw lastError;
 }
 
 /* Просим у модели JSON — и всё равно готовимся к обёрткам вокруг него. */
