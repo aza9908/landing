@@ -63,9 +63,9 @@
     'color:#fff;background:#5B5BCA;border:0;border-radius:10px;cursor:pointer}',
     'button.go:hover{background:#6C6CD8}',
     'button.go[disabled]{opacity:.6;cursor:default}',
-    '.note{margin-top:14px;font-size:12.5px;line-height:1.5;color:#6B6B85;text-align:center}',
-    '.note a{color:#8A8AE0;text-decoration:none}',
-    '.note a:hover{text-decoration:underline}',
+    '.note{margin-top:14px;font-size:14.5px;line-height:1.5;color:#6B6B85;text-align:center}',
+    '.note a{color:#8A8AE0;font-weight:700;font-size:16px;text-decoration:underline}',
+    '.note a:hover{color:#A5A5EE}',
     '.ok{text-align:center;padding:14px 0}',
     '.ok .mark{width:56px;height:56px;margin:0 auto 18px;border-radius:50%;',
     'background:rgba(91,91,202,.16);border:1px solid #5B5BCA;display:flex;align-items:center;',
@@ -188,8 +188,8 @@
             "и выдадим код группы для диагностики." }));
 
     var form = el("form", { novalidate: "" });
-    form.appendChild(field("Компания", "company", { placeholder: "Kaizen Center" }));
-    form.appendChild(field("Как к вам обращаться", "name", { placeholder: "Асель" }));
+    form.appendChild(field("Компания", "company", { placeholder: "Название компании" }));
+    form.appendChild(field("Как к вам обращаться", "name", { placeholder: "Ваше имя" }));
     form.appendChild(field("WhatsApp или телефон", "phone",
       { type: "tel", placeholder: "+7 700 000 00 00", autocomplete: "tel" }));
     form.appendChild(field("Сколько человек в команде", "team_size",
@@ -244,6 +244,17 @@
       data.created_at = new Date().toISOString();
 
       save(CFG.collection, data).then(function () {
+        if (window.AIRL_notifyTelegram) {
+          window.AIRL_notifyTelegram(
+            "🔔 Заявка с сайта\n" +
+            "Компания: " + data.company + "\n" +
+            "Имя: " + data.name + "\n" +
+            "Телефон: " + data.phone + "\n" +
+            "Команда: " + data.team_size +
+            (data.wish ? "\nЧто хотят изменить: " + data.wish : "") +
+            "\nСтраница: " + data.source
+          );
+        }
         success(data.name);
       }).catch(function (err) {
         go.disabled = false;
