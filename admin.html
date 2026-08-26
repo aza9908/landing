@@ -76,8 +76,10 @@ pre.wa{margin-top:14px;padding:14px;background:var(--ink);border:1px solid var(-
   <!-- вход -->
   <section id="auth" class="card">
     <h2>Вход</h2>
-    <label>Пароль панели
-      <input id="token" type="password" placeholder="x-airl-token"></label>
+    <label>Логин
+      <input id="loginField" placeholder="admin" autocomplete="username"></label>
+    <label>Пароль
+      <input id="token" type="password" placeholder="Пароль панели" autocomplete="current-password"></label>
     <div class="row"><button id="login">Войти</button></div>
     <div class="msg err" id="authMsg"></div>
   </section>
@@ -136,6 +138,7 @@ pre.wa{margin-top:14px;padding:14px;background:var(--ink);border:1px solid var(-
 /* Базовый адрес функций. Меняется на свой регион и проект. */
 var API = "https://europe-west1-landing-page-8e314.cloudfunctions.net";
 
+var adminLogin = sessionStorage.getItem("airl_login") || "";
 var token = sessionStorage.getItem("airl_token") || "";
 var current = null;
 
@@ -154,11 +157,15 @@ function busy(btn, on, label){
 function call(path, body, method){
   return fetch(API + path, {
     method: method || "POST",
-    headers: { "content-type": "application/json", "x-airl-token": token },
+    headers: { "content-type": "application/json", "x-airl-login": adminLogin, "x-airl-token": token },
     body: method === "GET" ? undefined : JSON.stringify(body || {})
   }).then(function(r){
     return r.json().then(function(d){
-      if (!r.ok) throw new Error(d.error || ("Ошибка " + r.status));
+      if (!r.ok) {
+        var err = new Error(d.error || ("Ошибка " + r.status));
+        err.status = r.status;
+        throw err;
+      }
       return d;
     });
   });
@@ -166,27 +173,32 @@ function call(path, body, method){
 
 /* --- вход ---------------------------------------------------------- */
 $("login").addEventListener("click", function(){
+  adminLogin = $("loginField").value.trim();
   token = $("token").value.trim();
-  if (!token) { say("authMsg", "Введите пароль", "err"); return; }
+  if (!adminLogin || !token) { say("authMsg", "Введите логин и пароль", "err"); return; }
   busy($("login"), true, "Проверяем…");
-  call("/group?code=TEST-0000", null, "GET")
+  call("/group?code=TEST0000", null, "GET")
     .then(function(){ enter(); })
     .catch(function(e){
-      if (/401/.test(e.message) || /token/i.test(e.message)) {
-        say("authMsg", "Пароль не подошёл", "err");
-      } else { enter(); }   // группы TEST-0000 нет — но токен приняли
+      if (e.status === 401) {
+        say("authMsg", "Логин или пароль не подошли", "err");
+      } else { enter(); }   // группы TEST0000 нет — но вход приняли
     })
     .then(function(){ busy($("login"), false); });
+});
+$("loginField").addEventListener("keydown", function(e){
+  if (e.key === "Enter") $("login").click();
 });
 $("token").addEventListener("keydown", function(e){
   if (e.key === "Enter") $("login").click();
 });
 function enter(){
+  sessionStorage.setItem("airl_login", adminLogin);
   sessionStorage.setItem("airl_token", token);
   $("auth").classList.add("hidden");
   $("app").classList.remove("hidden");
 }
-if (token) { $("token").value = token; enter(); }
+if (adminLogin && token) { $("loginField").value = adminLogin; $("token").value = token; enter(); }
 
 /* --- создание кода -------------------------------------------------- */
 $("makeCode").addEventListener("click", function(){

@@ -56,10 +56,16 @@ const OPTIONS_PUBLIC = {
   secrets: [ANTHROPIC_API_KEY]
 };
 
+// Логин не секретный — весь допуск держится на пароле (секрет
+// AIRL_ADMIN_TOKEN). Отдельные логины на каждого сотрудника — уже другая
+// задача (хранилище пользователей), сейчас в панели один общий вход.
+const ADMIN_LOGIN = "admin";
+
 function guard(req, res) {
+  const login = req.get("x-airl-login");
   const token = req.get("x-airl-token");
-  if (!token || token !== ADMIN_TOKEN.value()) {
-    res.status(401).json({ error: "Нужен заголовок x-airl-token. Проверьте пароль панели." });
+  if (login !== ADMIN_LOGIN || !token || token !== ADMIN_TOKEN.value()) {
+    res.status(401).json({ error: "Неверный логин или пароль." });
     return false;
   }
   return true;
