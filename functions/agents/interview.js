@@ -9,7 +9,7 @@
   не зависит от того, правильно ли модель поняла свободный текст.
 */
 
-const { askJson } = require("../lib/anthropic");
+const { askJson, HAIKU_MODEL } = require("../lib/anthropic");
 
 const SYSTEM = `
 Ты методолог AI Research Lab. Ты в чате с одним сотрудником компании —
@@ -97,7 +97,7 @@ async function runInterviewTurn({ department, history, message, isStart }) {
         .filter(Boolean)
         .join("\n");
 
-  const turn = await askJson({ system, prompt, maxTokens: 2000 });
+  const turn = await askJson({ system, prompt, maxTokens: 1500, model: HAIKU_MODEL });
   if (typeof turn.reply !== "string" || !turn.reply.trim()) {
     throw new Error("Модель вернула пустой ответ.");
   }

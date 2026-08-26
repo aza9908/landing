@@ -8,7 +8,12 @@
     firebase functions:secrets:set ANTHROPIC_API_KEY
 */
 
+// По умолчанию — Sonnet, для агентов, где важно качество синтеза
+// (портрет боли, урок). Чат-агент диагностики просит Haiku явно: там
+// каждый ответ — короткая реплика по сценарию, а не сложный синтез, и
+// задержка ощущается сотрудником напрямую, в реальном времени разговора.
 const MODEL = "claude-sonnet-5";
+const HAIKU_MODEL = "claude-haiku-4-5-20251001";
 const URL = "https://api.anthropic.com/v1/messages";
 
 // 429 (перегружен по rate limit) и 5xx (временная неполадка на стороне
@@ -21,7 +26,7 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function callOnce({ key, system, prompt, maxTokens }) {
+async function callOnce({ key, system, prompt, maxTokens, model }) {
   const res = await fetch(URL, {
     method: "POST",
     headers: {
@@ -33,7 +38,7 @@ async function callOnce({ key, system, prompt, maxTokens }) {
     // invalid_request_error) — параметр из запроса убран совсем, а не
     // просто перестал передаваться по умолчанию.
     body: JSON.stringify({
-      model: MODEL,
+      model: model || MODEL,
       max_tokens: maxTokens,
       system,
       messages: [{ role: "user", content: prompt }]
@@ -51,14 +56,14 @@ async function callOnce({ key, system, prompt, maxTokens }) {
   return res.json();
 }
 
-async function ask({ system, prompt, maxTokens = 8000 }) {
+async function ask({ system, prompt, maxTokens = 8000, model }) {
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) throw new Error("Нет ANTHROPIC_API_KEY. Задайте секрет функции.");
 
   let lastError;
   for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
     try {
-      const data = await callOnce({ key, system, prompt, maxTokens });
+      const data = await callOnce({ key, system, prompt, maxTokens, model });
       return (data.content || [])
         .filter((b) => b.type === "text")
         .map((b) => b.text)
@@ -91,4 +96,4 @@ async function askJson(opts) {
   }
 }
 
-module.exports = { ask, askJson, MODEL };
+module.exports = { ask, askJson, MODEL, HAIKU_MODEL };

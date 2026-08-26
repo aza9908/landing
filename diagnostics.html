@@ -363,23 +363,43 @@ $("msgInput").addEventListener("keydown", function(e){
   var recognizer = new SpeechRec();
   recognizer.lang = "ru-RU";
   recognizer.continuous = false;
-  recognizer.interimResults = false;
+  // Промежуточные результаты — без них поле молчит, пока не закончишь
+  // фразу, и кажется, что распознавание зависло. С ними видно слова
+  // сразу, по мере того как их распознаёт браузер.
+  recognizer.interimResults = true;
   recognizer.maxAlternatives = 1;
+
   var listening = false;
+  var baseValue = "";
+  var watchdog = null;
+  var originalPlaceholder = $("msgInput").placeholder;
+
+  // Если по какой-то причине браузер не пришлёт ни result, ни end, ни
+  // error (бывает при обрыве разрешения на микрофон) — кнопка не должна
+  // навсегда оставаться в состоянии «слушаю».
+  function armWatchdog() {
+    clearTimeout(watchdog);
+    watchdog = setTimeout(function () {
+      try { recognizer.stop(); } catch (e) {}
+      stopListening();
+    }, 12000);
+  }
+
+  function stopListening() {
+    clearTimeout(watchdog);
+    listening = false;
+    micBtn.classList.remove("on");
+    $("msgInput").placeholder = originalPlaceholder;
+  }
 
   recognizer.addEventListener("result", function (e) {
-    var said = e.results[0][0].transcript.trim();
-    if (!said) return;
-    var input = $("msgInput");
-    input.value = (input.value ? input.value + " " : "") + said;
+    var chunk = e.results[e.results.length - 1][0].transcript.trim();
+    if (!chunk) return;
+    $("msgInput").value = baseValue + (baseValue ? " " : "") + chunk;
   });
-  recognizer.addEventListener("end", function () {
-    listening = false;
-    micBtn.classList.remove("on");
-  });
+  recognizer.addEventListener("end", stopListening);
   recognizer.addEventListener("error", function (e) {
-    listening = false;
-    micBtn.classList.remove("on");
+    stopListening();
     if (e.error !== "no-speech" && e.error !== "aborted") {
       addBubble("sys", "Не удалось распознать речь. Попробуйте ещё раз или напишите текстом.");
     }
@@ -388,10 +408,13 @@ $("msgInput").addEventListener("keydown", function(e){
   micBtn.addEventListener("click", function () {
     if (state.busy || state.done) return;
     if (listening) { recognizer.stop(); return; }
+    baseValue = $("msgInput").value;
     listening = true;
     micBtn.classList.add("on");
+    $("msgInput").placeholder = "Слушаю…";
+    armWatchdog();
     try { recognizer.start(); }
-    catch (e) { listening = false; micBtn.classList.remove("on"); }
+    catch (e) { stopListening(); }
   });
 })();
 
