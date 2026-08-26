@@ -13,12 +13,15 @@
 */
 
 const { onRequest } = require("firebase-functions/v2/https");
+const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const { defineSecret } = require("firebase-functions/params");
 const admin = require("firebase-admin");
 
 const { runDiagnostics } = require("./agents/diagnostics");
 const { runLesson1 } = require("./agents/lesson1");
 const { runInterviewTurn } = require("./agents/interview");
+const { createGroup } = require("./lib/groups");
+const { notifyTelegram } = require("./lib/telegram");
 const {
   validateCode,
   validateSessionId,
@@ -107,34 +110,11 @@ exports.group = onRequest(OPTIONS, async (req, res) => {
       });
     }
 
-    const company = String((req.body && req.body.company) || "").trim();
-    const prefix = String((req.body && req.body.prefix) || "AIRL")
-      .toUpperCase().replace(/[^A-Z]/g, "").slice(0, 4) || "AIRL";
-    if (company.length < 2) throw new Error("Укажите название компании.");
-
-    let code = "";
-    for (let i = 0; i < 10; i++) {
-      const candidate = `${prefix}${Math.floor(1000 + Math.random() * 9000)}`;
-      const exists = await db.doc(`groups_public/${candidate}`).get();
-      if (!exists.exists) { code = candidate; break; }
-    }
-    if (!code) throw new Error("Не получилось подобрать свободный код, попробуйте ещё раз.");
-
-    const expires = new Date(Date.now() + 21 * 24 * 60 * 60 * 1000);
-    await db.doc(`groups/${code}`).set({
-      company, code, active: true, responses_count: 0,
-      created_at: admin.firestore.FieldValue.serverTimestamp(), expires_at: expires
+    const result = await createGroup(db, admin, {
+      company: req.body && req.body.company,
+      prefix: req.body && req.body.prefix
     });
-    // Витрина: браузеру видно только название и признак активности.
-    await db.doc(`groups_public/${code}`).set({ company, active: true });
-
-    const link = `https://airl.kz/diagnostics.html?code=${code}`;
-    res.json({
-      code, company, link, expires_at: expires.toISOString().slice(0, 10),
-      whatsapp_message:
-        `Здравствуйте! Перед воркшопом просим каждого сотрудника заполнить ` +
-        `короткую анкету — 7 минут.\n\n${link}\n\nКод группы: ${code}`
-    });
+    res.json(result);
   } catch (e) {
     fail(res, e);
   }
@@ -243,6 +223,10 @@ exports.interview = onRequest(OPTIONS_PUBLIC, async (req, res) => {
           department,
           created_at: new Date().toISOString()
         });
+        // Без имени и должности сотрудника — только код группы и
+        // направление, этого достаточно, чтобы понять, что анкета
+        // закрыта, не раскрывая, кто именно её заполнил.
+        await notifyTelegram(`✅ Анкета заполнена\nКод группы: ${code}\nНаправление: ${department}`);
         responseBody = { reply: turn.reply, done: true };
       } catch (e) {
         // Модель посчитала разговор законченным, но данные неполные —
@@ -266,3 +250,34 @@ exports.interview = onRequest(OPTIONS_PUBLIC, async (req, res) => {
     fail(res, e);
   }
 });
+
+/* --- автосоздание группы по заявке с лендинга ------------------------
+   Срабатывает на саму запись в Firestore (leads/{leadId}), а не через
+   отдельный публичный HTTP-эндпойнт — значит, ничего лишнего в интернет
+   не открываем, вся защита та же, что уже есть у формы заявки: правила
+   Firestore проверяют форму документа при создании. Код выдаётся сразу,
+   без звонка — раньше это был осознанный шаг ручной квалификации клиента,
+   теперь его нет: код может получить кто угодно, кто оставил заявку.
+   Расход ограничен тем же общим дневным лимитом /interview.
+------------------------------------------------------------------------ */
+
+exports.onLeadCreated = onDocumentCreated(
+  { document: "leads/{leadId}", region: "europe-west1" },
+  async (event) => {
+    const snap = event.data;
+    if (!snap) return;
+    const lead = snap.data();
+
+    try {
+      const group = await createGroup(db, admin, { company: lead.company });
+      await snap.ref.update({ status: "code_issued", group_code: group.code });
+      await notifyTelegram(
+        `🆕 Заявка → код выдан автоматически\n` +
+        `Компания: ${group.company}\nИмя: ${lead.name || "—"}\nТелефон: ${lead.phone || "—"}\n` +
+        `Код: ${group.code}\n\nГотовое сообщение для WhatsApp:\n${group.whatsapp_message}`
+      );
+    } catch (e) {
+      console.error("onLeadCreated: failed to auto-issue a code:", e.message);
+    }
+  }
+);

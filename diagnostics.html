@@ -79,6 +79,11 @@ button[disabled]{opacity:.6;cursor:default}
 .composer{display:flex;gap:10px;padding-top:14px;border-top:1px solid var(--line)}
 .composer input{margin:0;flex:1}
 .composer button{width:auto;margin:0;padding:12px 20px;white-space:nowrap}
+.mic-btn{padding:12px 16px;font-size:18px;background:var(--ink);border:1px solid var(--line);
+  color:var(--text);transition:border-color .15s,background .15s}
+.mic-btn:hover{border-color:var(--accent);background:#161624}
+.mic-btn.on{background:var(--err);border-color:var(--err);color:#fff;animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
 @media(max-width:520px){h1{font-size:26px}.card{padding:20px 18px}.bubble{max-width:90%}}
 @media(prefers-reduced-motion:no-preference){.card{animation:in .25s ease}}
 @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -119,6 +124,7 @@ button[disabled]{opacity:.6;cursor:default}
       <div class="thread" id="thread"></div>
       <div class="composer">
         <input id="msgInput" type="text" maxlength="1200" placeholder="Напишите сообщение…" autocomplete="off">
+        <button type="button" id="micBtn" class="mic-btn" title="Наговорить сообщение">🎤</button>
         <button id="msgSend">Отправить</button>
       </div>
     </div>
@@ -332,6 +338,7 @@ function finishChat(){
   state.done = true;
   $("msgInput").disabled = true;
   $("msgSend").disabled = true;
+  $("micBtn").disabled = true;
   setTimeout(function(){ show("done"); }, 1400);
 }
 
@@ -339,6 +346,54 @@ $("msgSend").addEventListener("click", sendMessage);
 $("msgInput").addEventListener("keydown", function(e){
   if (e.key === "Enter") sendMessage();
 });
+
+/* --- голосовой ввод -------------------------------------------------
+   Встроенное в браузер распознавание речи (Web Speech API) — бесплатно,
+   без сервера и без нового ключа. Работает в Chrome/Edge/Android
+   надёжно, в Safari/iOS — не везде, поэтому кнопку просто прячем, если
+   браузер ничего не поддерживает, вместо того чтобы показывать
+   неработающую. Текст только заполняет поле — отправка остаётся за
+   человеком, чтобы можно было поправить, если распозналось не так.
+----------------------------------------------------------------------- */
+(function () {
+  var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var micBtn = $("micBtn");
+  if (!SpeechRec) { micBtn.style.display = "none"; return; }
+
+  var recognizer = new SpeechRec();
+  recognizer.lang = "ru-RU";
+  recognizer.continuous = false;
+  recognizer.interimResults = false;
+  recognizer.maxAlternatives = 1;
+  var listening = false;
+
+  recognizer.addEventListener("result", function (e) {
+    var said = e.results[0][0].transcript.trim();
+    if (!said) return;
+    var input = $("msgInput");
+    input.value = (input.value ? input.value + " " : "") + said;
+  });
+  recognizer.addEventListener("end", function () {
+    listening = false;
+    micBtn.classList.remove("on");
+  });
+  recognizer.addEventListener("error", function (e) {
+    listening = false;
+    micBtn.classList.remove("on");
+    if (e.error !== "no-speech" && e.error !== "aborted") {
+      addBubble("sys", "Не удалось распознать речь. Попробуйте ещё раз или напишите текстом.");
+    }
+  });
+
+  micBtn.addEventListener("click", function () {
+    if (state.busy || state.done) return;
+    if (listening) { recognizer.stop(); return; }
+    listening = true;
+    micBtn.classList.add("on");
+    try { recognizer.start(); }
+    catch (e) { listening = false; micBtn.classList.remove("on"); }
+  });
+})();
 
 /* Код можно передать ссылкой: /diagnostics.html?code=KZN4821 */
 (function(){
