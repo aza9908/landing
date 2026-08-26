@@ -22,13 +22,13 @@ h1{font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1.12}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;
   padding:26px;margin-top:24px}
 label{display:block;margin-top:20px;font-size:15.5px;font-weight:600;color:#C8C8DA}
-input{width:100%;margin-top:8px;padding:12px 14px;font-size:16.5px;
+input{width:100%;margin-top:8px;padding:12px 14px;font-size:18px;
   font-family:inherit;color:var(--text);background:var(--ink);border:1px solid var(--line);
   border-radius:10px;outline:none}
 input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,91,202,.25)}
 .code-in{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:22px;
   letter-spacing:.16em;text-align:center;text-transform:uppercase}
-button{width:100%;margin-top:26px;padding:15px;font-size:17.5px;font-weight:700;
+button{width:100%;margin-top:26px;padding:15px;font-size:19px;font-weight:700;
   font-family:inherit;color:#fff;background:var(--accent);border:0;border-radius:11px;cursor:pointer}
 button:hover{background:#6C6CD8}
 button[disabled]{opacity:.6;cursor:default}
@@ -50,7 +50,7 @@ button[disabled]{opacity:.6;cursor:default}
 
 /* --- выбор направления --- */
 .choices{display:flex;flex-direction:column;gap:10px;margin-top:20px}
-.choice-btn{width:100%;margin:0;padding:14px 16px;text-align:left;font-size:16.5px;
+.choice-btn{width:100%;margin:0;padding:14px 16px;text-align:left;font-size:18px;
   font-weight:600;color:var(--text);background:var(--ink);border:1px solid var(--line);
   border-radius:11px;cursor:pointer;transition:border-color .15s,background .15s}
 .choice-btn:hover{border-color:var(--accent);background:#161624}
@@ -60,7 +60,7 @@ button[disabled]{opacity:.6;cursor:default}
   margin-top:20px}
 .thread{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;
   padding:4px 2px 12px}
-.bubble{max-width:82%;padding:11px 15px;border-radius:16px;font-size:16px;
+.bubble{max-width:82%;padding:12px 16px;border-radius:16px;font-size:18px;
   line-height:1.5;white-space:pre-wrap;word-wrap:break-word}
 .bubble.bot{align-self:flex-start;background:var(--card);border:1px solid var(--line);
   border-bottom-left-radius:4px;color:var(--text)}
@@ -114,12 +114,18 @@ button[disabled]{opacity:.6;cursor:default}
     <div class="badge" id="company"></div>
     <div class="card">
       <div class="choices" id="deptChoices"></div>
+      <div id="customDept" class="hidden" style="margin-top:6px">
+        <label for="customDeptInput">Своё направление</label>
+        <input id="customDeptInput" maxlength="40" placeholder="Например: IT, Логистика, Юридический отдел">
+        <div class="err" id="customDeptErr"></div>
+        <button type="button" id="customDeptGo">Продолжить</button>
+      </div>
     </div>
   </section>
 
   <!-- Экран 3 — чат -->
   <section id="chat" class="hidden">
-    <h1 style="font-size:26px">AI Research Lab · диагностика</h1>
+    <h1 style="font-size:28px">AI Research Lab · диагностика</h1>
     <div class="chat-shell">
       <div class="thread" id="thread"></div>
       <div class="composer">
@@ -219,21 +225,49 @@ $("codeGo").addEventListener("click", function(){
 });
 
 /* --- экран 2: направление ------------------------------------------ */
+function chooseDepartment(d){
+  state.department = d;
+  state.sessionId = randomId();
+  show("chat");
+  startChat();
+}
+
 function renderDeptChoices(){
   var wrap = $("deptChoices");
   wrap.innerHTML = "";
+  $("customDept").classList.add("hidden");
+  $("customDeptInput").value = "";
+  $("customDeptErr").classList.remove("on");
+
   DEPARTMENTS.forEach(function(d){
     var b = document.createElement("button");
     b.type = "button"; b.className = "choice-btn"; b.textContent = d;
-    b.addEventListener("click", function(){
-      state.department = d;
-      state.sessionId = randomId();
-      show("chat");
-      startChat();
-    });
+    b.addEventListener("click", function(){ chooseDepartment(d); });
     wrap.appendChild(b);
   });
+
+  var other = document.createElement("button");
+  other.type = "button"; other.className = "choice-btn"; other.textContent = "Другое";
+  other.addEventListener("click", function(){
+    $("customDept").classList.remove("hidden");
+    $("customDeptInput").focus();
+  });
+  wrap.appendChild(other);
 }
+
+$("customDeptGo").addEventListener("click", function(){
+  var v = $("customDeptInput").value.trim();
+  $("customDeptErr").classList.remove("on");
+  if (v.length < 2) {
+    $("customDeptErr").textContent = "Напишите название направления";
+    $("customDeptErr").classList.add("on");
+    return;
+  }
+  chooseDepartment(v);
+});
+$("customDeptInput").addEventListener("keydown", function(e){
+  if (e.key === "Enter") $("customDeptGo").click();
+});
 
 /* --- экран 3: чат ---------------------------------------------------
    Свободный разговор с агентом. Каждое сообщение уходит в /interview —

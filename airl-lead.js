@@ -63,9 +63,12 @@
     'color:#fff;background:#5B5BCA;border:0;border-radius:10px;cursor:pointer}',
     'button.go:hover{background:#6C6CD8}',
     'button.go[disabled]{opacity:.6;cursor:default}',
-    '.note{margin-top:14px;font-size:14.5px;line-height:1.5;color:#6B6B85;text-align:center}',
-    '.note a{color:#8A8AE0;font-weight:700;font-size:16px;text-decoration:underline}',
-    '.note a:hover{color:#A5A5EE}',
+    '.note{margin-top:18px;text-align:center}',
+    '.note p{font-size:14.5px;line-height:1.5;color:#6B6B85;margin-bottom:10px}',
+    '.note a{display:block;padding:14px;font-size:23px;font-weight:700;letter-spacing:-.01em;',
+    'color:#8A8AE0;background:#000;border:1px solid #2A2A3C;border-radius:10px;',
+    'text-decoration:none;box-sizing:border-box}',
+    '.note a:hover{background:#0d0d14;border-color:#5B5BCA}',
     '.ok{text-align:center;padding:14px 0}',
     '.ok .mark{width:56px;height:56px;margin:0 auto 18px;border-radius:50%;',
     'background:rgba(91,91,202,.16);border:1px solid #5B5BCA;display:flex;align-items:center;',
@@ -113,6 +116,48 @@
     wrap.appendChild(input);
     wrap.appendChild(el("div", { "class": "err", "data-err": name }));
     return wrap;
+  }
+
+  /* Маска телефона: +7 (XXX) XXX XX XX. Код страны считаем фиксированным
+     (Казахстан) — если человек по привычке набрал ведущую 7 или 8 перед
+     своими десятью цифрами, лишний символ отбрасываем; если нет —
+     просто заполняем десять слотов маски тем, что набрано. Дальше
+     десятого знака ничего не принимаем, лишние цифры просто не попадают
+     в номер. */
+  function formatPhone(raw) {
+    var digits = raw.replace(/\D/g, "");
+    if (digits.length > 10 && (digits.charAt(0) === "7" || digits.charAt(0) === "8")) {
+      digits = digits.slice(1);
+    }
+    digits = digits.slice(0, 10);
+    if (!digits) return "";
+    var out = "+7 (" + digits.slice(0, 3);
+    if (digits.length >= 3) out += ")";
+    if (digits.length > 3) out += " " + digits.slice(3, 6);
+    if (digits.length > 6) out += " " + digits.slice(6, 8);
+    if (digits.length > 8) out += " " + digits.slice(8, 10);
+    return out;
+  }
+
+  /* Переформатирование на каждое нажатие двигает курсор в конец, если его
+     не возвращать явно — тогда правка цифры в середине номера превращается
+     в правку в конце, и человек может отправить не тот номер, не заметив.
+     Держим курсор там же, где он был, считая не позицию символа, а то,
+     сколько цифр было до курсора. */
+  function countDigits(str, upTo) {
+    var m = str.slice(0, upTo).match(/\d/g);
+    return m ? m.length : 0;
+  }
+  function caretAfterDigits(str, n) {
+    if (n <= 0) return 0;
+    var count = 0;
+    for (var i = 0; i < str.length; i++) {
+      if (/\d/.test(str.charAt(i))) {
+        count++;
+        if (count === n) return i + 1;
+      }
+    }
+    return str.length;
   }
 
   /* --- Firestore REST: пишем документ без SDK ------------------------- */
@@ -190,8 +235,19 @@
     var form = el("form", { novalidate: "" });
     form.appendChild(field("Компания", "company", { placeholder: "Название компании" }));
     form.appendChild(field("Как к вам обращаться", "name", { placeholder: "Ваше имя" }));
-    form.appendChild(field("WhatsApp или телефон", "phone",
-      { type: "tel", placeholder: "+7 700 000 00 00", autocomplete: "tel" }));
+    var phoneWrap = field("WhatsApp или телефон", "phone", {
+      type: "tel", placeholder: "+7 (700) 000 00 00", autocomplete: "tel", maxlength: "18"
+    });
+    form.appendChild(phoneWrap);
+    var phoneInput = phoneWrap.querySelector("input");
+    phoneInput.addEventListener("input", function () {
+      var oldValue = phoneInput.value;
+      var caret = phoneInput.selectionStart == null ? oldValue.length : phoneInput.selectionStart;
+      var digitsBeforeCaret = countDigits(oldValue, caret);
+      phoneInput.value = formatPhone(oldValue);
+      var newCaret = caretAfterDigits(phoneInput.value, digitsBeforeCaret);
+      phoneInput.setSelectionRange(newCaret, newCaret);
+    });
     form.appendChild(field("Сколько человек в команде", "team_size",
       { tag: "select", options: SIZES }));
     form.appendChild(field("Что хотите изменить", "wish",
@@ -202,7 +258,7 @@
     form.appendChild(el("div", { "class": "err", "data-err": "form" }));
 
     var note = el("div", { "class": "note" });
-    note.appendChild(document.createTextNode("Уже есть код группы? "));
+    note.appendChild(el("p", { text: "Уже есть код группы?" }));
     note.appendChild(el("a", { href: CFG.diagnostics, text: "Пройти диагностику" }));
     form.appendChild(note);
 

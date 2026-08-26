@@ -68,11 +68,11 @@ function priorityFormula(r) {
   const S = "Настройки";
   return (
     `IF(OR(N${r}="",P${r}="",Q${r}="",R${r}="",S${r}="",T${r}="",V${r}="",` +
-    `W${r}="",X${r}="",Y${r}=""),"",ROUND(((Y${r}/${S}!$K$3)*${S}!$B$13` +
-    `+N${r}*${S}!$B$14+(P${r}/${S}!$K$3)*${S}!$B$15` +
-    `+(Q${r}/${S}!$K$3)*${S}!$B$16+(R${r}/${S}!$K$3)*${S}!$B$17` +
-    `+(S${r}/${S}!$K$3)*${S}!$B$18+(T${r}/${S}!$K$3)*${S}!$B$19` +
-    `+V${r}*${S}!$B$20+((${S}!$K$3+1-W${r})/${S}!$K$3)*${S}!$B$21)*100` +
+    `W${r}="",X${r}="",Y${r}=""),"",ROUND(((Y${r}/${S}!$K$3)*${S}!$B$26` +
+    `+N${r}*${S}!$B$27+(P${r}/${S}!$K$3)*${S}!$B$28` +
+    `+(Q${r}/${S}!$K$3)*${S}!$B$29+(R${r}/${S}!$K$3)*${S}!$B$30` +
+    `+(S${r}/${S}!$K$3)*${S}!$B$31+(T${r}/${S}!$K$3)*${S}!$B$32` +
+    `+V${r}*${S}!$B$33+((${S}!$K$3+1-W${r})/${S}!$K$3)*${S}!$B$34)*100` +
     `*IF(X${r}=${S}!$H$3,${S}!$I$3,IF(X${r}=${S}!$H$4,${S}!$I$4,${S}!$I$5)),0))`
   );
 }
@@ -150,15 +150,15 @@ function buildRegistrySheet(ws, data) {
     };
     ws.getCell(`Y${r}`).value = {
       formula:
-        `IF(L${r}="","",IF(L${r}<Настройки!$D$14,1,IF(L${r}<Настройки!$D$15,2,` +
-        `IF(L${r}<Настройки!$D$16,3,IF(L${r}<Настройки!$D$17,4,5)))))`
+        `IF(L${r}="","",IF(L${r}<Настройки!$D$27,1,IF(L${r}<Настройки!$D$28,2,` +
+        `IF(L${r}<Настройки!$D$29,3,IF(L${r}<Настройки!$D$30,4,5)))))`
     };
     ws.getCell(`Z${r}`).value = { formula: priorityFormula(r) };
     ws.getCell(`AA${r}`).value = {
       formula:
-        `IF(Z${r}="","",IF(Z${r}>=Настройки!$G$13,Настройки!$H$13,` +
-        `IF(Z${r}>=Настройки!$G$14,Настройки!$H$14,` +
-        `IF(Z${r}>=Настройки!$G$15,Настройки!$H$15,Настройки!$H$16))))`
+        `IF(Z${r}="","",IF(Z${r}>=Настройки!$G$26,Настройки!$H$26,` +
+        `IF(Z${r}>=Настройки!$G$27,Настройки!$H$27,` +
+        `IF(Z${r}>=Настройки!$G$28,Настройки!$H$28,Настройки!$H$29))))`
     };
 
     if (p) {
@@ -191,7 +191,7 @@ function buildRegistrySheet(ws, data) {
   ws.autoFilter = { from: "A7", to: `AE${LAST}` };
 
   const lists = [
-    ["B", "Настройки!$A$3:$A$12"], ["H", "Настройки!$D$3:$D$9"],
+    ["B", "Настройки!$A$3:$A$24"], ["H", "Настройки!$D$3:$D$9"],
     ["X", "Настройки!$H$3:$H$5"], ["AD", "Настройки!$F$3:$F$9"],
     ["AC", "Настройки!$M$3:$M$20"]
   ];
@@ -254,6 +254,13 @@ function buildSummary(ws, teams) {
   [20, 13, 22, 8, 8, 8, 15].forEach((w, i) => { ws.getColumn(i + 1).width = w; });
 }
 
+// Команда в колонке A — единственный список переменной длины (четыре
+// направления плюс те, что сотрудники вписали сами через «Другое»).
+// Блок весов и категорий начинается достаточно далеко вниз, чтобы
+// длинный список команд его не перекрыл — раньше это было жёстко
+// зашито в 12-ю строку и ломалось уже на 6-7 нестандартных направлениях.
+const CRIT_ROW = 25;
+
 function buildSettings(ws, teams, owners) {
   ws.getCell("A1").value = "Настройки приоритизации";
   ws.getCell("A1").font = font({ bold: true, size: 14 });
@@ -273,25 +280,25 @@ function buildSettings(ws, teams, owners) {
   ws.getCell("K3").value = 5;
   owners.forEach((o, i) => { ws.getCell(3 + i, 13).value = o; });
 
-  [["A12", "Критерий"], ["B12", "Вес"], ["D12", "От, часов/месяц"],
-   ["E12", "Баллы объёма"], ["G12", "Баллы от"], ["H12", "Категория"]]
+  [[`A${CRIT_ROW}`, "Критерий"], [`B${CRIT_ROW}`, "Вес"], [`D${CRIT_ROW}`, "От, часов/месяц"],
+   [`E${CRIT_ROW}`, "Баллы объёма"], [`G${CRIT_ROW}`, "Баллы от"], [`H${CRIT_ROW}`, "Категория"]]
     .forEach(([ref, t]) => { ws.getCell(ref).value = t; ws.getCell(ref).font = head(); });
 
   WEIGHTS.forEach(([n, w], i) => {
-    ws.getCell(13 + i, 1).value = n; ws.getCell(13 + i, 2).value = w;
+    ws.getCell(CRIT_ROW + 1 + i, 1).value = n; ws.getCell(CRIT_ROW + 1 + i, 2).value = w;
   });
   VOLUME.forEach(([h, s], i) => {
-    ws.getCell(13 + i, 4).value = h; ws.getCell(13 + i, 5).value = s;
+    ws.getCell(CRIT_ROW + 1 + i, 4).value = h; ws.getCell(CRIT_ROW + 1 + i, 5).value = s;
   });
   CATEGORY.forEach(([s, c], i) => {
-    ws.getCell(13 + i, 7).value = s; ws.getCell(13 + i, 8).value = c;
+    ws.getCell(CRIT_ROW + 1 + i, 7).value = s; ws.getCell(CRIT_ROW + 1 + i, 8).value = c;
   });
 
-  ws.getCell("A23").value =
+  ws.getCell(`A${CRIT_ROW + 11}`).value =
     "Логика: высокий балл получают частые, трудоёмкие, ручные и повторяемые процессы " +
     "с цифровыми данными, где ошибка дорого стоит. Веса можно менять — приоритеты " +
     "пересчитаются сами.";
-  ws.getCell("A23").font = font({ size: 9, color: { argb: "FF6B7280" } });
+  ws.getCell(`A${CRIT_ROW + 11}`).font = font({ size: 9, color: { argb: "FF6B7280" } });
 
   [26, 12, 3, 22, 14, 3, 12, 22, 13, 3, 14, 3, 16]
     .forEach((w, i) => { ws.getColumn(i + 1).width = w; });
@@ -304,11 +311,35 @@ async function buildRegistry(data) {
 
   const processes = data.processes || [];
   const owners = [...new Set(processes.map((p) => p.owner).filter(Boolean))].sort();
+  // Четыре направления всегда идут первыми и в фиксированном порядке —
+  // так гарантированно видно, если по какому-то нет ни одного ответа.
+  // «Другое» из чата сотрудника (validateDepartment это уже пропускает)
+  // добавляется следом, если такое направление реально встретилось.
+  // Excel сравнивает текст в COUNTIF/SUMIF без учёта регистра, а вот наш
+  // список строк для Сводки/Настроек — обычный JS Set, регистр и пробелы
+  // для него разные строки: без нормализации "IT", "it" и " IT " стали бы
+  // тремя строками, каждая из которых при подсчёте в Excel захватила бы
+  // ответы всех трёх — задвоенные и растроенные цифры в отчёте.
+  function normKey(t) {
+    return t.trim().replace(/\s+/g, " ").toLowerCase();
+  }
+  const canonicalKeys = new Set(TEAMS.map(normKey));
+  const extraTeams = [];
+  const seenExtra = new Set();
+  processes.forEach((p) => {
+    if (!p.team) return;
+    const clean = p.team.trim().replace(/\s+/g, " ");
+    const key = normKey(clean);
+    if (canonicalKeys.has(key) || seenExtra.has(key)) return;
+    seenExtra.add(key);
+    extraTeams.push(clean);
+  });
+  const allTeams = TEAMS.concat(extraTeams);
 
   buildStart(wb.addWorksheet("Старт"), data);
   buildRegistrySheet(wb.addWorksheet("Реестр процессов"), data);
-  buildSummary(wb.addWorksheet("Сводка"), TEAMS);
-  buildSettings(wb.addWorksheet("Настройки"), TEAMS, owners);
+  buildSummary(wb.addWorksheet("Сводка"), allTeams);
+  buildSettings(wb.addWorksheet("Настройки"), allTeams, owners);
 
   // Excel сам пересчитает формулы при открытии.
   wb.calcProperties = { fullCalcOnLoad: true };
