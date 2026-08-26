@@ -13,35 +13,27 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--ink);color:var(--text);
   font-family:"Inter Tight",Inter,-apple-system,"Segoe UI",Roboto,sans-serif;
-  line-height:1.5;padding:32px 20px 80px}
+  line-height:1.5;padding:32px 20px 24px}
 .page{max-width:640px;margin:0 auto}
 .brand{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-2);
   font-weight:700;margin-bottom:28px}
 h1{font-size:32px;font-weight:800;letter-spacing:-.02em;line-height:1.12}
-h2{font-size:19px;font-weight:700;margin-top:36px}
 .sub{margin-top:12px;color:var(--muted);font-size:15px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;
   padding:26px;margin-top:24px}
 label{display:block;margin-top:20px;font-size:14px;font-weight:600;color:#C8C8DA}
-label .hint{display:block;margin-top:4px;font-size:12.5px;font-weight:400;color:#6B6B85}
-input,select,textarea{width:100%;margin-top:8px;padding:12px 14px;font-size:15px;
+input{width:100%;margin-top:8px;padding:12px 14px;font-size:15px;
   font-family:inherit;color:var(--text);background:var(--ink);border:1px solid var(--line);
   border-radius:10px;outline:none}
-input:focus,select:focus,textarea:focus{border-color:var(--accent);
-  box-shadow:0 0 0 3px rgba(91,91,202,.25)}
-textarea{min-height:96px;resize:vertical}
+input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,91,202,.25)}
 .code-in{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:22px;
   letter-spacing:.16em;text-align:center;text-transform:uppercase}
 button{width:100%;margin-top:26px;padding:15px;font-size:16px;font-weight:700;
   font-family:inherit;color:#fff;background:var(--accent);border:0;border-radius:11px;cursor:pointer}
 button:hover{background:#6C6CD8}
 button[disabled]{opacity:.6;cursor:default}
-button.ghost{background:transparent;border:1px solid var(--line);color:var(--muted);margin-top:12px}
-button.ghost:hover{background:#1A1A28;color:var(--text)}
 .err{margin-top:10px;font-size:13px;color:var(--err);display:none}
 .err.on{display:block}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.row label{margin-top:14px}
 .mark{width:60px;height:60px;margin:0 auto 20px;border-radius:50%;
   background:rgba(91,91,202,.16);border:1px solid var(--accent);display:flex;
   align-items:center;justify-content:center;font-size:28px;color:var(--accent-2)}
@@ -56,29 +48,38 @@ button.ghost:hover{background:#1A1A28;color:var(--text)}
 .badge{display:inline-block;margin-top:14px;padding:6px 12px;font-size:12.5px;
   border:1px solid var(--line);border-radius:999px;color:var(--muted)}
 
-/* --- чат --- */
-.progress-wrap{margin-top:18px;height:4px;background:var(--line);border-radius:99px;overflow:hidden}
-.progress-bar{height:100%;background:var(--accent);border-radius:99px;transition:width .3s ease}
-.progress-label{margin-top:8px;font-size:12px;color:#6B6B85}
-.transcript{margin-top:24px;display:flex;flex-direction:column;gap:14px}
-.msg-q{max-width:88%;font-size:13.5px;color:var(--muted)}
-.msg-q b{display:block;font-size:14.5px;color:#C8C8DA;font-weight:600;margin-top:2px}
-.msg-a{align-self:flex-end;max-width:82%;background:rgba(91,91,202,.16);
-  border:1px solid rgba(91,91,202,.4);border-radius:14px 14px 3px 14px;
-  padding:10px 14px;font-size:14.5px;color:var(--text);white-space:pre-wrap}
-.qcard{margin-top:18px}
-.qcard .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;
-  color:var(--accent-2);font-weight:700}
-.qcard h2{margin-top:8px;font-size:20px}
-.qcard .hint{margin-top:8px;font-size:13px;color:#6B6B85;line-height:1.5}
+/* --- выбор направления --- */
 .choices{display:flex;flex-direction:column;gap:10px;margin-top:20px}
 .choice-btn{width:100%;margin:0;padding:14px 16px;text-align:left;font-size:15px;
   font-weight:600;color:var(--text);background:var(--ink);border:1px solid var(--line);
   border-radius:11px;cursor:pointer;transition:border-color .15s,background .15s}
 .choice-btn:hover{border-color:var(--accent);background:#161624}
-.task-name{margin-top:18px}
-@media(max-width:520px){h1{font-size:26px}.card{padding:20px 18px}.row{grid-template-columns:1fr}
-  .msg-a{max-width:92%}}
+
+/* --- чат --- */
+.chat-shell{display:flex;flex-direction:column;height:calc(100dvh - 64px);max-height:820px;
+  margin-top:20px}
+.thread{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;
+  padding:4px 2px 12px}
+.bubble{max-width:82%;padding:11px 15px;border-radius:16px;font-size:14.5px;
+  line-height:1.5;white-space:pre-wrap;word-wrap:break-word}
+.bubble.bot{align-self:flex-start;background:var(--card);border:1px solid var(--line);
+  border-bottom-left-radius:4px;color:var(--text)}
+.bubble.me{align-self:flex-end;background:rgba(91,91,202,.22);
+  border:1px solid rgba(91,91,202,.45);border-bottom-right-radius:4px;color:var(--text)}
+.bubble.sys{align-self:center;background:transparent;border:1px dashed var(--line);
+  color:var(--muted);font-size:12.5px;text-align:center}
+.typing{align-self:flex-start;display:flex;gap:4px;padding:13px 16px;
+  background:var(--card);border:1px solid var(--line);border-radius:16px;
+  border-bottom-left-radius:4px}
+.typing span{width:6px;height:6px;border-radius:50%;background:var(--muted);
+  animation:blink 1.2s infinite}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.composer{display:flex;gap:10px;padding-top:14px;border-top:1px solid var(--line)}
+.composer input{margin:0;flex:1}
+.composer button{width:auto;margin:0;padding:12px 20px;white-space:nowrap}
+@media(max-width:520px){h1{font-size:26px}.card{padding:20px 18px}.bubble{max-width:90%}}
 @media(prefers-reduced-motion:no-preference){.card{animation:in .25s ease}}
 @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 </style>
@@ -101,29 +102,29 @@ button.ghost:hover{background:#1A1A28;color:var(--text)}
     <div class="foot">Кода нет? Оставьте заявку на главной — мы созвонимся и выдадим код.</div>
   </section>
 
-  <!-- Экран 2 — чат -->
-  <section id="chat" class="hidden">
+  <!-- Экран 2 — выбор направления -->
+  <section id="deptGate" class="hidden">
     <h1>Расскажите про свою работу</h1>
-    <div class="sub">Отвечайте своими словами, как есть. Красиво формулировать не нужно —
-      важна правда, а не гладкость.</div>
+    <div class="sub">Сначала — к какому направлению вы себя относите.</div>
     <div class="badge" id="company"></div>
-
-    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
-    <div class="progress-label" id="progressLabel"></div>
-
-    <div class="transcript" id="transcript"></div>
-
-    <div class="card qcard" id="qcard">
-      <div class="eyebrow" id="qEyebrow"></div>
-      <h2 id="qText"></h2>
-      <div class="hint" id="qHint"></div>
-      <div id="qBody"></div>
-      <div class="err" id="qErr"></div>
-      <button id="qNext">Далее</button>
+    <div class="card">
+      <div class="choices" id="deptChoices"></div>
     </div>
   </section>
 
-  <!-- Экран 3 — спасибо -->
+  <!-- Экран 3 — чат -->
+  <section id="chat" class="hidden">
+    <h1 style="font-size:22px">AI Research Lab · диагностика</h1>
+    <div class="chat-shell">
+      <div class="thread" id="thread"></div>
+      <div class="composer">
+        <input id="msgInput" type="text" maxlength="1200" placeholder="Напишите сообщение…" autocomplete="off">
+        <button id="msgSend">Отправить</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Экран 4 — спасибо -->
   <section id="done" class="hidden">
     <div class="card center">
       <div class="mark">✓</div>
@@ -143,55 +144,34 @@ button.ghost:hover{background:#1A1A28;color:var(--text)}
 
 <script>
 /* ------------------------------------------------------------------
-   Настройки. Те же значения, что в airl-lead.js на лендинге.
+   Настройки.
 ------------------------------------------------------------------ */
 var CFG = {
   project: "landing-page-8e314",
-  key: "AIzaSyDNSjN6mF5R5tVqrVtXeuOu3q6UtUdS39o"
+  key: "AIzaSyDNSjN6mF5R5tVqrVtXeuOu3q6UtUdS39o",
+  functionsBase: "https://europe-west1-landing-page-8e314.cloudfunctions.net"
 };
 
-var BASE = "https://firestore.googleapis.com/v1/projects/" + CFG.project +
+var FIRESTORE_BASE = "https://firestore.googleapis.com/v1/projects/" + CFG.project +
            "/databases/(default)/documents/";
 
-var FREQ = ["Несколько раз в день","Ежедневно","Еженедельно","Ежемесячно",
-            "Ежеквартально","По событию","Реже"];
 var DEPARTMENTS = ["HR", "Finance", "Marketing & Sales", "CEO"];
-var MANUAL_SHARE = [
-  ["0", "Почти всё автоматически — 0%"],
-  ["0.25", "Четверть руками — 25%"],
-  ["0.5", "Половина руками — 50%"],
-  ["0.75", "Большая часть руками — 75%"],
-  ["1", "Всё руками — 100%"]
-];
 
-var state = { code: "", company: "", answers: { timing: [] } };
-
-/* --- кодирование значений для Firestore REST --------------------- */
-function enc(v){
-  if (v === null || v === undefined) return {nullValue:null};
-  if (typeof v === "boolean") return {booleanValue:v};
-  if (typeof v === "number") return Number.isInteger(v)
-      ? {integerValue:String(v)} : {doubleValue:v};
-  if (Array.isArray(v)) return {arrayValue:{values:v.map(enc)}};
-  if (typeof v === "object") {
-    var f = {};
-    Object.keys(v).forEach(function(k){ f[k] = enc(v[k]); });
-    return {mapValue:{fields:f}};
-  }
-  return {stringValue:String(v)};
-}
-function fields(obj){
-  var f = {};
-  Object.keys(obj).forEach(function(k){ f[k] = enc(obj[k]); });
-  return f;
-}
+var state = { code: "", company: "", department: "", sessionId: "", started: false, done: false, busy: false };
 
 function $(id){ return document.getElementById(id); }
 function show(section){
-  ["gate","chat","done"].forEach(function(s){
+  ["gate","deptGate","chat","done"].forEach(function(s){
     $(s).classList.toggle("hidden", s !== section);
   });
   window.scrollTo(0,0);
+}
+
+function randomId(){
+  if (window.crypto && window.crypto.randomUUID) return window.crypto.randomUUID();
+  var s = "";
+  for (var i = 0; i < 32; i++) s += Math.floor(Math.random() * 16).toString(16);
+  return s;
 }
 
 /* --- экран 1: проверка кода -------------------------------------- */
@@ -207,7 +187,7 @@ $("codeGo").addEventListener("click", function(){
   var btn = $("codeGo");
   btn.disabled = true; btn.textContent = "Проверяем…";
 
-  fetch(BASE + "groups_public/" + encodeURIComponent(code) + "?key=" + CFG.key)
+  fetch(FIRESTORE_BASE + "groups_public/" + encodeURIComponent(code) + "?key=" + CFG.key)
     .then(function(r){
       if (r.status === 404) throw new Error("Такого кода нет. Проверьте раскладку и код группы.");
       if (!r.ok) throw new Error("Не получилось проверить код. Попробуйте ещё раз.");
@@ -221,8 +201,8 @@ $("codeGo").addEventListener("click", function(){
       state.company = (f.company && f.company.stringValue) || "";
       $("company").textContent = state.company
         ? state.company + " · код " + code : "Код " + code;
-      show("chat");
-      startChat();
+      renderDeptChoices();
+      show("deptGate");
     })
     .catch(function(e){
       $("codeErr").textContent = e.message; $("codeErr").classList.add("on");
@@ -232,286 +212,133 @@ $("codeGo").addEventListener("click", function(){
     });
 });
 
-/* --- экран 2: чат --------------------------------------------------
-   Фиксированная последовательность из девяти шагов: имя, должность,
-   направление — и шесть вопросов по теме, которые реально вскрывают
-   боль (задача, что бесит, инструменты, ручной труд, чего не хватает,
-   конфиденциальность). Задачу можно описать не одну — тогда она не
-   сдвигает общий счётчик, а просто добавляется поверх.
---------------------------------------------------------------------- */
-
-var BASE_STEPS = [
-  { key: "fio", kind: "text", eyebrow: "1 из 9", q: "Как вас зовут?",
-    hint: "Нужно только чтобы не было дублей среди ответов. В отчёт имя не попадает — там только отдел и роль.",
-    placeholder: "Асель Нурланова", maxlength: 80,
-    validate: function(v){ return v.trim().length >= 2 ? "" : "Напишите, пожалуйста, имя"; } },
-
-  { key: "role", kind: "text", eyebrow: "2 из 9", q: "Какая у вас должность?",
-    placeholder: "Менеджер по продажам", maxlength: 80,
-    validate: function(v){ return v.trim().length >= 2 ? "" : "Напишите должность"; } },
-
-  { key: "department", kind: "choice", eyebrow: "3 из 9", q: "В каком направлении вы работаете?",
-    options: DEPARTMENTS.map(function(d){ return [d, d]; }) },
-
-  { key: "task", kind: "task", eyebrow: "4 из 9",
-    q: "Расскажите про задачу, которая отнимает больше всего времени",
-    hint: "С чего начинается и чем заканчивается, например «Готовлю КП после встречи с клиентом»." },
-
-  { key: "pain", kind: "textarea", eyebrow: "5 из 9", q: "Что бесит больше всего в этой работе?",
-    hint: "Например: «переписываю одно и то же в третий раз», «жду данные от коллег».",
-    maxlength: 900,
-    validate: function(v){ return v.trim().length >= 10 ? "" : "Напишите пару предложений — это самое важное поле"; } },
-
-  { key: "tools", kind: "text", eyebrow: "6 из 9", q: "В каких программах и инструментах вы работаете?",
-    hint: "1С, Bitrix24, AmoCRM, Google Sheets, WhatsApp, Excel — через запятую.", maxlength: 200 },
-
-  { key: "manual", kind: "choice", eyebrow: "7 из 9", q: "Какая часть этой работы делается руками?",
-    options: MANUAL_SHARE },
-
-  { key: "wish", kind: "textarea", eyebrow: "8 из 9",
-    q: "Что бы вы поручили помощнику, если бы он у вас появился?",
-    hint: "Самый полезный вопрос. Пишите как есть, даже если кажется, что так нельзя.",
-    maxlength: 900 },
-
-  { key: "confidential", kind: "yesno", eyebrow: "9 из 9",
-    q: "Есть ли в этих задачах конфиденциальные данные?",
-    hint: "Договоры, персональные данные, зарплаты, медицинские сведения.",
-    options: [["yes", "Да"], ["no", "Нет"]] }
-];
-
-var TASK_MORE_OPTIONS = [["yes", "Да, есть ещё"], ["no", "Нет, этого достаточно"]];
-
-var flow = [];       // развёрнутая последовательность шагов (с учётом доп. задач)
-var pos = 0;         // индекс текущего шага в flow
-var taskCount = 0;
-
-function startChat(){
-  flow = BASE_STEPS.slice(0, 4);  // до задачи включительно; дальше достраивается по ответам
-  pos = 0;
-  taskCount = 0;
-  $("transcript").innerHTML = "";
-  renderStep();
-}
-
-function recapText(step, value){
-  if (step.kind === "choice" || step.kind === "yesno" || step.kind === "task-more") {
-    var opt = (step.options || []).filter(function(o){ return o[0] === value; })[0];
-    return opt ? opt[1] : value;
-  }
-  if (step.kind === "task") {
-    return "«" + value.task + "» — " + value.frequency + ", " + value.runs_per_month +
-      " раз/мес, " + value.minutes + " мин, участников " + value.people;
-  }
-  return value;
-}
-
-function pushTranscript(step, value){
-  var q = document.createElement("div");
-  q.className = "msg-q";
-  q.innerHTML = "<b>" + step.q + "</b>";
-  var a = document.createElement("div");
-  a.className = "msg-a";
-  a.textContent = recapText(step, value);
-  $("transcript").appendChild(q);
-  $("transcript").appendChild(a);
-}
-
-function updateProgress(step){
-  var n = parseInt(step.eyebrow, 10) || 1;
-  var total = 9;
-  $("progressBar").style.width = Math.round((n / total) * 100) + "%";
-  $("progressLabel").textContent = "Вопрос " + step.eyebrow;
-}
-
-function renderStep(){
-  var step = flow[pos];
-  updateProgress(step);
-  $("qEyebrow").textContent = step.eyebrow;
-  $("qText").textContent = step.q;
-  $("qHint").textContent = step.hint || "";
-  $("qHint").style.display = step.hint ? "" : "none";
-  $("qErr").classList.remove("on");
-
-  var body = $("qBody");
-  body.innerHTML = "";
-  var next = $("qNext");
-  next.style.display = "";
-  next.textContent = "Далее";
-
-  if (step.kind === "text") {
-    var inp = document.createElement("input");
-    inp.type = "text"; inp.id = "stepInput"; inp.maxLength = step.maxlength || 200;
-    inp.placeholder = step.placeholder || "";
-    inp.addEventListener("keydown", function(e){ if (e.key === "Enter") next.click(); });
-    body.appendChild(inp);
-    setTimeout(function(){ inp.focus(); }, 150);
-  }
-
-  else if (step.kind === "textarea") {
-    var ta = document.createElement("textarea");
-    ta.id = "stepInput"; ta.maxLength = step.maxlength || 900;
-    body.appendChild(ta);
-    setTimeout(function(){ ta.focus(); }, 150);
-  }
-
-  else if (step.kind === "choice") {
-    next.style.display = "none";
-    var wrap = document.createElement("div");
-    wrap.className = "choices";
-    step.options.forEach(function(o){
-      var b = document.createElement("button");
-      b.type = "button"; b.className = "choice-btn"; b.textContent = o[1];
-      b.addEventListener("click", function(){ commit(step, o[0]); });
-      wrap.appendChild(b);
+/* --- экран 2: направление ------------------------------------------ */
+function renderDeptChoices(){
+  var wrap = $("deptChoices");
+  wrap.innerHTML = "";
+  DEPARTMENTS.forEach(function(d){
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "choice-btn"; b.textContent = d;
+    b.addEventListener("click", function(){
+      state.department = d;
+      state.sessionId = randomId();
+      show("chat");
+      startChat();
     });
-    body.appendChild(wrap);
-  }
-
-  else if (step.kind === "yesno") {
-    next.style.display = "none";
-    var wrap2 = document.createElement("div");
-    wrap2.className = "choices";
-    step.options.forEach(function(o){
-      var b = document.createElement("button");
-      b.type = "button"; b.className = "choice-btn"; b.textContent = o[1];
-      b.addEventListener("click", function(){ commit(step, o[0]); });
-      wrap2.appendChild(b);
-    });
-    body.appendChild(wrap2);
-  }
-
-  else if (step.kind === "task") {
-    var d = document.createElement("div");
-    d.innerHTML =
-      '<div class="task-name"><input id="tName" maxlength="200" placeholder="Готовлю КП после встречи с клиентом"></div>' +
-      '<div class="row">' +
-        '<label>Как часто<select id="tFreq">' +
-          FREQ.map(function(f){ return '<option>' + f + '</option>'; }).join("") +
-        '</select></label>' +
-        '<label>Раз в месяц<input id="tRuns" type="number" min="0" placeholder="30"></label>' +
-        '<label>Минут за раз<input id="tMin" type="number" min="0" placeholder="45"></label>' +
-        '<label>Участников<input id="tPeople" type="number" min="1" value="1"></label>' +
-      '</div>';
-    body.appendChild(d);
-    setTimeout(function(){ $("tName").focus(); }, 150);
-  }
-
-  else if (step.kind === "task-more") {
-    next.style.display = "none";
-    var wrap3 = document.createElement("div");
-    wrap3.className = "choices";
-    step.options.forEach(function(o){
-      var b = document.createElement("button");
-      b.type = "button"; b.className = "choice-btn"; b.textContent = o[1];
-      b.addEventListener("click", function(){ commit(step, o[0]); });
-      wrap3.appendChild(b);
-    });
-    body.appendChild(wrap3);
-  }
-}
-
-$("qNext").addEventListener("click", function(){
-  var step = flow[pos];
-  var input = $("stepInput");
-  var value = input ? input.value : "";
-
-  if (step.kind === "text" || step.kind === "textarea") {
-    var err = step.validate ? step.validate(value) : "";
-    if (err) { $("qErr").textContent = err; $("qErr").classList.add("on"); return; }
-    commit(step, value.trim());
-    return;
-  }
-
-  if (step.kind === "task") {
-    var task = $("tName").value.trim();
-    if (task.length < 3) {
-      $("qErr").textContent = "Опишите задачу — с чего начинается и чем заканчивается";
-      $("qErr").classList.add("on");
-      return;
-    }
-    commit(step, {
-      task: task,
-      frequency: $("tFreq").value,
-      runs_per_month: parseInt($("tRuns").value, 10) || 0,
-      minutes: parseInt($("tMin").value, 10) || 0,
-      people: parseInt($("tPeople").value, 10) || 1
-    });
-  }
-});
-
-function commit(step, value){
-  pushTranscript(step, value);
-
-  if (step.key === "task") {
-    state.answers.timing.push(value);
-    taskCount++;
-    if (taskCount < 4) {
-      // спрашиваем, нужна ли ещё одна задача, но общий счётчик не двигаем
-      flow.splice(pos + 1, 0, {
-        key: "task_more", kind: "task-more", eyebrow: "4 из 9",
-        q: "Есть ещё задача, которая отнимает много времени?",
-        options: TASK_MORE_OPTIONS
-      });
-    }
-  } else if (step.key === "task_more") {
-    if (value === "yes") {
-      flow.splice(pos + 1, 0, {
-        key: "task", kind: "task", eyebrow: "4 из 9",
-        q: "Расскажите про ещё одну задачу",
-        hint: "С чего начинается и чем заканчивается."
-      });
-    } else if (flow.length === pos + 1) {
-      // доп. вопросов больше нет — достраиваем хвост базовой цепочки
-      flow = flow.concat(BASE_STEPS.slice(4));
-    }
-  } else {
-    state.answers[step.key] = value;
-  }
-
-  pos++;
-  if (pos >= flow.length) {
-    // "задача" была последним известным шагом — если хвост ещё не пристроен, пристраиваем
-    flow = flow.concat(BASE_STEPS.slice(4));
-  }
-  if (pos >= flow.length) { submit(); return; }
-  renderStep();
-}
-
-/* --- отправка ----------------------------------------------------- */
-function submit(){
-  var timing = state.answers.timing || [];
-  var data = {
-    fio: state.answers.fio,
-    role: state.answers.role,
-    department: state.answers.department,
-    timing: timing,
-    tasks: timing.map(function(t){ return t.task; }).join(" | "),
-    pain: state.answers.pain,
-    tools: state.answers.tools || "",
-    manual_share: parseFloat(state.answers.manual),
-    wish: state.answers.wish,
-    confidential: state.answers.confidential === "yes",
-    created_at: new Date().toISOString()
-  };
-
-  $("qcard").innerHTML = '<div class="center" style="padding:20px 0">Отправляем…</div>';
-
-  fetch(BASE + "groups/" + encodeURIComponent(state.code) + "/responses?key=" + CFG.key, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({fields: fields(data)})
-  })
-  .then(function(r){
-    if (!r.ok) throw new Error("Не получилось отправить (" + r.status + "). Проверьте интернет.");
-    show("done");
-  })
-  .catch(function(e){
-    $("qcard").innerHTML =
-      '<div class="err on" style="margin-top:0">' + e.message + '</div>' +
-      '<button id="retry">Попробовать ещё раз</button>';
-    $("retry").addEventListener("click", submit);
+    wrap.appendChild(b);
   });
 }
+
+/* --- экран 3: чат ---------------------------------------------------
+   Свободный разговор с агентом. Каждое сообщение уходит в /interview —
+   публичную Cloud Function, ограниченную по частоте и на входе. Ответы
+   модели и то, что печатает сотрудник, всегда вставляются в DOM через
+   textContent, никогда через innerHTML — так даже если кто-то попробует
+   отправить <script> или разметку, браузер покажет это как обычный
+   текст, а не выполнит.
+--------------------------------------------------------------------- */
+
+function addBubble(kind, text){
+  var b = document.createElement("div");
+  b.className = "bubble " + kind;
+  b.textContent = text;
+  $("thread").appendChild(b);
+  $("thread").scrollTop = $("thread").scrollHeight;
+  return b;
+}
+
+function addTyping(){
+  var t = document.createElement("div");
+  t.className = "typing"; t.id = "typingRow";
+  t.innerHTML = "<span></span><span></span><span></span>";
+  $("thread").appendChild(t);
+  $("thread").scrollTop = $("thread").scrollHeight;
+}
+function removeTyping(){
+  var t = $("typingRow");
+  if (t) t.remove();
+}
+
+function setBusy(v){
+  state.busy = v;
+  $("msgInput").disabled = v;
+  $("msgSend").disabled = v;
+}
+
+function callInterview(payload){
+  return fetch(CFG.functionsBase + "/interview", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(Object.assign({
+      code: state.code,
+      department: state.department,
+      session_id: state.sessionId
+    }, payload))
+  }).then(function(r){
+    return r.json().then(function(body){
+      if (!r.ok) throw new Error(body.error || ("Ошибка сервера (" + r.status + ")"));
+      return body;
+    });
+  });
+}
+
+function startChat(){
+  setBusy(true);
+  addTyping();
+  callInterview({ start: true })
+    .then(function(body){
+      removeTyping();
+      state.started = true;
+      addBubble("bot", body.reply);
+      if (body.done) finishChat();
+    })
+    .catch(function(e){
+      removeTyping();
+      addBubble("sys", e.message);
+      $("msgSend").textContent = "Начать заново";
+    })
+    .then(function(){ if (!state.done) { setBusy(false); $("msgInput").focus(); } });
+}
+
+function sendMessage(){
+  if (state.busy || state.done) return;
+
+  // Разговор ещё не начался (первый запрос не удался) — та же кнопка
+  // пробует запустить его снова, набранный текст в этом случае не нужен.
+  if (!state.started) { $("msgSend").textContent = "Отправить"; startChat(); return; }
+
+  var text = $("msgInput").value.trim();
+  if (!text) return;
+  $("msgInput").value = "";
+  addBubble("me", text);
+  setBusy(true);
+  addTyping();
+
+  callInterview({ message: text })
+    .then(function(body){
+      removeTyping();
+      addBubble("bot", body.reply);
+      if (body.done) finishChat();
+    })
+    .catch(function(e){
+      removeTyping();
+      addBubble("sys", e.message + " Сообщение не отправлено — можете отправить его ещё раз.");
+      $("msgInput").value = text;
+    })
+    .then(function(){ if (!state.done) { setBusy(false); $("msgInput").focus(); } });
+}
+
+function finishChat(){
+  state.done = true;
+  $("msgInput").disabled = true;
+  $("msgSend").disabled = true;
+  setTimeout(function(){ show("done"); }, 1400);
+}
+
+$("msgSend").addEventListener("click", sendMessage);
+$("msgInput").addEventListener("keydown", function(e){
+  if (e.key === "Enter") sendMessage();
+});
 
 /* Код можно передать ссылкой: /diagnostics.html?code=KZN4821 */
 (function(){

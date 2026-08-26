@@ -13,6 +13,9 @@
 
 const { askJson } = require("../lib/anthropic");
 const { buildRegistry } = require("../lib/xlsx");
+const { DEPARTMENTS } = require("../lib/limits");
+
+const DEPARTMENTS_LIST = DEPARTMENTS.map((d) => `"${d}"`).join(", ");
 
 const SYSTEM = `
 Ты аналитик AI Research Lab. Ты разбираешь ответы сотрудников компании и
@@ -31,7 +34,7 @@ const SYSTEM = `
 
 НАПРАВЛЕНИЯ
 
-Поле team — ровно одно из четырёх: "HR", "Finance", "Marketing & Sales", "CEO".
+Поле team — ровно одно из четырёх: ${DEPARTMENTS_LIST}.
 Не выдумывай других направлений. Бери направление из ответа сотрудника (поле
 «Отдел» уже приходит в одном из этих четырёх значений) — просто копируй его,
 не переименовывай и не переводи.
