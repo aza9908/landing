@@ -56,8 +56,11 @@ button[disabled]{opacity:.6;cursor:default}
 .choice-btn:hover{border-color:var(--accent);background:#161624}
 
 /* --- чат --- */
-.chat-shell{display:flex;flex-direction:column;height:calc(100dvh - 64px);max-height:820px;
-  margin-top:20px}
+.progress-wrap{margin-top:16px;height:5px;background:var(--line);border-radius:99px;overflow:hidden}
+.progress-bar{height:100%;width:11%;background:var(--accent);border-radius:99px;transition:width .3s ease}
+.progress-label{margin-top:8px;font-size:13.5px;color:#6B6B85}
+.chat-shell{display:flex;flex-direction:column;height:calc(100dvh - 96px);max-height:790px;
+  margin-top:14px}
 .thread{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;
   padding:4px 2px 12px}
 .bubble{max-width:82%;padding:12px 16px;border-radius:16px;font-size:18px;
@@ -126,11 +129,14 @@ button[disabled]{opacity:.6;cursor:default}
   <!-- Экран 3 — чат -->
   <section id="chat" class="hidden">
     <h1 style="font-size:28px">AI Research Lab · диагностика</h1>
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="progress-label" id="progressLabel"></div>
     <div class="chat-shell">
       <div class="thread" id="thread"></div>
       <div class="composer">
         <input id="msgInput" type="text" maxlength="1200" placeholder="Напишите сообщение…" autocomplete="off">
         <button type="button" id="micBtn" class="mic-btn" title="Наговорить сообщение">🎤</button>
+        <button type="button" id="speakerBtn" class="mic-btn" title="Озвучивать ответы">🔇</button>
         <button id="msgSend">Отправить</button>
       </div>
     </div>
@@ -228,6 +234,7 @@ $("codeGo").addEventListener("click", function(){
 function chooseDepartment(d){
   state.department = d;
   state.sessionId = randomId();
+  resetProgress();
   show("chat");
   startChat();
 }
@@ -287,6 +294,27 @@ function addBubble(kind, text){
   return b;
 }
 
+// Модель иногда пропускает step в отдельном ответе — если тогда просто
+// подставлять 1, полоска прогресса дёргается назад. Показываем максимум
+// из того, что уже видели, и того, что пришло сейчас. resetProgress()
+// сбрасывает это на новый разговор.
+var lastKnownStep = 1;
+function resetProgress(){ lastKnownStep = 1; updateProgress(1); }
+function updateProgress(step){
+  var s = Math.max(1, Math.min(9, parseInt(step, 10) || lastKnownStep));
+  s = Math.max(s, lastKnownStep);
+  lastKnownStep = s;
+  $("progressBar").style.width = Math.round((s / 9) * 100) + "%";
+  var left = 9 - s + 1;
+  $("progressLabel").textContent = left <= 1 ? "Последний вопрос" : "Осталось вопросов: " + left;
+}
+
+function handleBotReply(body){
+  addBubble("bot", body.reply);
+  updateProgress(body.step);
+  speak(body.reply);
+}
+
 function addTyping(){
   var t = document.createElement("div");
   t.className = "typing"; t.id = "typingRow";
@@ -329,7 +357,7 @@ function startChat(){
     .then(function(body){
       removeTyping();
       state.started = true;
-      addBubble("bot", body.reply);
+      handleBotReply(body);
       if (body.done) finishChat();
     })
     .catch(function(e){
@@ -349,6 +377,7 @@ function sendMessage(){
 
   var text = $("msgInput").value.trim();
   if (!text) return;
+  stopMicIfListening();
   $("msgInput").value = "";
   addBubble("me", text);
   setBusy(true);
@@ -357,7 +386,7 @@ function sendMessage(){
   callInterview({ message: text })
     .then(function(body){
       removeTyping();
-      addBubble("bot", body.reply);
+      handleBotReply(body);
       if (body.done) finishChat();
     })
     .catch(function(e){
@@ -373,6 +402,7 @@ function finishChat(){
   $("msgInput").disabled = true;
   $("msgSend").disabled = true;
   $("micBtn").disabled = true;
+  $("speakerBtn").disabled = true;
   setTimeout(function(){ show("done"); }, 1400);
 }
 
@@ -388,7 +418,16 @@ $("msgInput").addEventListener("keydown", function(e){
    браузер ничего не поддерживает, вместо того чтобы показывать
    неработающую. Текст только заполняет поле — отправка остаётся за
    человеком, чтобы можно было поправить, если распозналось не так.
+
+   continuous:true — без этого браузер сам останавливал запись после
+   первой короткой паузы, и человек, рассказывающий о работе в двух-трёх
+   предложениях с обычными паузами между ними, терял конец фразы: запись
+   обрывалась после первой-второй строки, будто зависла. В continuous-
+   режиме распознавание не останавливается само по паузе — только когда
+   нажали кнопку ещё раз или сработал сторож ниже, поэтому здесь важно
+   копить все финальные куски речи, а не только последний.
 ----------------------------------------------------------------------- */
+var stopMicIfListening = function () {};
 (function () {
   var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
   var micBtn = $("micBtn");
@@ -396,27 +435,27 @@ $("msgInput").addEventListener("keydown", function(e){
 
   var recognizer = new SpeechRec();
   recognizer.lang = "ru-RU";
-  recognizer.continuous = false;
-  // Промежуточные результаты — без них поле молчит, пока не закончишь
-  // фразу, и кажется, что распознавание зависло. С ними видно слова
-  // сразу, по мере того как их распознаёт браузер.
+  recognizer.continuous = true;
   recognizer.interimResults = true;
   recognizer.maxAlternatives = 1;
 
   var listening = false;
   var baseValue = "";
+  var finalizedText = "";
   var watchdog = null;
   var originalPlaceholder = $("msgInput").placeholder;
 
-  // Если по какой-то причине браузер не пришлёт ни result, ни end, ни
-  // error (бывает при обрыве разрешения на микрофон) — кнопка не должна
-  // навсегда оставаться в состоянии «слушаю».
+  // Сторож перезаводится на каждый result — значит, сработает только если
+  // браузер по-настоящему замолчал на минуту (обрыв разрешения на микрофон
+  // и т.п.), а не после минуты общего разговора. Без перезавода это был бы
+  // просто жёсткий потолок на длину рассказа, а не подстраховка на случай
+  // поломки.
   function armWatchdog() {
     clearTimeout(watchdog);
     watchdog = setTimeout(function () {
       try { recognizer.stop(); } catch (e) {}
       stopListening();
-    }, 12000);
+    }, 60000);
   }
 
   function stopListening() {
@@ -426,10 +465,30 @@ $("msgInput").addEventListener("keydown", function(e){
     $("msgInput").placeholder = originalPlaceholder;
   }
 
+  stopMicIfListening = function () {
+    if (listening) { try { recognizer.stop(); } catch (e) {} }
+  };
+
   recognizer.addEventListener("result", function (e) {
-    var chunk = e.results[e.results.length - 1][0].transcript.trim();
-    if (!chunk) return;
-    $("msgInput").value = baseValue + (baseValue ? " " : "") + chunk;
+    // Сотрудник мог отправить сообщение, не остановив микрофон явно —
+    // stopMicIfListening() в sendMessage() уже попросил распознавание
+    // остановиться, но stop() асинхронный, и один запоздавший result ещё
+    // может прийти. Пока идёт отправка (или разговор уже закончен), не
+    // трогаем поле — иначе в него допишется хвост той фразы, что уже
+    // отправлена, поверх следующего ответа.
+    if (state.busy || state.done) return;
+    armWatchdog();
+    var interim = "";
+    for (var i = e.resultIndex; i < e.results.length; i++) {
+      var chunk = e.results[i][0].transcript;
+      if (e.results[i].isFinal) {
+        finalizedText = (finalizedText + " " + chunk).trim();
+      } else {
+        interim += chunk;
+      }
+    }
+    var combined = (finalizedText + " " + interim).trim();
+    $("msgInput").value = baseValue + (baseValue ? " " : "") + combined;
   });
   recognizer.addEventListener("end", stopListening);
   recognizer.addEventListener("error", function (e) {
@@ -443,12 +502,47 @@ $("msgInput").addEventListener("keydown", function(e){
     if (state.busy || state.done) return;
     if (listening) { recognizer.stop(); return; }
     baseValue = $("msgInput").value;
+    finalizedText = "";
     listening = true;
     micBtn.classList.add("on");
-    $("msgInput").placeholder = "Слушаю…";
+    $("msgInput").placeholder = "Слушаю… нажмите ещё раз, когда закончите";
     armWatchdog();
     try { recognizer.start(); }
     catch (e) { stopListening(); }
+  });
+})();
+
+/* --- озвучивание ответов ---------------------------------------------
+   Тоже встроенное в браузер (SpeechSynthesis) — бесплатно, без своего
+   голосового движка и без нового ключа. Полноценной модели "речь в
+   речь" с таким же качеством и без оплаты не существует; это ближайший
+   бесплатный и точный вариант: браузер распознаёт голос человека и сам
+   же озвучивает ответ. Выключено по умолчанию — сотрудник может сидеть
+   в открытом опенспейсе, и звук без спроса был бы лишним, поэтому это
+   отдельная кнопка, а не то, что включается само вместе с микрофоном.
+----------------------------------------------------------------------- */
+var speak = function () {};
+(function () {
+  if (!window.speechSynthesis || typeof SpeechSynthesisUtterance === "undefined") {
+    $("speakerBtn").style.display = "none";
+    return;
+  }
+  var speakerBtn = $("speakerBtn");
+  var on = false;
+
+  speak = function (text) {
+    if (!on || !text) return;
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = "ru-RU";
+    window.speechSynthesis.speak(u);
+  };
+
+  speakerBtn.addEventListener("click", function () {
+    on = !on;
+    speakerBtn.classList.toggle("on", on);
+    speakerBtn.textContent = on ? "🔊" : "🔇";
+    if (!on) window.speechSynthesis.cancel();
   });
 })();
 
