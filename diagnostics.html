@@ -9,7 +9,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--ink:#0B0B12;--card:#12121C;--line:#2A2A3C;--text:#EDEDF5;--muted:#9A9AB0;
-  --accent:#5B5BCA;--accent-2:#8A8AE0;--err:#E2707A}
+  --accent:#6E56F5;--accent-2:#A695FF;--accent-soft:rgba(110,86,245,.18);
+  --ok:#4CD787;--err:#F0768A}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--ink);color:var(--text);
   font-family:"Inter Tight",Inter,-apple-system,"Segoe UI",Roboto,sans-serif;
@@ -25,17 +26,17 @@ label{display:block;margin-top:20px;font-size:15.5px;font-weight:600;color:#C8C8
 input{width:100%;margin-top:8px;padding:12px 14px;font-size:18px;
   font-family:inherit;color:var(--text);background:var(--ink);border:1px solid var(--line);
   border-radius:10px;outline:none}
-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,91,202,.25)}
+input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .code-in{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:22px;
   letter-spacing:.16em;text-align:center;text-transform:uppercase}
 button{width:100%;margin-top:26px;padding:15px;font-size:19px;font-weight:700;
   font-family:inherit;color:#fff;background:var(--accent);border:0;border-radius:11px;cursor:pointer}
-button:hover{background:#6C6CD8}
+button:hover{background:#7F68FF}
 button[disabled]{opacity:.6;cursor:default}
 .err{margin-top:10px;font-size:14px;color:var(--err);display:none}
 .err.on{display:block}
 .mark{width:60px;height:60px;margin:0 auto 20px;border-radius:50%;
-  background:rgba(91,91,202,.16);border:1px solid var(--accent);display:flex;
+  background:var(--accent-soft);border:1px solid var(--accent);display:flex;
   align-items:center;justify-content:center;font-size:28px;color:var(--accent-2)}
 .center{text-align:center}
 .steps{margin-top:22px;border-top:1px solid var(--line)}
@@ -50,25 +51,37 @@ button[disabled]{opacity:.6;cursor:default}
 
 /* --- выбор направления --- */
 .choices{display:flex;flex-direction:column;gap:10px;margin-top:20px}
-.choice-btn{width:100%;margin:0;padding:14px 16px;text-align:left;font-size:18px;
+.choice-btn{width:100%;margin:0;padding:14px 20px;text-align:left;font-size:18px;
   font-weight:600;color:var(--text);background:var(--ink);border:1px solid var(--line);
-  border-radius:11px;cursor:pointer;transition:border-color .15s,background .15s}
-.choice-btn:hover{border-color:var(--accent);background:#161624}
+  border-radius:999px;cursor:pointer;transition:border-color .15s,background .15s,transform .1s}
+.choice-btn:hover{border-color:var(--accent);background:var(--accent-soft)}
+.choice-btn:active{transform:scale(.98)}
 
 /* --- чат --- */
-.progress-wrap{margin-top:16px;height:5px;background:var(--line);border-radius:99px;overflow:hidden}
-.progress-bar{height:100%;width:11%;background:var(--accent);border-radius:99px;transition:width .3s ease}
+.chat-header{display:flex;align-items:center;gap:14px;background:var(--card);
+  border:1px solid var(--line);border-radius:18px;padding:16px 18px;margin-top:20px}
+.chat-avatar{width:46px;height:46px;flex:0 0 46px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  display:flex;align-items:center;justify-content:center;font-size:22px}
+.chat-header-text{flex:1;min-width:0}
+.chat-name{font-size:16.5px;font-weight:700;letter-spacing:-.01em}
+.chat-status{margin-top:2px;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--ok);
+  box-shadow:0 0 0 3px rgba(76,215,135,.2)}
+.progress-wrap{margin-top:14px;height:5px;background:var(--line);border-radius:99px;overflow:hidden}
+.progress-bar{height:100%;width:11%;background:linear-gradient(90deg,var(--accent),var(--accent-2));
+  border-radius:99px;transition:width .3s ease}
 .progress-label{margin-top:8px;font-size:13.5px;color:#6B6B85}
-.chat-shell{display:flex;flex-direction:column;height:calc(100dvh - 96px);max-height:790px;
+.chat-shell{display:flex;flex-direction:column;height:calc(100dvh - 168px);max-height:720px;
   margin-top:14px}
 .thread{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;
   padding:4px 2px 12px}
-.bubble{max-width:82%;padding:12px 16px;border-radius:16px;font-size:18px;
+.bubble{max-width:82%;padding:12px 17px;border-radius:18px;font-size:18px;
   line-height:1.5;white-space:pre-wrap;word-wrap:break-word}
 .bubble.bot{align-self:flex-start;background:var(--card);border:1px solid var(--line);
-  border-bottom-left-radius:4px;color:var(--text)}
-.bubble.me{align-self:flex-end;background:rgba(91,91,202,.22);
-  border:1px solid rgba(91,91,202,.45);border-bottom-right-radius:4px;color:var(--text)}
+  border-bottom-left-radius:5px;color:var(--text)}
+.bubble.me{align-self:flex-end;background:linear-gradient(135deg,var(--accent),#5B44D6);
+  border:0;border-bottom-right-radius:5px;color:#fff;font-weight:500}
 .bubble.sys{align-self:center;background:transparent;border:1px dashed var(--line);
   color:var(--muted);font-size:14px;text-align:center}
 .typing{align-self:flex-start;display:flex;gap:4px;padding:13px 16px;
@@ -79,15 +92,23 @@ button[disabled]{opacity:.6;cursor:default}
 .typing span:nth-child(2){animation-delay:.2s}
 .typing span:nth-child(3){animation-delay:.4s}
 @keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
-.composer{display:flex;gap:10px;padding-top:14px;border-top:1px solid var(--line)}
-.composer input{margin:0;flex:1}
-.composer button{width:auto;margin:0;padding:12px 20px;white-space:nowrap}
-.mic-btn{padding:12px 16px;font-size:18px;background:var(--ink);border:1px solid var(--line);
-  color:var(--text);transition:border-color .15s,background .15s}
-.mic-btn:hover{border-color:var(--accent);background:#161624}
+.composer{display:flex;align-items:center;gap:4px;margin-top:14px;padding:6px 6px 6px 20px;
+  background:var(--card);border:1px solid var(--line);border-radius:999px;
+  transition:border-color .15s}
+.composer:focus-within{border-color:var(--accent)}
+.composer input{flex:1;margin:0;padding:10px 6px;border:0;background:transparent;
+  font-size:17px}
+.composer input:focus{box-shadow:none}
+.composer button{width:auto;margin:0;white-space:nowrap}
+.composer .mic-btn{width:44px;height:44px;flex:0 0 44px;padding:0;border-radius:50%;font-size:19px;
+  background:transparent;border:1px solid transparent;color:var(--muted);
+  transition:background .15s,color .15s}
+.mic-btn:hover{background:var(--accent-soft);color:var(--text)}
 .mic-btn.on{background:var(--err);border-color:var(--err);color:#fff;animation:pulse 1.2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
-@media(max-width:520px){h1{font-size:28px}.card{padding:20px 18px}.bubble{max-width:90%}}
+#msgSend{padding:12px 22px;font-size:16px;border-radius:999px}
+@media(max-width:520px){h1{font-size:28px}.card{padding:20px 18px}.bubble{max-width:90%}
+  .chat-header{padding:14px 16px}}
 @media(prefers-reduced-motion:no-preference){.card{animation:in .25s ease}}
 @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 </style>
@@ -128,7 +149,13 @@ button[disabled]{opacity:.6;cursor:default}
 
   <!-- Экран 3 — чат -->
   <section id="chat" class="hidden">
-    <h1 style="font-size:28px">AI Research Lab · диагностика</h1>
+    <div class="chat-header">
+      <div class="chat-avatar">🤖</div>
+      <div class="chat-header-text">
+        <h1 class="chat-name">AI Research Lab</h1>
+        <div class="chat-status"><span class="status-dot"></span>Диагностика · онлайн</div>
+      </div>
+    </div>
     <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
     <div class="progress-label" id="progressLabel"></div>
     <div class="chat-shell">
