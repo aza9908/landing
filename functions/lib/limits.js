@@ -7,7 +7,7 @@
   в Firestore и дальше в промпт модели.
 */
 
-const DEPARTMENTS = ["HR", "Finance", "Marketing & Sales", "CEO"];
+const DEPARTMENTS = ["HR", "Finance", "Sales", "Marketing", "CEO"];
 const FREQUENCIES = ["Несколько раз в день", "Ежедневно", "Еженедельно",
   "Ежемесячно", "Ежеквартально", "По событию", "Реже"];
 const MANUAL_SHARE_VALUES = [0, 0.25, 0.5, 0.75, 1];
@@ -61,11 +61,11 @@ function validateSessionId(id) {
 
 const MAX_CUSTOM_DEPARTMENT_LEN = 40;
 
-// Четыре фиксированных направления — основной путь, но сотрудник может
-// выбрать «Другое» и написать своё, если ни один из четырёх не подходит.
+// Фиксированные направления (DEPARTMENTS) — основной путь, но сотрудник
+// может выбрать «Другое» и написать своё, если ни одно не подходит.
 // В этом случае доверяем только длине и типу, не значению: следующий
 // код (Excel, промпт агента 1) должен быть готов увидеть здесь что угодно
-// короткое, а не только одно из четырёх канонических слов.
+// короткое, а не только одно из канонических слов.
 function validateDepartment(v) {
   if (DEPARTMENTS.includes(v)) return v;
   const custom = clampString(v, MAX_CUSTOM_DEPARTMENT_LEN);

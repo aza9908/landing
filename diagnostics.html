@@ -84,6 +84,13 @@ button[disabled]{opacity:.6;cursor:default}
   border:0;border-bottom-right-radius:5px;color:#fff;font-weight:500}
 .bubble.sys{align-self:center;background:transparent;border:1px dashed var(--line);
   color:var(--muted);font-size:14px;text-align:center}
+.suggestions{align-self:flex-start;max-width:100%;display:flex;flex-wrap:wrap;gap:8px}
+@keyframes sugIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.suggestion-chip{width:auto;margin:0;padding:9px 15px;font-size:15px;font-weight:600;
+  color:var(--accent-2);background:transparent;border:1px solid var(--line);
+  border-radius:999px;cursor:pointer;transition:border-color .15s,background .15s}
+.suggestion-chip:hover{border-color:var(--accent);background:var(--accent-soft)}
+.suggestion-chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .typing{align-self:flex-start;display:flex;gap:4px;padding:13px 16px;
   background:var(--card);border:1px solid var(--line);border-radius:16px;
   border-bottom-left-radius:4px}
@@ -109,7 +116,7 @@ button[disabled]{opacity:.6;cursor:default}
 #msgSend{padding:12px 22px;font-size:16px;border-radius:999px}
 @media(max-width:520px){h1{font-size:28px}.card{padding:20px 18px}.bubble{max-width:90%}
   .chat-header{padding:14px 16px}}
-@media(prefers-reduced-motion:no-preference){.card{animation:in .25s ease}}
+@media(prefers-reduced-motion:no-preference){.card{animation:in .25s ease}.suggestions{opacity:0;animation:sugIn .2s ease forwards}}
 @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 </style>
 </head>
@@ -211,9 +218,9 @@ var CFG = {
 var FIRESTORE_BASE = "https://firestore.googleapis.com/v1/projects/" + CFG.project +
            "/databases/(default)/documents/";
 
-var DEPARTMENTS = ["HR", "Finance", "Marketing & Sales", "CEO"];
+var DEPARTMENTS = ["HR", "Finance", "Sales", "Marketing", "CEO"];
 
-var state = { code: "", company: "", department: "", sessionId: "", started: false, done: false, busy: false };
+var state = { code: "", company: "", department: "", sessionId: "", started: false, done: false, busy: false, clickedSuggestions: [] };
 
 function $(id){ return document.getElementById(id); }
 function show(section){
@@ -272,6 +279,7 @@ $("codeGo").addEventListener("click", function(){
 function chooseDepartment(d){
   state.department = d;
   state.sessionId = randomId();
+  state.clickedSuggestions = [];
   resetProgress();
   show("chat");
   startChat();
@@ -347,10 +355,56 @@ function updateProgress(step){
   $("progressLabel").textContent = left <= 1 ? "Последний вопрос" : "Осталось вопросов: " + left;
 }
 
+function clearSuggestions(){
+  var el = $("suggestions");
+  if (el) el.remove();
+}
+
+// Чипы — только подсказка, не обязательный выбор: сотрудник всегда может
+// напечатать своё. Вычёркиваем здесь только то, что сотрудник САМ уже
+// выбирал кликом раньше в этом разговоре (не всё, что модель когда-либо
+// показывала) — модель и так старается не повторяться сама (см. системный
+// промпт), это только подстраховка на случай, если она всё-таки повторит
+// вариант, который уже был использован.
+function renderSuggestions(list){
+  clearSuggestions();
+  if (!Array.isArray(list) || !list.length) return;
+
+  var fresh = list.filter(function(s){
+    return state.clickedSuggestions.indexOf(s.toLowerCase()) === -1;
+  });
+  // Если вычёркивание уже кликнутых стёрло вообще все варианты (могло
+  // случиться только с фиксированными чипами-заглушками — они одни и те
+  // же на каждом сбое и могут повторяться между вопросами), лучше
+  // показать их ещё раз, чем оставить сотрудника совсем без чипов.
+  var toShow = fresh.length ? fresh : list;
+
+  var wrap = document.createElement("div");
+  wrap.className = "suggestions";
+  wrap.id = "suggestions";
+  toShow.forEach(function(s){
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "suggestion-chip";
+    b.textContent = s;
+    b.addEventListener("click", function(){
+      state.clickedSuggestions.push(s.toLowerCase());
+      $("msgInput").value = s;
+      sendMessage();
+    });
+    wrap.appendChild(b);
+  });
+  $("thread").appendChild(wrap);
+  $("thread").scrollTop = $("thread").scrollHeight;
+}
+
 function handleBotReply(body){
   addBubble("bot", body.reply);
   updateProgress(body.step);
   speak(body.reply);
+  // done:true никогда не приходит с suggestions (см. index.js) — здесь
+  // достаточно просто ничего не отрисовать для пустого списка.
+  renderSuggestions(body.suggestions);
 }
 
 function addTyping(){
@@ -415,6 +469,7 @@ function sendMessage(){
 
   var text = $("msgInput").value.trim();
   if (!text) return;
+  clearSuggestions();
   stopMicIfListening();
   $("msgInput").value = "";
   addBubble("me", text);

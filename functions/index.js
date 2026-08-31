@@ -227,7 +227,7 @@ exports.interview = onRequest(OPTIONS_PUBLIC, async (req, res) => {
         // направление, этого достаточно, чтобы понять, что анкета
         // закрыта, не раскрывая, кто именно её заполнил.
         await notifyTelegram(`✅ Анкета заполнена\nКод группы: ${code}\nНаправление: ${department}`);
-        responseBody = { reply: turn.reply, done: true, step: 9 };
+        responseBody = { reply: turn.reply, done: true, step: 9, suggestions: [] };
       } catch (e) {
         // Модель посчитала разговор законченным, но данные неполные —
         // логируем настоящую причину (это может быть и реальный баг, не
@@ -238,11 +238,13 @@ exports.interview = onRequest(OPTIONS_PUBLIC, async (req, res) => {
         replyToStore = "Кажется, я упустил один момент — давайте уточним ещё немного.";
         // Модель считала, что дошла до конца (step обычно 9), но раз
         // разговор в итоге продолжается — не показываем сотруднику
-        // прогресс-бар на 100% и «Последний вопрос», это неправда.
-        responseBody = { reply: replyToStore, done: false, step: Math.min(turn.step, 8) };
+        // прогресс-бар на 100% и «Последний вопрос», это неправда. Чипов
+        // здесь нет: раз модель думала, что уже попрощалась, у неё и не
+        // было настоящих suggestions под этот повторный вопрос.
+        responseBody = { reply: replyToStore, done: false, step: Math.min(turn.step, 8), suggestions: [] };
       }
     } else {
-      responseBody = { reply: turn.reply, done: false, step: turn.step };
+      responseBody = { reply: turn.reply, done: false, step: turn.step, suggestions: turn.suggestions };
     }
 
     // Единственное место, где лимиты реально тратятся — только теперь,
