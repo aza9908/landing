@@ -218,11 +218,20 @@ body {
 .team-side--left { align-items: flex-end; }
 .team-side--right { align-items: flex-start; }
 
-/* «разбросанно, но симметрично»: mirrored stagger */
-.team-side--left .team-card:nth-child(1) { transform: translateX(-28px); }
-.team-side--left .team-card:nth-child(3) { transform: translateX(-16px); }
-.team-side--right .team-card:nth-child(1) { transform: translateX(28px); }
-.team-side--right .team-card:nth-child(3) { transform: translateX(16px); }
+/* «разбросанно, но симметрично»: mirrored stagger на первой и последней
+   карточке колонки — не на 1-й/3-й позиции жёстко, чтобы колонки разной
+   длины (нечётный состав команды) сдвигались зеркально одинаково, а не
+   однобоко. При длине колонки 3 совпадает с прежними 1-й/3-й; при длине 2
+   даёт сдвиг обеим карточкам, а не только первой. */
+.team-side--left .team-card:first-child { transform: translateX(-28px); }
+.team-side--left .team-card:last-child { transform: translateX(-16px); }
+.team-side--right .team-card:first-child { transform: translateX(28px); }
+.team-side--right .team-card:last-child { transform: translateX(16px); }
+/* Колонка из одной карточки — она одновременно и first-child, и
+   last-child; без этого правила выигрывало бы последнее объявление
+   (-16px/16px) вместо задуманного внешнего сдвига. */
+.team-side--left .team-card:only-child { transform: translateX(-28px); }
+.team-side--right .team-card:only-child { transform: translateX(28px); }
 
 .team-layout .team-text {
   position: static !important;
@@ -926,10 +935,12 @@ body.m-menu-lock { overflow: hidden; }
     max-width: 264px !important;
   }
 
-  .team-side--left .team-card:nth-child(1) { transform: translateX(-20px); }
-  .team-side--left .team-card:nth-child(3) { transform: translateX(-12px); }
-  .team-side--right .team-card:nth-child(1) { transform: translateX(20px); }
-  .team-side--right .team-card:nth-child(3) { transform: translateX(12px); }
+  .team-side--left .team-card:first-child { transform: translateX(-20px); }
+  .team-side--left .team-card:last-child { transform: translateX(-12px); }
+  .team-side--right .team-card:first-child { transform: translateX(20px); }
+  .team-side--right .team-card:last-child { transform: translateX(12px); }
+  .team-side--left .team-card:only-child { transform: translateX(-20px); }
+  .team-side--right .team-card:only-child { transform: translateX(20px); }
 }
 
 .team-sticky .team-card-name { font-size: 15px !important; }

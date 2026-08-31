@@ -147,7 +147,7 @@
 
     const cards = [...sticky.querySelectorAll('.team-card')];
     const text = sticky.querySelector('.team-text');
-    if (cards.length < 6 || !text) return;
+    if (cards.length < 2 || !text) return;
 
     const layout = document.createElement('div');
     layout.className = 'team-layout';
@@ -157,9 +157,13 @@
     const right = document.createElement('div');
     right.className = 'team-side team-side--right';
 
+    // Меньшая половина — налево, остаток — направо: при чётном числе
+    // карточек выходит ровно поровну, при нечётном — правая колонка на
+    // одну карточку больше, а не жёстко зашитая тройка слева.
+    const leftCount = Math.floor(cards.length / 2);
     cards.forEach((card, i) => {
       card.style.cssText = 'position:relative;left:auto;top:auto;opacity:1;';
-      (i < 3 ? left : right).appendChild(card);
+      (i < leftCount ? left : right).appendChild(card);
     });
 
     layout.appendChild(left);
