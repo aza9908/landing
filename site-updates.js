@@ -311,6 +311,23 @@
     });
   }
 
+  // Preserve the existing detail buttons while making program pages discoverable.
+  function linkProgramHeadings() {
+    const programs = [
+      ['.pcard:not(.pcard-leaders) .pcard-name', '/ai-for-work/'],
+      ['.pcard-leaders .pcard-name', '/ai-for-leaders/'],
+    ];
+    programs.forEach(([selector, href]) => {
+      const heading = document.querySelector(selector);
+      if (!heading || heading.querySelector('a')) return;
+      const link = document.createElement('a');
+      link.href = href;
+      link.className = 'program-page-link';
+      link.textContent = heading.textContent;
+      heading.replaceChildren(link);
+    });
+  }
+
   function swapBrandLogos() {
     const targets = [
       document.querySelector('.header .logo'),
@@ -334,6 +351,7 @@
     setTimeout(bindTeamCardTaps, 800);
     setTimeout(bindTeamCardTaps, 2500);
     linkTeamCards();
+    linkProgramHeadings();
     setTimeout(linkTeamCards, 2500);
     window.addEventListener('resize', placeHeroStar);
     setTimeout(placeHeroStar, 600);
