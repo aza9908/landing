@@ -286,6 +286,31 @@
     });
   }
 
+  // Имя в карточке команды → ссылка на личную страницу (/team/…).
+  // Нужна поисковикам: так главная передаёт вес страницам по именам.
+  const TEAM_PAGES = {
+    'Жанибек Серкулов': '/team/zhanibek-serkulov',
+    'Дмитрий Мун': '/team/dmitry-mun',
+    'Куаныш Магауин': '/team/kuanysh-magauin',
+    'Азамат Арманұлы': '/team/azamat-armanuly',
+    'Джангельдин Алиби': '/team/alibi-dzhangeldin',
+  };
+
+  function linkTeamCards() {
+    document.querySelectorAll('.team-card-name').forEach((el) => {
+      if (el.querySelector('a')) return;
+      const name = el.textContent.trim();
+      const href = TEAM_PAGES[name];
+      if (!href) return;
+      const link = document.createElement('a');
+      link.href = href;
+      link.className = 'team-card-link';
+      link.textContent = name;
+      el.textContent = '';
+      el.appendChild(link);
+    });
+  }
+
   function swapBrandLogos() {
     const targets = [
       document.querySelector('.header .logo'),
@@ -308,6 +333,8 @@
     placeHeroStar();
     setTimeout(bindTeamCardTaps, 800);
     setTimeout(bindTeamCardTaps, 2500);
+    linkTeamCards();
+    setTimeout(linkTeamCards, 2500);
     window.addEventListener('resize', placeHeroStar);
     setTimeout(placeHeroStar, 600);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeHeroStar);

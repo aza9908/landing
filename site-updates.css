@@ -1289,3 +1289,7 @@ body.m-menu-lock { overflow: hidden; }
 @media (max-width: 768px) {
   .brand-logo { height: 28px; }
 }
+
+/* Team card names link to /team/<slug> pages — keep the card look unchanged */
+.team-card-link { color: inherit; text-decoration: none; }
+.team-card-link:hover { text-decoration: underline; text-underline-offset: 3px; }
