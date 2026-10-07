@@ -777,3 +777,46 @@ a { color: inherit; text-decoration: none; }
 .lp-logo .brand-logo { height: 30px; width: auto; display: block; }
 [data-theme='light'] .lp-logo .brand-logo { content: url('/logo-airl.png'); }
 @media (max-width: 768px) { .lp-logo .brand-logo { height: 26px; } }
+
+/* FAQ (AI for Work) */
+.lp-faq {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.lp-faq details {
+  background: #ffffff08;
+  border: 1px solid #ffffff12;
+  border-radius: 14px;
+  padding: 16px 20px;
+  transition: border-color 0.2s;
+}
+
+.lp-faq details[open] { border-color: #6c5ce055; }
+
+.lp-faq summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.lp-faq summary::-webkit-details-marker { display: none; }
+.lp-faq summary::after { content: '+'; color: #c4b5fd; font-family: 'Victor Mono', monospace; }
+.lp-faq details[open] summary::after { content: '−'; }
+
+.lp-section .lp-faq p {
+  max-width: none;
+  margin: 12px 0 0;
+  font-size: 14px;
+}
+
+.lp-faq a { color: #c4b5fd; }

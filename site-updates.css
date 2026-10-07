@@ -1289,3 +1289,19 @@ body.m-menu-lock { overflow: hidden; }
 @media (max-width: 768px) {
   .brand-logo { height: 28px; }
 }
+
+/* Team card names link to /team/<slug> pages — keep the card look unchanged */
+.team-card-link { color: inherit; text-decoration: none; }
+.team-card-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+/* Readable initial HTML. Removed by Vue only after a successful mount. */
+.home-fallback { max-width: 1100px; margin: 0 auto; padding: 32px 24px; color: #f5f5f7; background: #0a0a0e; font: 18px/1.65 'Inter Tight', sans-serif; }
+.home-fallback header, .home-fallback nav { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; }
+.home-fallback section { margin-top: 48px; }
+.home-fallback h1 { font-size: clamp(32px, 5vw, 56px); line-height: 1.15; margin-bottom: 24px; }
+.home-fallback h2 { font-size: 28px; margin-bottom: 16px; }
+.home-fallback h3, .home-fallback p { margin-bottom: 16px; }
+.home-fallback a { color: #cbbaff; text-decoration: underline; text-underline-offset: 4px; }
+.home-fallback ul { padding-left: 24px; }
+.home-fallback li { margin-bottom: 12px; }
+.program-page-link { color: inherit; text-decoration: none; }
+.program-page-link:hover, .program-page-link:focus-visible { text-decoration: underline; text-underline-offset: 6px; }

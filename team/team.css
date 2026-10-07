@@ -1,0 +1,111 @@
+/* Team pages — layered on top of /blog/blog.css */
+
+.profile-head {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding-bottom: 32px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid #ffffff12;
+}
+
+.profile-photo {
+  width: 168px;
+  height: 168px;
+  border-radius: 20px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: #16161f;
+}
+
+.profile-name { margin-bottom: 12px; }
+
+.profile-role {
+  color: #c7c7d2;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.profile-alt {
+  margin-top: 8px;
+  color: #79798e;
+  font-family: 'Victor Mono', monospace;
+  font-size: 13px;
+}
+
+.profile-cta { margin: 40px 0 8px; }
+
+.profile-btn {
+  display: inline-block;
+  background: #fff;
+  color: #0a0a0e;
+  border-radius: 999px;
+  padding: 14px 26px;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.profile-btn:hover { text-decoration: none; background: #e8e8f2; }
+
+.team-more { margin-top: 56px; }
+
+.team-more h2 {
+  color: #fff;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 20px;
+}
+
+.team-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.team-tiles--index { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+
+.team-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px;
+  border: 1px solid #ffffff14;
+  border-radius: 16px;
+  background: #ffffff05;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.team-tile:hover { text-decoration: none; border-color: #b9a4ff66; transform: translateY(-2px); }
+
+.team-tile img {
+  width: 96px;
+  height: 96px;
+  border-radius: 14px;
+  object-fit: cover;
+  margin-bottom: 8px;
+}
+
+.team-tile-name { color: #fff; font-weight: 600; font-size: 18px; }
+
+.team-tile-role {
+  color: #79798e;
+  font-family: 'Victor Mono', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+[data-theme='light'] .profile-head { border-color: #00000012; }
+[data-theme='light'] .profile-role { color: #4a4a5e; }
+[data-theme='light'] .profile-btn { background: #16161a; color: #fff; }
+[data-theme='light'] .profile-btn:hover { background: #2a2a33; }
+[data-theme='light'] .team-more h2,
+[data-theme='light'] .team-tile-name,
+[data-theme='light'] .blog-page-title { color: #16161a; }
+[data-theme='light'] .team-tile { background: #fff; border-color: #00000014; }
+[data-theme='light'] .team-tile:hover { border-color: #6c5ce066; }
+
+@media (max-width: 640px) {
+  .profile-head { flex-direction: column; align-items: flex-start; gap: 20px; }
+  .profile-photo { width: 132px; height: 132px; }
+}
