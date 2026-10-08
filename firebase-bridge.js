@@ -22,18 +22,20 @@ window.AIRL_TELEGRAM = {
      Если в канале появится спам — отзовите токен через @BotFather (/revoke)
      и попросите перенести отправку в Cloud Function. */
   botToken: "8793362793:AAFPq56gfITGyBDn9IZCcWB-MDxnOEaYSls",
-  chatId: "@AIRLtasks"
+  // Числовой номер канала «Задачи AIRL» (@AIRLtasks): он не меняется, если
+  // канал сделать частным, а имя @AIRLtasks при этом пропадает.
+  chatId: "-1004450740658"
 };
 
 /* Отдельный канал для результатов агента airl.kz/diagnostics (экспресс-
    диагностика): сводка, PDF для клиента, отчёт менеджера. Заявки с формы
    и коды групп по-прежнему идут в AIRL_TELEGRAM выше.
-   Пока поля пустые, результаты агента тоже уходят в AIRL_TELEGRAM.
+   Если поля очистить, результаты агента снова пойдут в AIRL_TELEGRAM.
    Токен, как и выше, виден в коде сайта — поэтому боту в канале дайте
    только право «Публикация сообщений», без удаления и редактирования. */
 window.AIRL_TELEGRAM_AGENT = {
-  botToken: "",
-  chatId: ""
+  botToken: "8711954523:AAEvCtEQ91TUizGNwSc00gNkuHPyXbjMC8s", // @airl9499_bot
+  chatId: "-1004358402425"                                     // канал «AIRL-diagnostics»
 };
 
 (function () {

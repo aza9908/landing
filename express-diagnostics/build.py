@@ -92,7 +92,7 @@ html = ('<!doctype html>\n<html lang="ru">\n<head>\n<meta charset="utf-8">\n<met
         '<meta property="og:title" content="Экспресс-диагностика AI — AI Research Lab">\n<meta property="og:description" content="5 минут: где ваша компания теряет на AI прямо сейчас.">\n'
         '<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%236E56F5%27/%3E%3Ccircle cx=%2724%27 cy=%2734%27 r=%275%27 fill=%27white%27/%3E%3Ccircle cx=%2740%27 cy=%2734%27 r=%275%27 fill=%27white%27/%3E%3C/svg%3E">\n'
         '<meta name="robots" content="noindex">\n'
-        '<script src="https://airl.kz/firebase-bridge.js?v=26"></script>\n'
+        '<script src="https://airl.kz/firebase-bridge.js?v=27"></script>\n'
         '<script src="/airl-attr.js?v=1"></script>\n'
         + s.replace("<title>Экспресс-диагностика AI</title>", "<title>Экспресс-диагностика AI — AI Research Lab</title>", 1).replace("</style>", "</style>\n</head>\n<body>", 1)
         + "\n<script>\n" + (ROOT / "delivery.js").read_text(encoding="utf-8").rstrip("\n") + "\n</script>\n</body>\n</html>\n")
