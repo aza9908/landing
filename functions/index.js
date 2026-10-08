@@ -21,7 +21,7 @@ const { runDiagnostics } = require("./agents/diagnostics");
 const { runLesson1 } = require("./agents/lesson1");
 const { runInterviewTurn } = require("./agents/interview");
 const { createGroup } = require("./lib/groups");
-const { notifyTelegram } = require("./lib/telegram");
+const { notifyTelegram, escapeHtml } = require("./lib/telegram");
 const {
   validateCode,
   validateSessionId,
@@ -266,6 +266,16 @@ exports.interview = onRequest(OPTIONS_PUBLIC, async (req, res) => {
    Расход ограничен тем же общим дневным лимитом /interview.
 ------------------------------------------------------------------------ */
 
+/* Номер из формы («+7 (701) 234 56 78») или набранный руками → 11 цифр
+   для wa.me. Ведущая 8 — по-казахстански то же, что 7. Не похоже на
+   номер — пустая строка, и ссылку в уведомление не ставим. */
+function whatsappDigits(phone) {
+  let d = String(phone || "").replace(/\D/g, "");
+  if (d.length === 11 && d[0] === "8") d = "7" + d.slice(1);
+  if (d.length === 10) d = "7" + d;
+  return d.length === 11 && d[0] === "7" ? d : "";
+}
+
 exports.onLeadCreated = onDocumentCreated(
   { document: "leads/{leadId}", region: "europe-west1" },
   async (event) => {
@@ -276,10 +286,21 @@ exports.onLeadCreated = onDocumentCreated(
     try {
       const group = await createGroup(db, admin, { company: lead.company });
       await snap.ref.update({ status: "code_issued", group_code: group.code });
+      // WhatsApp без Business API сам писать не умеет, поэтому код уходит
+      // клиенту через менеджера: ссылка открывает чат с номером из заявки
+      // и уже набранным сообщением — остаётся нажать «Отправить».
+      const digits = whatsappDigits(lead.phone);
+      const sendLink = digits
+        ? `\n\n👉 <a href="${escapeHtml(`https://wa.me/${digits}?text=` +
+            encodeURIComponent(group.whatsapp_message))}">Отправить клиенту ссылку и код в WhatsApp</a>`
+        : "";
       await notifyTelegram(
         `🆕 Заявка → код выдан автоматически\n` +
-        `Компания: ${group.company}\nИмя: ${lead.name || "—"}\nТелефон: ${lead.phone || "—"}\n` +
-        `Код: ${group.code}\n\nГотовое сообщение для WhatsApp:\n${group.whatsapp_message}`
+        `Компания: ${escapeHtml(group.company)}\nИмя: ${escapeHtml(lead.name || "—")}\n` +
+        `Телефон: ${escapeHtml(lead.phone || "—")}\n` +
+        `Код: ${escapeHtml(group.code)}` + sendLink +
+        `\n\nГотовое сообщение для WhatsApp:\n${escapeHtml(group.whatsapp_message)}`,
+        { html: true }
       );
     } catch (e) {
       console.error("onLeadCreated: failed to auto-issue a code:", e.message);
