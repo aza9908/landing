@@ -8,7 +8,8 @@
 <meta property="og:description" content="5 минут: где ваша компания теряет на AI прямо сейчас.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%236E56F5%27/%3E%3Ccircle cx=%2724%27 cy=%2734%27 r=%275%27 fill=%27white%27/%3E%3Ccircle cx=%2740%27 cy=%2734%27 r=%275%27 fill=%27white%27/%3E%3C/svg%3E">
 <meta name="robots" content="noindex">
-<script src="https://airl.kz/firebase-bridge.js?v=25"></script>
+<script src="https://airl.kz/firebase-bridge.js?v=26"></script>
+<script src="/airl-attr.js?v=1"></script>
 <title>Экспресс-диагностика AI — AI Research Lab</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1283,8 +1284,8 @@ ul.plain{margin:8px 0 0 18px;padding:0}ul.plain li{margin-top:5px;color:#D5D5E5;
 </script>
 <script>
 var KNOWLEDGE = "# База знаний для AI-консультанта экспресс-диагностики (AI Research Lab / AIRL, airl.kz)\n\n## Что продаём\nПрограмма для собственников и управленцев: Alibaba Executive Study Tour + практический трек AIRL «AI for Work / Vibe Coding».\n- Выезд в экосистему Alibaba — мировой бенчмарк того, как AI меняет экономику компании целиком. Живая экосистема разных бизнесов внутри одной группы: логистика (Cainiao), розница (Hema), облако и данные (Alibaba Cloud), финтех, сервис (FlyZoo Hotel: face recognition, роботы-ассистенты). Ценно для любой ниши, потому что показывает систему, а не витрину одного вида бизнеса. Аргумент никогда не строится на совпадении ниши клиента с розницей.\n- Boardroom Simulation — управленческая симуляция: собственник сам принимает решение о ролях, приоритете и бюджете, а не переносит его на следующее совещание. По ТЗ проводится на кейсе Luckin Coffee; подробности кейса в базе отсутствуют — не пересказывать и не додумывать.\n- Отдельно в программе есть реальная история компании, которую спасло решение на данных, — она проживается лично до того, как решение нужно принять у себя. Какая это компания, в базе не указано.\n- День 1 DIAGNOSE — разбор своих процессов: где точки трансформации под конкретный процесс; диагностика данных: что есть, чего не хватает, что собрать в первую очередь.\n- Практический трек AI for Work / Vibe Coding: команда без опыта программирования сама собирает и запускает рабочий инструмент (например, прогноз спроса, чат-бот, AI-CRM) под задачу компании.\n- Результат для компании: AI Systems Architecture — схема «процесс → данные → AI → человек → метрика» и roadmap на 12 месяцев.\n- Формат: три дня работы именно с компанией клиента и её процессами, а не общий обзор чужих кейсов. Управление сопротивлением команды прорабатывается отдельным блоком.\n- Точка входа для тех, кому рано или дорого: сначала практический трек AI for Work как проверка на своей команде, полноценная поездка — логичный следующий шаг.\n\n## Принципы ответов\n- Стратегия и практика всегда в одном доводе: что клиент увидит и решит на выезде → во что это превращается руками (диагностика, инструмент, roadmap).\n- Диагностика — это не тест на правильные ответы, а карта, где теряется эффект.\n- Уровни: Starter (4–7) — AI не встроен, есть окно выстроить архитектуру сразу правильно; Developing (8–11) — точки роста есть, AI не встроен в экономику компании; Advanced (12–16) — близки к системному внедрению, не хватает roadmap и решения.\n- Типичные диапазоны эффектов по рынку (не гарантия): продажи — конверсия +20–30% за счёт приоритизации лидов; маркетинг — контент в 3–5 раз быстрее; операции — ручные операции −30–50%; клиентский сервис — 40–60% обращений без человека; финансы — часы ручной сверки в неделю.\n\n## Чего не знаем\nДаты ближайших потоков, стоимость программы, состав делегации, условия оплаты и скидки — этого в базе нет. На такие вопросы честно отвечать: «Это уточнит менеджер AIRL — оставьте заявку или напишите в WhatsApp». Ничего не выдумывать.\n";
-var CFG = { whatsapp: "77072212930", lead: "https://airl.kz/", askContact: true, showReportToClient: false, communityChat: "", collection: "express_diagnostics", storeInFirestore: false };
-// storeInFirestore:true — включить после того, как в правилах Firestore разрешён create для коллекции express_diagnostics (сейчас правила отвечают 403).
+var CFG = { whatsapp: "77072212930", lead: "https://airl.kz/", askContact: true, showReportToClient: false, communityChat: "", collection: "express_diagnostics", storeInFirestore: true };
+// storeInFirestore:true — результат пишется в Firestore express_diagnostics (правила разрешают только create), отсюда его читает статистика лидов stats.html.
 // showReportToClient:false — клиент видит только экран «Спасибо», полный разбор приходит от менеджера. Команда видит всё по адресу #airl-team.
 // communityChat — ссылка на единый чат участников (Telegram/WhatsApp): появится кнопка на экране «Спасибо».
 // Уведомления менеджеру и Firestore берутся из firebase-bridge.js лендинга airl.kz (window.AIRL_notifyTelegram, window.AIRL_TELEGRAM, window.AIRL_FIREBASE_CONFIG) — ключей здесь нет.
@@ -1607,6 +1608,8 @@ function deliver(a, r){
   if (CFG.storeInFirestore && fc.apiKey && fc.projectId) {
     var flat = { name: a.name, company: a.company, position: a.position, industry: a.industry, team_size: a.team_size, contact: a.contact, q1: a.q1, q2: a.q2, q3: a.q3, q4: a.q4, q5: a.q5, q6: a.q6, q7: a.q7, q8: a.q8,
       group_code: window.AIRLDelivery.group.code, score: r.score, level: r.level, priority: r.priority, segment: r.segment.name, tier: r.tier, heat: r.heat, icp: r.icp.verdict, trigger: r.trigger, report_markdown: fullMarkdown(), source: "airl.kz/diagnostics", status: "new", created_at: new Date().toISOString(), bot: "express-diagnostics" };
+    var attr = window.AIRL_ATTR ? window.AIRL_ATTR() : {};
+    ["utm_source", "utm_medium", "utm_campaign", "referrer", "landing"].forEach(function(k){ if (attr[k]) flat[k] = attr[k]; });
     fetch("https://firestore.googleapis.com/v1/projects/" + fc.projectId + "/databases/(default)/documents/" + CFG.collection + "?key=" + fc.apiKey, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fields: fsFields(flat) }) }).catch(function(){});
   }
 }
@@ -1729,7 +1732,8 @@ $("restart").addEventListener("click", function(){ V.tts.cancel(); V.stt.stop();
   - PDF-summary для клиента: балл AI-зрелости, оси, боли, зоны роста, первый
     шаг. Фирменный стиль AIRL (акцент #5B5BCA, шрифт Nunito Sans). Собирается
     в браузере через pdfmake; шрифты лежат рядом, в /express-diagnostics/fonts/.
-  - В Telegram менеджеру: сводка со ссылкой, которая открывает WhatsApp
+  - В Telegram менеджеру (канал агента AIRL_TELEGRAM_AGENT, а пока он не
+    настроен — общий AIRL_TELEGRAM): сводка со ссылкой, которая открывает WhatsApp
     с номером клиента и уже набранным абзацем, следом PDF и отчёт менеджера.
     WhatsApp без платного Business API сам писать не умеет, поэтому
     отправляет менеджер, одним нажатием.
@@ -1855,8 +1859,11 @@ window.AIRLDelivery = (function () {
       return j;
     });
   }
+  // Результаты агента — в свой канал (AIRL_TELEGRAM_AGENT); пока он не
+  // настроен, в общий канал заявок (AIRL_TELEGRAM).
   function tg() {
-    var t = window.AIRL_TELEGRAM || {};
+    var agent = window.AIRL_TELEGRAM_AGENT || {};
+    var t = agent.botToken && agent.chatId ? agent : (window.AIRL_TELEGRAM || {});
     if (!t.botToken || !t.chatId) throw new Error("Telegram не настроен в firebase-bridge.js");
     return t;
   }

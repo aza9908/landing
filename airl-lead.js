@@ -334,6 +334,11 @@
       go.textContent = "Отправляем…";
 
       data.source = location.pathname;
+      // Откуда пришёл посетитель (airl-attr.js) — для статистики лидов.
+      var attr = window.AIRL_ATTR ? window.AIRL_ATTR() : {};
+      ["utm_source", "utm_medium", "utm_campaign", "referrer", "landing"].forEach(function (k) {
+        if (attr[k]) data[k] = attr[k];
+      });
       data.status = "new";
       data.created_at = new Date().toISOString();
 

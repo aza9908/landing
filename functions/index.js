@@ -79,6 +79,48 @@ function fail(res, e) {
   res.status(400).json({ error: e.message || String(e) });
 }
 
+/* --- статистика лидов (stats.html) ---------------------------------- */
+// Заявки с формы (leads) и результаты экспресс-диагностики
+// (express_diagnostics). Отдаём строки, а разрезы и графики считает сама
+// страница — новый разрез не требует выкладки функций.
+
+const OPTIONS_STATS = { ...REGION_BASE, timeoutSeconds: 60, memory: "256MiB", secrets: [ADMIN_TOKEN] };
+const STATS_LIMIT = 3000;
+const LEAD_FIELDS = ["created_at", "company", "name", "phone", "team_size", "wish", "source", "status",
+  "group_code", "utm_source", "utm_medium", "utm_campaign", "referrer", "landing"];
+const DIAG_FIELDS = ["created_at", "name", "company", "position", "industry", "team_size", "contact",
+  "group_code", "score", "level", "segment", "tier", "heat", "priority",
+  "utm_source", "utm_medium", "utm_campaign", "referrer", "landing"];
+
+function pickFields(doc, fields) {
+  const d = doc.data(), out = { id: doc.id };
+  fields.forEach((f) => { if (d[f] !== undefined && d[f] !== null && d[f] !== "") out[f] = d[f]; });
+  return out;
+}
+
+exports.leadStats = onRequest(OPTIONS_STATS, async (req, res) => {
+  if (!guard(req, res)) return;
+  try {
+    // days=0 — всё время (в пределах STATS_LIMIT последних записей).
+    const days = Math.max(0, Math.min(3650, parseInt(req.query.days, 10) || 0));
+    const since = days ? new Date(Date.now() - days * 86400000).toISOString() : "";
+    const recent = (collection) => {
+      let q = db.collection(collection).orderBy("created_at", "desc");
+      if (since) q = q.where("created_at", ">=", since);
+      return q.limit(STATS_LIMIT).get();
+    };
+    const [leads, diags] = await Promise.all([recent("leads"), recent("express_diagnostics")]);
+    res.json({
+      generated_at: new Date().toISOString(),
+      limit: STATS_LIMIT,
+      leads: leads.docs.map((d) => pickFields(d, LEAD_FIELDS)),
+      diagnostics: diags.docs.map((d) => pickFields(d, DIAG_FIELDS))
+    });
+  } catch (e) {
+    fail(res, e);
+  }
+});
+
 /* --- создание кода группы ------------------------------------------- */
 
 exports.group = onRequest(OPTIONS, async (req, res) => {
