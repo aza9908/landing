@@ -9,7 +9,9 @@
 */
 
 const BOT_TOKEN = "8793362793:AAFPq56gfITGyBDn9IZCcWB-MDxnOEaYSls";
-const CHAT_ID = "@AIRLtasks";
+// Числовой номер канала «Задачи AIRL»: работает и после перевода канала
+// в частный, когда имя @AIRLtasks пропадёт.
+const CHAT_ID = "-1004450740658";
 
 // opts.html — текст размечен HTML (ссылки); всё, что пришло от посетителя,
 // вызывающий обязан пропустить через escapeHtml.
