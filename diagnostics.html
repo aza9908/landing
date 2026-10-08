@@ -667,7 +667,8 @@ var speak = function () {};
   });
 })();
 
-/* Код можно передать ссылкой: /diagnostics.html?code=KZN4821 */
+/* Код можно передать ссылкой: /diagnostics?code=KZN4821 (без «.html» —
+   редирект с .html теряет ?code=) */
 (function(){
   var m = location.search.match(/[?&]code=([^&]+)/);
   if (m) { $("code").value = decodeURIComponent(m[1]); $("codeGo").click(); }

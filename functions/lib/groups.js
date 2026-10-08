@@ -31,7 +31,8 @@ async function createGroup(db, admin, { company, prefix }) {
   // Витрина: браузеру видно только название и признак активности.
   await db.doc(`groups_public/${code}`).set({ company: cleanCompany, active: true });
 
-  const link = `https://airl.kz/diagnostics.html?code=${code}`;
+  // Без «.html»: сервер редиректит /diagnostics.html → /diagnostics и теряет ?code=.
+  const link = `https://airl.kz/diagnostics?code=${code}`;
   return {
     code,
     company: cleanCompany,

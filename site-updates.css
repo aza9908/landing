@@ -1305,3 +1305,7 @@ body.m-menu-lock { overflow: hidden; }
 .home-fallback li { margin-bottom: 12px; }
 .program-page-link { color: inherit; text-decoration: none; }
 .program-page-link:hover, .program-page-link:focus-visible { text-decoration: underline; text-underline-offset: 6px; }
+
+/* Footer address → 2GIS link, same look as the surrounding lines */
+.footer-info a { color: inherit; text-decoration: none; }
+.footer-info a:hover { text-decoration: underline; text-underline-offset: 3px; }

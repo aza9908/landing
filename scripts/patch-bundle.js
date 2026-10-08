@@ -16,6 +16,11 @@ const replacements = [
   ['xs=`/star.png`', 'xs=`/star-mark.svg`'],
   // Footer phone number
   ['+7 777 345 34 56', '+7 707 221 2930'],
+  // Footer address: Alem.ai in Astana, linked to 2GIS
+  [
+    'Z(`p`,null,`г. Алматы, Казахстан`)',
+    'Z(`p`,null,[Z(`a`,{href:`https://2gis.kz/astana/firm/70000001098956499`,target:`_blank`,rel:`noopener`},`Alem.ai, пр. Мангилик Ел, 55/1, г. Астана`)])',
+  ],
   // Events: visible dates (city + date column was empty / clipped)
   [
     'let d=[{name:`AI for work`,city:`г. Астана`,date:``,tag:`Скоро`,img:`/2.jpg`},{name:`AI for leaders`,city:`г. Астана`,date:``,tag:`Скоро`,img:`/3.jpg`}]',
