@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Текстовая версия главной в #app нужна поисковикам без JavaScript.
+         Браузер с JavaScript её не показывает: иначе она мелькает, пока
+         грузится приложение, и сменяется настоящим дизайном. -->
+    <script>document.documentElement.classList.add('js')</script>
+    <style>.js .home-fallback { display: none; }</style>
     <meta name="google-site-verification" content="r4bFnq8UQXEO_SKs_O5Y1H9gIwgKf8IQDlaupHQTlLg" />
     <title>AI Research Labs — обучение ИИ и вайб-кодингу в Казахстане</title>
     <meta name="description" content="Центр прикладного ИИ в Казахстане: обучение искусственному интеллекту и вайб-кодингу для компаний, специалистов и вузов. В команде — Жанибек Серкулов, Дмитрий Мун, Азамат Арманұлы." />
@@ -124,7 +129,7 @@
     <script type="module" crossorigin src="/assets/index-C9VrdjED.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-CPPYpqm_.css">
     <link rel="stylesheet" href="/mobile.css?v=21">
-    <link rel="stylesheet" href="/site-updates.css?v=27">
+    <link rel="stylesheet" href="/site-updates.css?v=28">
       <!-- Laptop / mid-width adaptation. Load after bundle + mobile.css. -->
     <link rel="stylesheet" href="/responsive-fix.css?v=22">
   </head>
@@ -183,7 +188,7 @@
   
         <script src="/firebase-bridge.js?v=25"></script>
     <script src="/internal-tasks.js?v=21" defer></script>
-    <script src="/airl-lead.js?v=26" defer
+    <script src="/airl-lead.js?v=27" defer
             data-project="landing-page-8e314"
             data-key="AIzaSyDNSjN6mF5R5tVqrVtXeuOu3q6UtUdS39o"
             data-whatsapp="77072212930"

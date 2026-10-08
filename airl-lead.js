@@ -119,21 +119,38 @@
   }
 
   /* Маска телефона: +7 (XXX) XXX XX XX. Код страны считаем фиксированным
-     (Казахстан) — если человек по привычке набрал ведущую 7 или 8 перед
-     своими десятью цифрами, лишний символ отбрасываем; если нет —
-     просто заполняем десять слотов маски тем, что набрано. Дальше
-     десятого знака ничего не принимаем, лишние цифры просто не попадают
-     в номер. */
+     (Казахстан). Дальше десятого знака ничего не принимаем.
+
+     «7» из «+7» в начале поля — это сама маска, а не цифра номера. Если
+     считать её цифрой, она на каждом нажатии заново попадает в номер:
+     набор 7011234567 превращался в +7 (777) 732 11 07. Поэтому, когда поле
+     уже начинается с «+7», эту семёрку отбрасываем всегда.
+
+     Поле без маски — это первое нажатие или вставка целого номера: тогда
+     ведущая 7 или 8 перед десятью цифрами — код страны, а одиночная 8
+     в начале — казахстанская «восьмёрка» вместо +7 (кодов операторов
+     на 8 в Казахстане нет). */
+  var MASK_PREFIX = /^\s*\+\s*7/;
+
   function formatPhone(raw) {
     var digits = raw.replace(/\D/g, "");
-    if (digits.length > 10 && (digits.charAt(0) === "7" || digits.charAt(0) === "8")) {
+    if (MASK_PREFIX.test(raw)) {
+      digits = digits.slice(1);
+    } else if (digits.length > 10 && (digits.charAt(0) === "7" || digits.charAt(0) === "8")) {
+      digits = digits.slice(1);
+    } else if (digits.charAt(0) === "8") {
       digits = digits.slice(1);
     }
     digits = digits.slice(0, 10);
-    if (!digits) return "";
+    if (!digits) {
+      if (/^\s*\+\s*$/.test(raw)) return "+";            // начали набирать «+7»
+      if (/^\s*(\+\s*7|8)\s*$/.test(raw)) return "+7 (";  // набрали «+7» или «8»
+      return "";
+    }
     var out = "+7 (" + digits.slice(0, 3);
-    if (digits.length >= 3) out += ")";
-    if (digits.length > 3) out += " " + digits.slice(3, 6);
+    // Скобку ставим, только когда за ней есть цифра: висящую «)» в конце
+    // Backspace стирает, а маска тут же возвращает — поле «залипает».
+    if (digits.length > 3) out += ") " + digits.slice(3, 6);
     if (digits.length > 6) out += " " + digits.slice(6, 8);
     if (digits.length > 8) out += " " + digits.slice(8, 10);
     return out;
@@ -143,15 +160,22 @@
      не возвращать явно — тогда правка цифры в середине номера превращается
      в правку в конце, и человек может отправить не тот номер, не заметив.
      Держим курсор там же, где он был, считая не позицию символа, а то,
-     сколько цифр было до курсора. */
+     сколько цифр самого номера было до курсора — без «7» из маски,
+     иначе курсор встаёт на одну цифру левее и цифры перемешиваются. */
   function countDigits(str, upTo) {
     var m = str.slice(0, upTo).match(/\d/g);
-    return m ? m.length : 0;
+    var n = m ? m.length : 0;
+    var mask = str.match(MASK_PREFIX);
+    if (mask && upTo >= mask[0].length) n--;
+    return Math.max(0, n);
   }
   function caretAfterDigits(str, n) {
-    if (n <= 0) return 0;
+    var mask = str.match(/^\s*\+\s*7\s*\(?/);
+    var start = mask ? mask[0].length : 0;
+    // Без маски в поле может быть только «» или «+» — курсор в конец.
+    if (n <= 0) return mask ? start : str.length;
     var count = 0;
-    for (var i = 0; i < str.length; i++) {
+    for (var i = start; i < str.length; i++) {
       if (/\d/.test(str.charAt(i))) {
         count++;
         if (count === n) return i + 1;
@@ -240,13 +264,27 @@
     });
     form.appendChild(phoneWrap);
     var phoneInput = phoneWrap.querySelector("input");
-    phoneInput.addEventListener("input", function () {
+    var lastPhone = "";
+    phoneInput.addEventListener("input", function (e) {
       var oldValue = phoneInput.value;
       var caret = phoneInput.selectionStart == null ? oldValue.length : phoneInput.selectionStart;
+      // Backspace стёр не цифру, а пробел или скобку маски — маска вернула бы
+      // их обратно, и курсор стоял бы на месте. Стираем цифру перед ними.
+      if (e && e.inputType === "deleteContentBackward" &&
+          countDigits(oldValue, oldValue.length) === countDigits(lastPhone, lastPhone.length)) {
+        var i = caret;
+        while (i > 0 && !/\d/.test(oldValue.charAt(i - 1))) i--;
+        var mask = oldValue.match(MASK_PREFIX);
+        if (i > 0 && !(mask && i <= mask[0].length)) {
+          oldValue = oldValue.slice(0, i - 1) + oldValue.slice(i);
+          caret = i - 1;
+        }
+      }
       var digitsBeforeCaret = countDigits(oldValue, caret);
       phoneInput.value = formatPhone(oldValue);
       var newCaret = caretAfterDigits(phoneInput.value, digitsBeforeCaret);
       phoneInput.setSelectionRange(newCaret, newCaret);
+      lastPhone = phoneInput.value;
     });
     form.appendChild(field("Сколько человек в команде", "team_size",
       { tag: "select", options: SIZES }));

@@ -1309,3 +1309,8 @@ body.m-menu-lock { overflow: hidden; }
 /* Footer address → 2GIS link, same look as the surrounding lines */
 .footer-info a { color: inherit; text-decoration: none; }
 .footer-info a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Кнопки «Начать обучение» и «Контакты» в шапке и подвале — это ссылки,
+   а стилей text-decoration у них нет, поэтому браузер подчёркивал текст
+   внутри кнопки. */
+.nav-btn-outline, .nav-btn-filled, .btn-outline, .btn-filled { text-decoration: none; }
