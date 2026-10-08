@@ -1,0 +1,9 @@
+{
+  "hosting": {
+    "site": "airl-express",
+    "public": "public",
+    "redirects": [
+      { "source": "**", "destination": "https://airl.kz/diagnostics", "type": 301 }
+    ]
+  }
+}

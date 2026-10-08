@@ -51,3 +51,23 @@ WhatsApp не умеет писать сам без платного WhatsApp Bu
 - Вопросы и логика: `report.js`.
 
 После правки пересоберите страницу.
+
+## Старый адрес airl-express.web.app
+
+Отдельный сайт `airl-express` в том же Firebase-проекте теперь только переадресует
+на airl.kz/diagnostics (301), чтобы старые ссылки вели на актуального бота. Настройка —
+в `airl-express-redirect/`, выкладка:
+
+```sh
+firebase deploy --only hosting --config express-diagnostics/airl-express-redirect/firebase.json --project landing-page-8e314
+```
+
+## Канал Telegram для агента
+
+Результаты бота уходят в `AIRL_TELEGRAM_AGENT` из `/firebase-bridge.js`, а пока он пустой —
+в общий канал заявок `AIRL_TELEGRAM`. Заявки с формы и коды групп остаются в общем канале.
+
+## Статистика
+
+Каждый результат пишется в Firestore `express_diagnostics` (правила разрешают только
+create). Его вместе с заявками `leads` показывает `/stats.html` через функцию `leadStats`.

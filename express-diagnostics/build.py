@@ -30,8 +30,8 @@ def rep(old, new, count=1):
 
 # 1. конфиг публичной версии: отчёт клиенту не показываем, контакт спрашиваем, чат участников — вписать ссылку
 rep('var CFG = { whatsapp: "77072314955", lead: "https://airl.kz/", askContact: true, showReportToClient: true, communityChat: "" };',
-    'var CFG = { whatsapp: "77072212930", lead: "https://airl.kz/", askContact: true, showReportToClient: false, communityChat: "", collection: "express_diagnostics", storeInFirestore: false };\n'
-    '// storeInFirestore:true — включить после того, как в правилах Firestore разрешён create для коллекции express_diagnostics (сейчас правила отвечают 403).\n'
+    'var CFG = { whatsapp: "77072212930", lead: "https://airl.kz/", askContact: true, showReportToClient: false, communityChat: "", collection: "express_diagnostics", storeInFirestore: true };\n'
+    '// storeInFirestore:true — результат пишется в Firestore express_diagnostics (правила разрешают только create), отсюда его читает статистика лидов stats.html.\n'
     '// showReportToClient:false — клиент видит только экран «Спасибо», полный разбор приходит от менеджера. Команда видит всё по адресу #airl-team.\n'
     '// communityChat — ссылка на единый чат участников (Telegram/WhatsApp): появится кнопка на экране «Спасибо».\n'
     '// Уведомления менеджеру и Firestore берутся из firebase-bridge.js лендинга airl.kz (window.AIRL_notifyTelegram, window.AIRL_TELEGRAM, window.AIRL_FIREBASE_CONFIG) — ключей здесь нет.')
@@ -62,6 +62,8 @@ function deliver(a, r){
   if (CFG.storeInFirestore && fc.apiKey && fc.projectId) {
     var flat = { name: a.name, company: a.company, position: a.position, industry: a.industry, team_size: a.team_size, contact: a.contact, q1: a.q1, q2: a.q2, q3: a.q3, q4: a.q4, q5: a.q5, q6: a.q6, q7: a.q7, q8: a.q8,
       group_code: window.AIRLDelivery.group.code, score: r.score, level: r.level, priority: r.priority, segment: r.segment.name, tier: r.tier, heat: r.heat, icp: r.icp.verdict, trigger: r.trigger, report_markdown: fullMarkdown(), source: "airl.kz/diagnostics", status: "new", created_at: new Date().toISOString(), bot: "express-diagnostics" };
+    var attr = window.AIRL_ATTR ? window.AIRL_ATTR() : {};
+    ["utm_source", "utm_medium", "utm_campaign", "referrer", "landing"].forEach(function(k){ if (attr[k]) flat[k] = attr[k]; });
     fetch("https://firestore.googleapis.com/v1/projects/" + fc.projectId + "/databases/(default)/documents/" + CFG.collection + "?key=" + fc.apiKey, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fields: fsFields(flat) }) }).catch(function(){});
   }
 }
@@ -90,7 +92,8 @@ html = ('<!doctype html>\n<html lang="ru">\n<head>\n<meta charset="utf-8">\n<met
         '<meta property="og:title" content="Экспресс-диагностика AI — AI Research Lab">\n<meta property="og:description" content="5 минут: где ваша компания теряет на AI прямо сейчас.">\n'
         '<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%236E56F5%27/%3E%3Ccircle cx=%2724%27 cy=%2734%27 r=%275%27 fill=%27white%27/%3E%3Ccircle cx=%2740%27 cy=%2734%27 r=%275%27 fill=%27white%27/%3E%3C/svg%3E">\n'
         '<meta name="robots" content="noindex">\n'
-        '<script src="https://airl.kz/firebase-bridge.js?v=25"></script>\n'
+        '<script src="https://airl.kz/firebase-bridge.js?v=26"></script>\n'
+        '<script src="/airl-attr.js?v=1"></script>\n'
         + s.replace("<title>Экспресс-диагностика AI</title>", "<title>Экспресс-диагностика AI — AI Research Lab</title>", 1).replace("</style>", "</style>\n</head>\n<body>", 1)
         + "\n<script>\n" + (ROOT / "delivery.js").read_text(encoding="utf-8").rstrip("\n") + "\n</script>\n</body>\n</html>\n")
 out = OUT

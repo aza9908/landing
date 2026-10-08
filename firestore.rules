@@ -1,6 +1,15 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Поля «откуда пришёл» (airl-attr.js): строки до 100 символов.
+    function attributionOk() {
+      return request.resource.data.get('utm_source', '').size() <= 100
+          && request.resource.data.get('utm_medium', '').size() <= 100
+          && request.resource.data.get('utm_campaign', '').size() <= 100
+          && request.resource.data.get('referrer', '').size() <= 100
+          && request.resource.data.get('landing', '').size() <= 100;
+    }
+
     // Заявки с сайта: посетители могут только создавать,
     // читать — только вы через консоль Firebase
     match /requests/{doc} {
@@ -16,7 +25,8 @@ service cloud.firestore {
     // любой, читать из браузера — никто.
     match /leads/{leadId} {
       allow create: if request.resource.data.keys().hasOnly(
-                         ['company','name','phone','team_size','wish','source','status','created_at'])
+                         ['company','name','phone','team_size','wish','source','status','created_at',
+                          'utm_source','utm_medium','utm_campaign','referrer','landing'])
                     && request.resource.data.company is string
                     && request.resource.data.company.size() >= 2
                     && request.resource.data.company.size() <= 120
@@ -24,7 +34,31 @@ service cloud.firestore {
                     && request.resource.data.name.size() <= 120
                     && request.resource.data.phone is string
                     && request.resource.data.phone.size() <= 40
-                    && request.resource.data.get('wish', '').size() <= 500;
+                    && request.resource.data.get('wish', '').size() <= 500
+                    && attributionOk();
+      allow read, update, delete: if false;
+    }
+
+    // Результаты экспресс-диагностики (/diagnostics): писать может любой,
+    // читать — только Cloud Function статистики (leadStats) с паролем панели.
+    match /express_diagnostics/{id} {
+      allow create: if request.resource.data.keys().hasOnly(
+                         ['name','company','position','industry','team_size','contact',
+                          'q1','q2','q3','q4','q5','q6','q7','q8','group_code',
+                          'score','level','priority','segment','tier','heat','icp','trigger',
+                          'report_markdown','source','status','created_at','bot',
+                          'utm_source','utm_medium','utm_campaign','referrer','landing'])
+                    && request.resource.data.bot == 'express-diagnostics'
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() <= 120
+                    && request.resource.data.company is string
+                    && request.resource.data.company.size() <= 120
+                    && request.resource.data.score is int
+                    && request.resource.data.score >= 4
+                    && request.resource.data.score <= 16
+                    && request.resource.data.get('contact', '').size() <= 80
+                    && request.resource.data.get('report_markdown', '').size() <= 30000
+                    && attributionOk();
       allow read, update, delete: if false;
     }
 

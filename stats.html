@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Статистика лидов AIRL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* Цвета админки. Ряды графиков: --series-1 (фирменный фиолетовый) и
+   --series-2 (оранжевый) — проверены валидатором палитры на фоне карточки
+   #12121C: контраст >= 3:1, различимость при дальтонизме ΔE 24.5. */
+:root{--ink:#0B0B12;--card:#12121C;--line:#2A2A3C;--text:#EDEDF5;--text-2:#C8C8DA;--muted:#9A9AB0;
+  --accent:#5B5BCA;--accent-2:#8A8AE0;--err:#E2707A;--ok:#5BCA8A;
+  --series-1:#8A8AE0;--series-2:#d95926;--grid:#232333;--axis:#3A3A4E}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--text);font-family:"Inter Tight",Inter,-apple-system,"Segoe UI",Roboto,sans-serif;
+  line-height:1.5;padding:28px 20px 80px}
+.page{max-width:1180px;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.brand{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-2);font-weight:700}
+h1{font-size:32px;font-weight:800;letter-spacing:-.02em;margin-top:10px}
+h2{font-size:17px;font-weight:700}
+.sub{color:var(--muted);font-size:15.5px;margin-top:6px}
+a{color:var(--accent-2)}
+.back{font-size:15px;text-decoration:none}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin-top:18px}
+label{display:block;margin-top:16px;font-size:14.5px;font-weight:600;color:var(--text-2)}
+input{width:100%;margin-top:7px;padding:12px 14px;font-size:16.5px;font-family:inherit;color:var(--text);
+  background:var(--ink);border:1px solid var(--line);border-radius:10px;outline:none}
+input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,91,202,.25)}
+button{padding:11px 18px;font-size:15.5px;font-weight:700;font-family:inherit;color:#fff;background:var(--accent);
+  border:0;border-radius:10px;cursor:pointer}
+button:hover{background:#6C6CD8}
+button[disabled]{opacity:.5;cursor:default}
+.msg{margin-top:14px;font-size:15px;display:none;padding:12px 14px;border-radius:9px}
+.msg.on{display:block}
+.msg.err{color:var(--err);background:rgba(226,112,122,.09);border:1px solid rgba(226,112,122,.3)}
+.hidden{display:none}
+
+/* Фильтр — одна строка над всем, что он задаёт */
+.filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:22px}
+.seg{display:flex;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:3px}
+.seg button{background:transparent;color:var(--muted);padding:8px 14px;font-size:14.5px;border-radius:8px;white-space:nowrap}
+.seg button:hover{color:var(--text);background:#1A1A28}
+.seg button.on{background:var(--accent);color:#fff}
+.filters .ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.filters .ghost:hover{color:var(--text);background:#1A1A28}
+.updated{color:var(--muted);font-size:13.5px;margin-left:auto}
+
+.loading{opacity:.55;transition:opacity .2s}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.kpi .l{font-size:14px;color:var(--muted)}
+.kpi .v{font-size:30px;font-weight:800;letter-spacing:-.02em;margin-top:4px;color:var(--text)}
+.kpi .d{font-size:13.5px;color:var(--muted);margin-top:2px}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid .card{margin-top:0}
+.grid{margin-top:18px}
+.chart-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.chart-head .note{font-size:13px;color:var(--muted)}
+.chart{position:relative;height:260px;margin-top:12px}
+.chart.tall{height:300px}
+.empty{display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-size:15px}
+details{margin-top:10px}
+summary{cursor:pointer;color:var(--muted);font-size:13.5px}
+summary:hover{color:var(--text)}
+
+table{width:100%;border-collapse:collapse;font-size:14px;margin-top:10px}
+th{text-align:left;color:var(--muted);font-weight:600;font-size:12.5px;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid #1E1E2C;vertical-align:top;color:var(--text-2)}
+td.num{font-variant-numeric:tabular-nums;text-align:right}
+td.strong{color:var(--text);font-weight:600}
+.scroll{overflow-x:auto}
+.tag{display:inline-block;font-size:12.5px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.tag.ok{color:var(--ok);border-color:rgba(91,202,138,.4)}
+td a{text-decoration:none}
+
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}
+@media(max-width:520px){h1{font-size:26px}.card{padding:16px}.updated{margin-left:0;width:100%}.kpi .v{font-size:24px}.seg button{padding:7px 11px}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="top">
+    <div>
+      <div class="brand">AI Research Lab</div>
+      <h1>Статистика лидов</h1>
+      <p class="sub">Заявки с сайта и экспресс-диагностики AI: сколько, кто и откуда пришли.</p>
+    </div>
+    <a class="back" href="/admin.html">← Панель агентов</a>
+  </div>
+
+  <section id="auth" class="card">
+    <h2>Вход</h2>
+    <label>Логин <input id="loginField" placeholder="admin" autocomplete="username"></label>
+    <label>Пароль <input id="token" type="password" placeholder="Пароль панели" autocomplete="current-password"></label>
+    <div style="margin-top:18px"><button id="login">Войти</button></div>
+    <div class="msg err" id="authMsg"></div>
+  </section>
+
+  <div id="app" class="hidden">
+    <div class="filters">
+      <div class="seg" id="period">
+        <button data-days="7">7 дней</button>
+        <button data-days="30" class="on">30 дней</button>
+        <button data-days="90">90 дней</button>
+        <button data-days="365">Год</button>
+        <button data-days="0">Всё время</button>
+      </div>
+      <button class="ghost" id="reload">Обновить</button>
+      <span class="updated" id="updated"></span>
+    </div>
+    <div class="msg err" id="loadMsg"></div>
+
+    <div id="board">
+      <div class="kpis">
+        <div class="kpi"><div class="l">Заявки с сайта</div><div class="v" id="kLeads">—</div><div class="d" id="dLeads"></div></div>
+        <div class="kpi"><div class="l">Диагностик пройдено</div><div class="v" id="kDiags">—</div><div class="d" id="dDiags"></div></div>
+        <div class="kpi"><div class="l">Заявка → диагностика</div><div class="v" id="kConv">—</div><div class="d" id="dConv"></div></div>
+        <div class="kpi"><div class="l">Средний балл AI-зрелости</div><div class="v" id="kScore">—</div><div class="d" id="dScore"></div></div>
+      </div>
+
+      <section class="card">
+        <div class="chart-head"><h2>Заявки и диагностики по дням</h2><span class="note" id="trendNote"></span></div>
+        <div class="chart tall"><canvas id="cTrend"></canvas></div>
+        <details><summary>Таблица</summary><div class="scroll" id="tTrend"></div></details>
+      </section>
+
+      <div class="grid">
+        <section class="card">
+          <div class="chart-head"><h2>Откуда пришли</h2><span class="note">заявки и диагностики · источник пишется с 8 октября</span></div>
+          <div class="chart"><canvas id="cChannel"></canvas></div>
+          <details><summary>Таблица</summary><div class="scroll" id="tChannel"></div></details>
+        </section>
+        <section class="card">
+          <div class="chart-head"><h2>С какой страницы заявка</h2><span class="note">форма «Оставить заявку»</span></div>
+          <div class="chart"><canvas id="cPage"></canvas></div>
+          <details><summary>Таблица</summary><div class="scroll" id="tPage"></div></details>
+        </section>
+        <section class="card">
+          <div class="chart-head"><h2>Уровень AI-зрелости</h2><span class="note">по диагностикам</span></div>
+          <div class="chart"><canvas id="cLevel"></canvas></div>
+          <details><summary>Таблица</summary><div class="scroll" id="tLevel"></div></details>
+        </section>
+        <section class="card">
+          <div class="chart-head"><h2>Отрасли</h2><span class="note">по диагностикам</span></div>
+          <div class="chart"><canvas id="cIndustry"></canvas></div>
+          <details><summary>Таблица</summary><div class="scroll" id="tIndustry"></div></details>
+        </section>
+        <section class="card">
+          <div class="chart-head"><h2>Кто проходит диагностику</h2><span class="note">должность</span></div>
+          <div class="chart"><canvas id="cPosition"></canvas></div>
+          <details><summary>Таблица</summary><div class="scroll" id="tPosition"></div></details>
+        </section>
+        <section class="card">
+          <div class="chart-head"><h2>Размер команды</h2><span class="note">из заявок</span></div>
+          <div class="chart"><canvas id="cTeam"></canvas></div>
+          <details><summary>Таблица</summary><div class="scroll" id="tTeam"></div></details>
+        </section>
+      </div>
+
+      <section class="card">
+        <div class="chart-head"><h2>Последние заявки</h2><span class="note" id="leadsNote"></span></div>
+        <div class="scroll" id="tLeads"></div>
+      </section>
+      <section class="card">
+        <div class="chart-head"><h2>Последние диагностики</h2><span class="note" id="diagsNote"></span></div>
+        <div class="scroll" id="tDiags"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+var API = "https://europe-west1-landing-page-8e314.cloudfunctions.net";
+var adminLogin = sessionStorage.getItem("airl_login") || "";
+var token = sessionStorage.getItem("airl_token") || "";
+var DATA = null, DAYS = 30, charts = {};
+var css = getComputedStyle(document.documentElement);
+function cssVar(n){ return css.getPropertyValue(n).trim(); }
+var C = { s1: cssVar("--series-1"), s2: cssVar("--series-2"), card: cssVar("--card"), text: cssVar("--text"),
+          text2: cssVar("--text-2"), muted: cssVar("--muted"), grid: cssVar("--grid"), axis: cssVar("--axis") };
+
+function $(id){ return document.getElementById(id); }
+function say(id, text){ var n = $(id); n.textContent = text || ""; n.className = "msg err" + (text ? " on" : ""); }
+
+/* --- вход: тот же пароль, что у панели агентов ------------------------ */
+function fetchStats(){
+  return fetch(API + "/leadStats?days=0", { headers: { "x-airl-login": adminLogin, "x-airl-token": token } })
+    .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(d){
+      if (!r.ok) { var e = new Error(d.error || ("Ошибка " + r.status)); e.status = r.status; throw e; }
+      return d;
+    }); });
+}
+function load(){
+  $("board").classList.add("loading"); $("reload").disabled = true; say("loadMsg", "");
+  return fetchStats().then(function(d){
+    DATA = d; render();
+    $("updated").textContent = "Обновлено " + new Date(d.generated_at).toLocaleString("ru-RU", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
+  }).catch(function(e){
+    if (e.status === 401) { sessionStorage.removeItem("airl_token"); location.reload(); return; }
+    say("loadMsg", "Не удалось загрузить статистику: " + e.message);
+  }).then(function(){ $("board").classList.remove("loading"); $("reload").disabled = false; });
+}
+$("login").addEventListener("click", function(){
+  adminLogin = $("loginField").value.trim(); token = $("token").value.trim();
+  if (!adminLogin || !token) { say("authMsg", "Введите логин и пароль"); return; }
+  var b = this; b.disabled = true; b.textContent = "Проверяем…";
+  fetchStats().then(function(d){
+    sessionStorage.setItem("airl_login", adminLogin); sessionStorage.setItem("airl_token", token);
+    $("auth").classList.add("hidden"); $("app").classList.remove("hidden");
+    DATA = d; render(); $("updated").textContent = "Обновлено только что";
+  }).catch(function(e){ say("authMsg", e.status === 401 ? "Логин или пароль не подошли" : "Ошибка: " + e.message); })
+    .then(function(){ b.disabled = false; b.textContent = "Войти"; });
+});
+["loginField", "token"].forEach(function(id){ $(id).addEventListener("keydown", function(e){ if (e.key === "Enter") $("login").click(); }); });
+$("reload").addEventListener("click", load);
+$("period").addEventListener("click", function(e){
+  var b = e.target.closest("button"); if (!b) return;
+  [].forEach.call(this.children, function(x){ x.classList.toggle("on", x === b); });
+  DAYS = +b.dataset.days; if (DATA) render();
+});
+if (adminLogin && token) { $("loginField").value = adminLogin; $("auth").classList.add("hidden"); $("app").classList.remove("hidden"); load(); }
+
+/* --- классификация ---------------------------------------------------- */
+var UTM_NAMES = { instagram: "Instagram", ig: "Instagram", facebook: "Facebook", fb: "Facebook", google: "Google",
+  yandex: "Яндекс", telegram: "Telegram", tg: "Telegram", whatsapp: "WhatsApp", wa: "WhatsApp", linkedin: "LinkedIn",
+  youtube: "YouTube", tiktok: "TikTok", email: "Email-рассылка", "2gis": "2GIS" };
+var HOSTS = [[/google\./, "Google"], [/yandex\.|ya\.ru/, "Яндекс"], [/instagram\.com/, "Instagram"], [/facebook\.com|fb\.com|fb\.me/, "Facebook"],
+  [/t\.me|telegram/, "Telegram"], [/wa\.me|whatsapp/, "WhatsApp"], [/linkedin/, "LinkedIn"], [/youtube|youtu\.be/, "YouTube"],
+  [/tiktok/, "TikTok"], [/2gis/, "2GIS"], [/bing\./, "Bing"], [/airl-express\.web\.app/, "Старый адрес диагностики"],
+  [/lms\.magauin\.kz/, "LMS"], [/chatgpt|openai|perplexity|claude\.ai/, "ИИ-ассистенты"]];
+// Учёт источника включён 8 октября 2026: у более ранних записей полей нет.
+function channel(r, isDiag){
+  var s = String(r.utm_source || "").trim().toLowerCase();
+  if (s) return UTM_NAMES[s] || (s.charAt(0).toUpperCase() + s.slice(1));
+  var ref = String(r.referrer || "").toLowerCase();
+  if (ref) { for (var i = 0; i < HOSTS.length; i++) if (HOSTS[i][0].test(ref)) return HOSTS[i][1]; return ref; }
+  if (isDiag && r.group_code) return "Ссылка из заявки";
+  if (!r.landing) return "Нет данных";
+  return "Прямой заход";
+}
+function pageName(p){
+  p = String(p || "");
+  if (!p) return "Нет данных";
+  if (p === "/" || p === "/index" || p === "/index.html") return "Главная";
+  if (/^\/ai-for-work/.test(p)) return "AI for Work";
+  if (/^\/ai-for-leaders/.test(p)) return "AI for Leaders";
+  if (/^\/blog\/?$/.test(p)) return "Блог";
+  if (/^\/blog\//.test(p)) return "Статья блога";
+  if (/^\/team/.test(p)) return "Команда";
+  if (/^\/diagnostics/.test(p)) return "Диагностика";
+  return p;
+}
+var LEVEL_ORDER = ["Starter", "Developing", "Advanced"];
+var LEVEL_RU = { Starter: "Стартовый", Developing: "Развивающийся", Advanced: "Продвинутый" };
+var TEAM_ORDER = ["1–10", "11–50", "51–200", "200+"];
+
+/* --- помощники ------------------------------------------------------- */
+function inPeriod(rows, days, shift){
+  if (!days) return shift ? [] : rows;
+  var now = Date.now(), to = now - (shift || 0) * days * 86400000, from = to - days * 86400000;
+  return rows.filter(function(r){ var t = Date.parse(r.created_at); return t >= from && t < to; });
+}
+function countBy(rows, fn){
+  var m = {}; rows.forEach(function(r){ var k = fn(r); if (k) m[k] = (m[k] || 0) + 1; }); return m;
+}
+// Длинный хвост — в «Другие»: больше 8 строк уже читается хуже таблицы.
+function topEntries(m, order, limit){
+  var e = Object.keys(m).map(function(k){ return [k, m[k]]; });
+  if (order) return order.filter(function(k){ return m[k]; }).map(function(k){ return [k, m[k]]; })
+    .concat(e.filter(function(x){ return order.indexOf(x[0]) < 0; }));
+  e.sort(function(a, b){ return b[1] - a[1]; });
+  limit = limit || 8;
+  if (e.length > limit) { var rest = e.slice(limit - 1).reduce(function(s, x){ return s + x[1]; }, 0); e = e.slice(0, limit - 1).concat([["Другие", rest]]); }
+  return e;
+}
+function plural(n, one, few, many){ var a = Math.abs(n) % 100, b = a % 10; return a > 10 && a < 20 ? many : b > 1 && b < 5 ? few : b === 1 ? one : many; }
+function delta(cur, prev, days){
+  if (!days) return "";
+  var d = cur - prev, label = days === 365 ? "прошлым годом" : "прошлыми " + days + " " + plural(days, "днём", "днями", "днями");
+  return (d > 0 ? "+" + d : d === 0 ? "столько же, как" : String(d).replace("-", "−")) + (d === 0 ? " за " : " к ") + label;
+}
+function dayKey(t){ var d = new Date(t); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+function fmtDate(iso, withTime){
+  var d = new Date(iso); if (isNaN(d)) return "—";
+  return d.toLocaleDateString("ru-RU", withTime ? { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" } : { day: "numeric", month: "short" });
+}
+function el(tag, cls, text){ var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+function table(head, rows, numCols){
+  var t = el("table"), tr = el("tr");
+  head.forEach(function(h){ tr.appendChild(el("th", null, h)); }); t.appendChild(tr);
+  rows.forEach(function(r){
+    var row = el("tr");
+    r.forEach(function(v, i){
+      var td = el("td", numCols && numCols.indexOf(i) >= 0 ? "num" : null);
+      if (v instanceof Node) td.appendChild(v); else td.textContent = v == null || v === "" ? "—" : String(v);
+      row.appendChild(td);
+    });
+    t.appendChild(row);
+  });
+  return t;
+}
+function waLink(contact){
+  var c = String(contact || "").trim(); if (!c) return "—";
+  if (/^@?[A-Za-z][A-Za-z0-9_]{3,31}$/.test(c)) { var a = el("a", null, c); a.href = "https://t.me/" + c.replace(/^@/, ""); a.target = "_blank"; return a; }
+  var d = c.replace(/\D/g, ""); if (d.length === 11 && d[0] === "8") d = "7" + d.slice(1); if (d.length === 10) d = "7" + d;
+  if (d.length < 11) return c;
+  var l = el("a", null, c); l.href = "https://wa.me/" + d; l.target = "_blank"; l.rel = "noopener"; return l;
+}
+
+/* --- графики --------------------------------------------------------- */
+Chart.defaults.font.family = '"Inter Tight", Inter, -apple-system, "Segoe UI", sans-serif';
+Chart.defaults.font.size = 13;
+Chart.defaults.color = C.muted;
+Chart.defaults.plugins.tooltip.backgroundColor = "#1C1C2A";
+Chart.defaults.plugins.tooltip.borderColor = C.axis;
+Chart.defaults.plugins.tooltip.borderWidth = 1;
+Chart.defaults.plugins.tooltip.titleColor = C.text;
+Chart.defaults.plugins.tooltip.bodyColor = C.text2;
+Chart.defaults.plugins.tooltip.padding = 10;
+
+// Значение у конца столбика — цветом текста, не цветом ряда.
+var tipLabels = {
+  id: "tipLabels",
+  afterDatasetsDraw: function(chart){
+    if (!chart.options.plugins.tipLabels) return;
+    var ctx = chart.ctx; ctx.save(); ctx.fillStyle = C.text2; ctx.font = "600 12.5px " + Chart.defaults.font.family;
+    chart.data.datasets.forEach(function(ds, i){
+      chart.getDatasetMeta(i).data.forEach(function(bar, j){
+        var v = ds.data[j]; if (!v) return;
+        ctx.textAlign = "left"; ctx.textBaseline = "middle"; ctx.fillText(String(v), bar.x + 6, bar.y);
+      });
+    });
+    ctx.restore();
+  }
+};
+
+function emptyState(canvasId, text){
+  var box = $(canvasId).parentNode;
+  if (charts[canvasId]) { charts[canvasId].destroy(); delete charts[canvasId]; }
+  $(canvasId).style.display = "none";
+  var e = box.querySelector(".empty") || box.appendChild(el("div", "empty"));
+  e.textContent = text || "Пока нет данных за этот период";
+}
+function clearEmpty(canvasId){ var box = $(canvasId).parentNode, e = box.querySelector(".empty"); if (e) e.remove(); $(canvasId).style.display = ""; }
+
+function barChart(canvasId, tableId, entries, label){
+  $(tableId).replaceChildren(table([label, "Количество"], entries, [1]));
+  if (!entries.length) return emptyState(canvasId);
+  clearEmpty(canvasId);
+  var cfg = {
+    type: "bar",
+    data: { labels: entries.map(function(e){ return e[0]; }),
+            datasets: [{ data: entries.map(function(e){ return e[1]; }), backgroundColor: C.s1, hoverBackgroundColor: "#A3A3EA",
+                         borderRadius: 4, borderSkipped: "start", maxBarThickness: 22, categoryPercentage: .8, barPercentage: .9 }] },
+    options: {
+      indexAxis: "y", responsive: true, maintainAspectRatio: false, animation: { duration: 250 },
+      layout: { padding: { right: 34 } },
+      plugins: { legend: { display: false }, tipLabels: true,
+                 tooltip: { displayColors: false, callbacks: { title: function(items){ return items[0].label; }, label: function(c){ return c.raw + " " + plural(c.raw, "запись", "записи", "записей"); } } } },
+      scales: {
+        x: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: C.grid }, border: { color: C.axis } },
+        y: { grid: { display: false }, border: { color: C.axis },
+             ticks: { color: C.text2, autoSkip: false, callback: function(v){
+               // Узкий экран — короче подпись, чтобы её не срезало слева.
+               var t = this.getLabelForValue(v), max = this.chart.width < 460 ? 15 : 30;
+               return t.length > max ? t.slice(0, max - 1) + "…" : t; } } }
+      }
+    },
+    plugins: [tipLabels]
+  };
+  if (charts[canvasId]) { charts[canvasId].data = cfg.data; charts[canvasId].update(); }
+  else charts[canvasId] = new Chart($(canvasId), cfg);
+}
+
+function trendChart(leads, diags){
+  var days = DAYS || 0, all = leads.concat(diags);
+  var start;
+  if (days) start = Date.now() - (days - 1) * 86400000;
+  else if (all.length) start = Math.min.apply(null, all.map(function(r){ return Date.parse(r.created_at); }).filter(isFinite));
+  else start = Date.now();
+  var span = Math.round((Date.now() - start) / 86400000) + 1;
+  var weekly = span > 92;                 // больше квартала — по неделям, иначе ломаная из шума
+  var buckets = [], index = {}, d = new Date(start); d.setHours(0, 0, 0, 0);
+  if (weekly) d.setDate(d.getDate() - ((d.getDay() + 6) % 7));   // с понедельника
+  while (d.getTime() <= Date.now()) {
+    var k = dayKey(d); index[k] = buckets.length;
+    buckets.push({ key: k, label: d.toLocaleDateString("ru-RU", { day: "numeric", month: "short" }), leads: 0, diags: 0 });
+    d.setDate(d.getDate() + (weekly ? 7 : 1));
+  }
+  function slot(t){
+    var x = new Date(t); x.setHours(0, 0, 0, 0);
+    if (weekly) x.setDate(x.getDate() - ((x.getDay() + 6) % 7));
+    return index[dayKey(x)];
+  }
+  leads.forEach(function(r){ var i = slot(Date.parse(r.created_at)); if (i != null) buckets[i].leads++; });
+  diags.forEach(function(r){ var i = slot(Date.parse(r.created_at)); if (i != null) buckets[i].diags++; });
+  $("trendNote").textContent = weekly ? "по неделям" : "по дням";
+  $("tTrend").replaceChildren(table([weekly ? "Неделя с" : "День", "Заявки", "Диагностики"],
+    buckets.slice().reverse().map(function(b){ return [b.label, b.leads, b.diags]; }), [1, 2]));
+  if (!all.length) return emptyState("cTrend");
+  clearEmpty("cTrend");
+  function line(label, key, color){
+    return { label: label, data: buckets.map(function(b){ return b[key]; }), borderColor: color, backgroundColor: color,
+             borderWidth: 2, borderCapStyle: "round", borderJoinStyle: "round", tension: 0,
+             pointRadius: buckets.length > 45 ? 0 : 4, pointHoverRadius: 5, pointBorderColor: C.card, pointBorderWidth: 2 };
+  }
+  var cfg = {
+    type: "line",
+    data: { labels: buckets.map(function(b){ return b.label; }),
+            datasets: [line("Заявки с сайта", "leads", C.s1), line("Диагностики", "diags", C.s2)] },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: { duration: 250 },
+      interaction: { mode: "index", intersect: false },
+      plugins: { legend: { position: "top", align: "end", labels: { color: C.text2, boxWidth: 18, boxHeight: 3, padding: 16 } } },
+      scales: {
+        x: { grid: { display: false }, border: { color: C.axis }, ticks: { maxRotation: 0, autoSkipPadding: 14 } },
+        y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: C.grid }, border: { display: false } }
+      }
+    }
+  };
+  if (charts.cTrend) { charts.cTrend.data = cfg.data; charts.cTrend.update(); }
+  else charts.cTrend = new Chart($("cTrend"), cfg);
+}
+
+/* --- отрисовка ------------------------------------------------------- */
+function render(){
+  var leadsAll = DATA.leads || [], diagsAll = DATA.diagnostics || [];
+  var leads = inPeriod(leadsAll, DAYS), diags = inPeriod(diagsAll, DAYS);
+  var leadsPrev = inPeriod(leadsAll, DAYS, 1), diagsPrev = inPeriod(diagsAll, DAYS, 1);
+
+  // Заявка → диагностика: у заявки есть код группы, и по этому коду пришла диагностика.
+  var diagCodes = {}; diagsAll.forEach(function(r){ if (r.group_code) diagCodes[r.group_code] = true; });
+  var withCode = leads.filter(function(r){ return r.group_code; });
+  var converted = withCode.filter(function(r){ return diagCodes[r.group_code]; });
+
+  $("kLeads").textContent = leads.length; $("dLeads").textContent = delta(leads.length, leadsPrev.length, DAYS);
+  $("kDiags").textContent = diags.length; $("dDiags").textContent = delta(diags.length, diagsPrev.length, DAYS);
+  $("kConv").textContent = withCode.length ? Math.round(converted.length / withCode.length * 100) + "%" : "—";
+  $("dConv").textContent = withCode.length ? converted.length + " из " + withCode.length + " " + plural(withCode.length, "заявки", "заявок", "заявок") + " с кодом" : "нет заявок с кодом за период";
+  var scored = diags.filter(function(r){ return typeof r.score === "number"; });
+  var avg = scored.length ? scored.reduce(function(s, r){ return s + r.score; }, 0) / scored.length : 0;
+  $("kScore").textContent = scored.length ? avg.toFixed(1).replace(".", ",") + " из 16" : "—";
+  $("dScore").textContent = scored.length ? "по " + scored.length + " " + plural(scored.length, "диагностике", "диагностикам", "диагностикам") : "";
+
+  trendChart(leads, diags);
+  var ch = countBy(leads, function(r){ return channel(r, false); });
+  diags.forEach(function(r){ var k = channel(r, true); ch[k] = (ch[k] || 0) + 1; });
+  barChart("cChannel", "tChannel", topEntries(ch), "Источник");
+  barChart("cPage", "tPage", topEntries(countBy(leads, function(r){ return pageName(r.source); })), "Страница");
+  var lv = countBy(diags, function(r){ return r.level; });
+  barChart("cLevel", "tLevel", LEVEL_ORDER.filter(function(k){ return lv[k]; }).map(function(k){ return [LEVEL_RU[k], lv[k]]; }), "Уровень");
+  barChart("cIndustry", "tIndustry", topEntries(countBy(diags, function(r){ return r.industry; })), "Отрасль");
+  barChart("cPosition", "tPosition", topEntries(countBy(diags, function(r){ return r.position; })), "Должность");
+  barChart("cTeam", "tTeam", topEntries(countBy(leads, function(r){ return r.team_size; }), TEAM_ORDER), "Команда");
+
+  var lastLeads = leads.slice(0, 50);
+  $("leadsNote").textContent = leads.length > 50 ? "последние 50 из " + leads.length : "";
+  $("tLeads").replaceChildren(lastLeads.length ? table(["Дата", "Компания", "Имя", "Телефон", "Команда", "Откуда", "Страница", "Диагностика"],
+    lastLeads.map(function(r){
+      var st = el("span", "tag" + (r.group_code && diagCodes[r.group_code] ? " ok" : ""),
+                  r.group_code ? (diagCodes[r.group_code] ? "прошёл · " : "код · ") + r.group_code : "нет кода");
+      return [fmtDate(r.created_at, true), r.company, r.name, waLink(r.phone), r.team_size, channel(r, false), pageName(r.source), st];
+    })) : el("div", "empty", "Заявок за этот период нет"));
+
+  var lastDiags = diags.slice(0, 50);
+  $("diagsNote").textContent = diags.length > 50 ? "последние 50 из " + diags.length : "";
+  $("tDiags").replaceChildren(lastDiags.length ? table(["Дата", "Компания", "Имя", "Должность", "Отрасль", "Балл", "Уровень", "Лид", "Контакт", "Код"],
+    lastDiags.map(function(r){
+      return [fmtDate(r.created_at, true), r.company, r.name, r.position, r.industry,
+              typeof r.score === "number" ? r.score + "/16" : "—", r.level ? LEVEL_RU[r.level] || r.level : "—",
+              r.tier ? ({ hot: "горячий", warm: "тёплый", cold: "холодный" }[r.tier] || r.tier) : "—", waLink(r.contact), r.group_code || "—"];
+    }), [5]) : el("div", "empty", "Диагностик за этот период нет"));
+}
+</script>
+</body>
+</html>
