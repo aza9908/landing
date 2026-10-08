@@ -134,14 +134,21 @@ window.AIRL_TELEGRAM = {
     },
   };
 
-  /* Telegram-уведомление (работает после вставки токена и chatId) */
-  window.AIRL_notifyTelegram = function (text) {
+  /* Telegram-уведомление (работает после вставки токена и chatId).
+     opts.html — текст размечен HTML (ссылки, жирный); всё, что ввёл
+     посетитель, вызывающий обязан экранировать сам. */
+  window.AIRL_notifyTelegram = function (text, opts) {
     var t = window.AIRL_TELEGRAM || {};
     if (!t || !t.botToken || !t.chatId) return Promise.resolve(false);
+    var body = { chat_id: t.chatId, text: text };
+    if (opts && opts.html) {
+      body.parse_mode = 'HTML';
+      body.disable_web_page_preview = true;
+    }
     return fetch('https://api.telegram.org/bot' + t.botToken + '/sendMessage', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: t.chatId, text: text }),
+      body: JSON.stringify(body),
     })
       .then(function () { return true; })
       .catch(function () { return false; });

@@ -9,7 +9,7 @@
           data-project="ВАШ-PROJECT-ID"
           data-key="ВАШ-WEB-API-KEY"
           data-whatsapp="77001234567"
-          data-diagnostics="/diagnostics.html"></script>
+          data-diagnostics="/diagnostics"></script>
 
   Скрипт сам находит на странице кнопки «Оставить заявку» и вешает на них
   открытие формы. Разметку кнопок трогать не нужно. Если нужно привязать
@@ -27,9 +27,38 @@
     project: (s && s.dataset.project) || "",
     key: (s && s.dataset.key) || "",
     whatsapp: (s && s.dataset.whatsapp) || "",
-    diagnostics: (s && s.dataset.diagnostics) || "/diagnostics.html",
-    collection: (s && s.dataset.collection) || "leads"
+    diagnostics: (s && s.dataset.diagnostics) || "/diagnostics",
+    collection: (s && s.dataset.collection) || "leads",
+    // Общий код диагностики: его получает каждый, кто оставил заявку.
+    // Чтобы сменить код, поменяйте его здесь — больше нигде он не записан.
+    diagnosticsCode: (s && s.dataset.diagnosticsCode) || "AIRL7013"
   };
+
+  /* Ссылка уходит человеку в WhatsApp, поэтому домен боевой, а не текущий.
+     Без «.html»: сервер редиректит /diagnostics.html → /diagnostics
+     и по дороге теряет ?code=, человек попадает на пустое поле кода. */
+  var SITE = "https://airl.kz";
+  function diagnosticsLink() {
+    return SITE + "/diagnostics?code=" + encodeURIComponent(CFG.diagnosticsCode);
+  }
+
+  function diagnosticsMessage(name) {
+    return (name ? "Здравствуйте, " + name + "!" : "Здравствуйте!") +
+      " Это AI Research Labs, спасибо за заявку.\n\n" +
+      "Пройдите короткую диагностику — около 7 минут:\n" + diagnosticsLink() +
+      "\n\nКод группы: " + CFG.diagnosticsCode;
+  }
+
+  // wa.me открывает чат с этим номером и уже набранным текстом; на свой
+  // собственный номер — чат «Сообщение себе».
+  function whatsappLink(digits, text) {
+    return "https://wa.me/" + digits + "?text=" + encodeURIComponent(text);
+  }
+
+  function escapeHtml(t) {
+    return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
 
   var TRIGGER_TEXT = /оставить\s+заявку|заявка|тапсырыс|leave\s+a\s+request/i;
 
@@ -63,6 +92,17 @@
     'color:#fff;background:#5B5BCA;border:0;border-radius:10px;cursor:pointer}',
     'button.go:hover{background:#6C6CD8}',
     'button.go[disabled]{opacity:.6;cursor:default}',
+    'a.go{display:block;width:100%;margin-top:22px;padding:14px;font-size:15.5px;font-weight:700;',
+    'color:#fff;background:#5B5BCA;border-radius:10px;text-align:center;text-decoration:none}',
+    'a.go:hover{background:#6C6CD8}',
+    '.go.alt{margin-top:10px;color:#C8C8DA;background:transparent;border:1px solid #2A2A3C}',
+    '.go.alt:hover{background:#0d0d14;border-color:#5B5BCA}',
+    '.code{margin-top:20px;padding:16px;text-align:center;background:#0B0B12;',
+    'border:1px solid #5B5BCA;border-radius:12px}',
+    '.code small{display:block;font-size:12px;color:#9A9AB0;letter-spacing:.08em;text-transform:uppercase}',
+    '.code b{display:block;margin-top:4px;font-family:ui-monospace,"SF Mono",Menlo,monospace;',
+    'font-size:24px;letter-spacing:.12em;color:#EDEDF5}',
+    '.code a{display:block;margin-top:6px;font-size:13px;color:#8A8AE0;word-break:break-all}',
     '.note{margin-top:18px;text-align:center}',
     '.note p{font-size:14.5px;line-height:1.5;color:#6B6B85;margin-bottom:10px}',
     '.note a{display:block;padding:14px;font-size:15.5px;font-weight:700;',
@@ -74,7 +114,7 @@
     'background:rgba(91,91,202,.16);border:1px solid #5B5BCA;display:flex;align-items:center;',
     'justify-content:center;font-size:26px;color:#8A8AE0}',
     '.steps{margin-top:18px;text-align:left;border-top:1px solid #2A2A3C}',
-    '.steps div{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #2A2A3C;',
+    '.steps>div{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #2A2A3C;',
     'font-size:14px;line-height:1.45;color:#C8C8DA}',
     '.steps span{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:12px;',
     'color:#8A8AE0;font-weight:700;padding-top:2px}',
@@ -299,19 +339,30 @@
       data.status = "new";
       data.created_at = new Date().toISOString();
 
+      // Маска всегда даёт «+7 (XXX) XXX XX XX» → 7 и десять цифр.
+      var phoneDigits = data.phone.replace(/\D/g, "");
+      var message = diagnosticsMessage(data.name);
+
       save(CFG.collection, data).then(function () {
         if (window.AIRL_notifyTelegram) {
+          // Сам WhatsApp без Business API автоматически писать не умеет, поэтому
+          // менеджер отправляет ссылку и код клиенту одним нажатием отсюда.
           window.AIRL_notifyTelegram(
-            "🔔 Заявка с сайта\n" +
-            "Компания: " + data.company + "\n" +
-            "Имя: " + data.name + "\n" +
-            "Телефон: " + data.phone + "\n" +
-            "Команда: " + data.team_size +
-            (data.wish ? "\nЧто хотят изменить: " + data.wish : "") +
-            "\nСтраница: " + data.source
+            "🔔 <b>Заявка с сайта</b>\n" +
+            "Компания: " + escapeHtml(data.company) + "\n" +
+            "Имя: " + escapeHtml(data.name) + "\n" +
+            "Телефон: " + escapeHtml(data.phone) + "\n" +
+            "Команда: " + escapeHtml(data.team_size) +
+            (data.wish ? "\nЧто хотят изменить: " + escapeHtml(data.wish) : "") +
+            "\nСтраница: " + escapeHtml(data.source) +
+            "\n\nДиагностика: " + escapeHtml(diagnosticsLink()) +
+            " (код " + escapeHtml(CFG.diagnosticsCode) + ")" +
+            '\n👉 <a href="' + escapeHtml(whatsappLink(phoneDigits, message)) + '">' +
+            "Отправить клиенту ссылку и код в WhatsApp</a>",
+            { html: true }
           );
         }
-        success(data.name);
+        success(data.name, phoneDigits, message);
       }).catch(function (err) {
         go.disabled = false;
         go.textContent = "Отправить заявку";
@@ -322,18 +373,31 @@
       });
     });
 
-    function success(name) {
+    function success(name, phoneDigits, message) {
       card.textContent = "";
       var ok = el("div", { "class": "ok" });
       ok.appendChild(el("div", { "class": "mark", text: "✓" }));
       ok.appendChild(el("h2", { text: "Заявка принята" }));
       ok.appendChild(el("div", { "class": "sub",
-        text: (name ? name + ", мы" : "Мы") + " свяжемся в WhatsApp в течение рабочего дня." }));
+        text: (name ? name + ", мы" : "Мы") + " свяжемся в WhatsApp в течение рабочего дня " +
+              "и продублируем туда ссылку и код. А диагностику можно пройти уже сейчас — около 7 минут." }));
+
+      var link = diagnosticsLink();
+      var code = el("div", { "class": "code" });
+      code.appendChild(el("small", { text: "Код группы" }));
+      code.appendChild(el("b", { text: CFG.diagnosticsCode }));
+      code.appendChild(el("a", { href: link, target: "_blank", rel: "noopener", text: link }));
+      ok.appendChild(code);
+
+      ok.appendChild(el("a", { "class": "go", href: link, target: "_blank", rel: "noopener",
+        text: "Пройти диагностику" }));
+      ok.appendChild(el("a", { "class": "go alt", href: whatsappLink(phoneDigits, message),
+        target: "_blank", rel: "noopener", text: "Отправить ссылку себе в WhatsApp" }));
 
       var steps = el("div", { "class": "steps" });
       [
         ["01", "Созвон 20 минут. Разберём, что у вас происходит, и договоримся о формате."],
-        ["02", "Выдаём код группы. Сотрудники проходят диагностику по ссылке, 7 минут каждый."],
+        ["02", "Диагностика по ссылке с кодом. Сотрудники проходят её сами, 7 минут каждый."],
         ["03", "Собираем портрет боли. Показываем, какие процессы берём в работу на воркшопе."]
       ].forEach(function (row) {
         var d = el("div");
@@ -343,7 +407,7 @@
       });
       ok.appendChild(steps);
 
-      var b = el("button", { "class": "go", text: "Понятно" });
+      var b = el("button", { "class": "go alt", text: "Закрыть" });
       b.addEventListener("click", close);
       ok.appendChild(b);
       card.appendChild(ok);
