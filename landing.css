@@ -820,3 +820,192 @@ a { color: inherit; text-decoration: none; }
 }
 
 .lp-faq a { color: #c4b5fd; }
+
+/* ═══════════════════════════════════════════
+   AI for Work: 4 урока за 3 недели
+   ═══════════════════════════════════════════ */
+
+/* Один город вместо двух — карточка по центру, а не в половину ширины.
+   Ширина взята такой, чтобы круглый штамп «открыт набор» не задевал
+   плашку с локацией. */
+.lp-cities--one {
+  grid-template-columns: minmax(0, 360px);
+  justify-content: center;
+  max-width: 360px;
+}
+
+.lp-cities--one .lp-stamp-open { right: -20px; }
+
+/* Цифры формата: 4 урока · 3 недели · 6 часов · 15 минут */
+.lp-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin: 32px 0 0;
+  text-align: left;
+}
+
+.lp-stat {
+  background: #ffffff08;
+  border: 1px solid #ffffff12;
+  border-radius: 14px;
+  padding: 18px 20px;
+}
+
+.lp-stat strong {
+  display: block;
+  color: #fff;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+
+.lp-stat span {
+  color: #ffffff88;
+  font-family: 'Victor Mono', monospace;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+/* Roadmap по неделям */
+.lp-roadmap {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin: 40px 0 0;
+  padding: 0;
+  text-align: left;
+}
+
+.lp-roadmap li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 28px 16px 0 0;
+}
+
+/* линия до следующей точки */
+.lp-roadmap li::before {
+  content: '';
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  width: 100%;
+  height: 1px;
+  background: #ffffff1f;
+}
+
+.lp-roadmap li:last-child::before { display: none; }
+
+/* точка */
+.lp-roadmap li::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 15px;
+  height: 15px;
+  box-sizing: border-box;
+  border: 2px solid #6c5ce0;
+  border-radius: 50%;
+  background: #6c5ce0;
+}
+
+.lp-roadmap li:first-child::after { background: transparent; }
+
+.lp-rm-when {
+  color: #ffffff77;
+  font-family: 'Victor Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.lp-roadmap strong {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.lp-rm-note {
+  color: #c4b5fd;
+  font-family: 'Victor Mono', monospace;
+  font-size: 12px;
+}
+
+/* Четыре карточки уроков: 2 × 2 */
+.lp-days--4 .lp-day {
+  display: flex;
+  flex-direction: column;
+}
+
+.lp-days--4 .lp-day ul { flex: 1; }
+
+.lp-section .lp-day-result {
+  max-width: none;
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid #ffffff14;
+  color: #c4b5fd;
+  font-family: 'Victor Mono', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* Четыре плашки «что понадобится» */
+.lp-features--4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.lp-features--4 .lp-feature {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lp-features--4 .lp-feature strong {
+  color: #fff;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.lp-section .lp-note {
+  margin: 20px auto 0;
+  font-size: 13px;
+}
+
+.lp-note a { color: #c4b5fd; }
+
+@media (max-width: 768px) {
+  .lp-stats { grid-template-columns: 1fr 1fr; }
+  .lp-features--4 { grid-template-columns: 1fr; }
+
+  .lp-roadmap { grid-template-columns: 1fr; }
+  .lp-roadmap li { padding: 0 0 22px 26px; }
+  .lp-roadmap li::before { top: 7px; left: 7px; width: 1px; height: 100%; }
+  .lp-roadmap li:last-child { padding-bottom: 0; }
+}
+
+[data-theme='light'] .lp-stat,
+[data-theme='light'] .lp-features--4 .lp-feature {
+  background: #ffffff;
+  border-color: #00000014;
+}
+[data-theme='light'] .lp-stat strong,
+[data-theme='light'] .lp-roadmap strong,
+[data-theme='light'] .lp-features--4 .lp-feature strong { color: #16161a; }
+[data-theme='light'] .lp-stat span,
+[data-theme='light'] .lp-rm-when { color: #4a4a5e; }
+[data-theme='light'] .lp-rm-note,
+[data-theme='light'] .lp-section .lp-day-result,
+[data-theme='light'] .lp-note a { color: #5646c8; }
+[data-theme='light'] .lp-roadmap li::before { background: #00000018; }
+[data-theme='light'] .lp-section .lp-day-result { border-top-color: #00000014; }
