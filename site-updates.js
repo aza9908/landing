@@ -1,5 +1,10 @@
 (function () {
-  const AUDIENCES = [
+  const LANG = window.AIRL_LANG || 'ru';
+  // Внутренняя ссылка на языке страницы (/blog/ → /kk/blog/), см. lang-switch.js.
+  const P = window.AIRL_PATH || ((path) => path);
+
+  const AUDIENCES_BY_LANG = {
+    ru: [
     {
       id: 'business',
       nav: 'Для бизнеса',
@@ -33,7 +38,116 @@
         'Кому подходят: студенты и магистранты ИТ-специальностей · преподаватели и ППС. Университет получает тренеров-практиков, программу в кредитной системе как элективный курс, руководителей дипломных проектов, зачёт производственной и преддипломной практики и выпускников с навыками, которые нужны работодателям прямо сейчас.',
       ],
     },
-  ];
+    ],
+    kk: [
+    {
+      id: 'business',
+      nav: 'Бизнеске',
+      title: 'Бизнеске',
+      short:
+        'Басшылардан бастап қызметкерлерге дейін бүкіл команданы ЖИ-ді нақты міндеттерде қолдануға оқыту.',
+      detail: [
+        'Біз ұйымдарға, басқарушы командаларға және бизнестің негізгі функцияларына арналған жасанды интеллект бойынша мамандандырылған оқу бағдарламаларын әзірлеп, өткіземіз. Оқыту толық цикл қағидатымен құрылған: технологиялар мен әлемдік тәжірибені түсінуден бастап ЖИ-ді жұмыс процестерінде қолдануға дейін.',
+        'Кімге арналған: топ-менеджмент пен бизнес иелері · HR, Finance, Marketing, Sales, Operations бағыттарының басшылары · жобалық және өнімдік командалар.',
+      ],
+    },
+    {
+      id: 'individuals',
+      nav: 'Жеке тұлғаларға',
+      title: 'Жеке тұлғаларға',
+      short:
+        'ЖИ-мен жұмыс дағдыларын басқалардан бұрын меңгеріп, нарықтан жылдам өсу — кәсіпкерлерге, фрилансерлерге және ЖИ дәл қазір қажет әркімге.',
+      detail: [
+        'Біз ЖИ-ді өз жұмысында дәл қазір қолданғысы келетіндерге ашық бағдарламалар өткіземіз. Нақты міндеттер негізінде оқытамыз, сала практиктері жұмыс істейтін датасеттер мен open-source құралдарды береміз.',
+        'Кімге арналған: кәсіпкерлер мен бизнес иелері · фрилансерлер мен мамандар · ЖИ-ді меңгергісі келетіндердің бәрі. Не алады: бағдарламадан кейін бірден қолдануға болатын практикалық дағдылар, нақты датасеттермен жұмыс тәжірибесі және лицензияға шығынсыз open-source құралдарға қолжетімділік.',
+      ],
+    },
+    {
+      id: 'universities',
+      nav: 'Университеттерге',
+      title: 'Университеттерге',
+      short:
+        'Практикалық кейстер, практик-тренерлер және жұмыс берушілер сұранысына сай дайындық — студенттерге нақты дағдылар бергісі келетін ЖОО-ларға.',
+      detail: [
+        'Біз ЖОО жанынан қолданбалы зертханалар ашып, студенттерді ЖИ-мен нақты жұмысқа даярлайтын бағдарламалар әзірлейміз. Оқыту практикалық кейстерге және саланың нақты деректерімен жұмысқа негізделген.',
+        'Кімге арналған: IT мамандықтарының студенттері мен магистранттары · оқытушылар мен ПОҚ. Университет практик-тренерлерді, кредиттік жүйедегі элективті курс ретінде бағдарламаны, дипломдық жобалардың жетекшілерін, өндірістік және диплом алдындағы практиканың есепке алынуын, сондай-ақ жұмыс берушілерге дәл қазір қажет дағдылары бар түлектерді алады.',
+      ],
+    },
+    ],
+    en: [
+    {
+      id: 'business',
+      nav: 'For business',
+      title: 'For business',
+      short:
+        'Training for the whole team — from executives to staff — in applying AI to real business tasks.',
+      detail: [
+        'We design and deliver specialized AI training programs for organizations, leadership teams and key business functions. Each program follows a full-cycle approach: from understanding the technology and global best practices to putting AI to work in everyday processes.',
+        'Who it\'s for: top management and business owners · heads of HR, Finance, Marketing, Sales and Operations · project and product teams.',
+      ],
+    },
+    {
+      id: 'individuals',
+      nav: 'For individuals',
+      title: 'For individuals',
+      short:
+        'AI skills ahead of the curve and growth that outpaces the market — for entrepreneurs, freelancers and anyone who needs AI right now.',
+      detail: [
+        'We run open programs for people who want to use AI in their work today. You learn on real tasks, with the datasets and open-source tools that industry practitioners actually use.',
+        'Who it\'s for: entrepreneurs and business owners · freelancers and professionals · anyone who wants to master AI. What you get: practical skills you can apply right after the program, hands-on experience with real datasets and access to open-source tools with no licensing costs.',
+      ],
+    },
+    {
+      id: 'universities',
+      nav: 'For universities',
+      title: 'For universities',
+      short:
+        'Hands-on cases, practitioner trainers and the preparation employers are looking for — for universities that want to give students real skills.',
+      detail: [
+        'We build applied AI labs at universities and design programs that prepare students for real work with AI. Training is built around practical cases and real industry data.',
+        'Who it\'s for: undergraduate and master\'s students in IT programs · faculty. The university gets practitioner trainers, a credit-bearing elective course, thesis project supervisors, credit for industrial and pre-graduation internships, and graduates with the skills employers need right now.',
+      ],
+    },
+    ],
+  };
+  const AUDIENCES = AUDIENCES_BY_LANG[LANG];
+
+  // Тексты, которые этот скрипт дорисовывает поверх бандла.
+  const UI = {
+    ru: {
+      audiences: 'Аудитории',
+      more: 'Подробнее',
+      less: 'Свернуть',
+      menu: 'Меню',
+      blog: 'Блог',
+      soon: 'Скоро',
+      start: 'Начать обучение',
+      contactsCta: 'Контакты ↗',
+      links: ['О нас', 'Блог', 'Корп обучение', 'Кто мы', 'Мероприятия', 'Контакты'],
+    },
+    kk: {
+      audiences: 'Аудиториялар',
+      more: 'Толығырақ',
+      less: 'Жасыру',
+      menu: 'Мәзір',
+      blog: 'Блог',
+      soon: 'Жақында',
+      start: 'Оқуды бастау',
+      contactsCta: 'Байланыс ↗',
+      links: ['Біз туралы', 'Блог', 'Корпоративтік оқыту', 'Біз кімбіз', 'Іс-шаралар', 'Байланыс'],
+    },
+    en: {
+      audiences: 'Audiences',
+      more: 'Learn more',
+      less: 'Show less',
+      menu: 'Menu',
+      blog: 'Blog',
+      soon: 'Coming soon',
+      start: 'Start learning',
+      contactsCta: 'Contact ↗',
+      links: ['About', 'Blog', 'Corporate training', 'Who we are', 'Events', 'Contact'],
+    },
+  }[LANG];
 
   function waitForApp(callback) {
     let tries = 0;
@@ -57,11 +171,11 @@
   }
 
   function fixBlogNavLinks() {
-    document.querySelectorAll('a[href="/blog/"], .menu a, .nav-menu a').forEach((link) => {
-      if (link.textContent.trim() === 'Блог') {
+    document.querySelectorAll(`a[href="${P('/blog/')}"], .menu a, .nav-menu a`).forEach((link) => {
+      if (link.textContent.trim() === UI.blog) {
         link.addEventListener('click', (e) => {
           e.preventDefault();
-          window.location.href = '/blog/';
+          window.location.href = P('/blog/');
         });
       }
     });
@@ -69,8 +183,8 @@
 
   function fixEventTags() {
     document.querySelectorAll('.events-section .tag, .events-section [class*="tag"]').forEach((el) => {
-      if (el.textContent.trim().toLowerCase() === 'скоро') {
-        el.textContent = 'Скоро';
+      if (el.textContent.trim().toLowerCase() === UI.soon.toLowerCase()) {
+        el.textContent = UI.soon;
       }
     });
   }
@@ -88,7 +202,7 @@
     section.innerHTML = `
       <div class="forwhom-sticky">
         <div class="forwhom-interactive">
-          <nav class="forwhom-nav" aria-label="Аудитории">
+          <nav class="forwhom-nav" aria-label="${UI.audiences}">
             ${AUDIENCES.map(
               (a, i) =>
                 `<button type="button" class="forwhom-nav-item${i === 0 ? ' active' : ''}" data-index="${i}">${a.nav}</button>`
@@ -107,7 +221,7 @@
       panel.innerHTML = `
         <h3 class="forwhom-panel-title">${item.title}</h3>
         <p class="forwhom-panel-desc">${item.short}</p>
-        <button type="button" class="forwhom-panel-btn" id="forwhom-detail-btn">Подробнее</button>
+        <button type="button" class="forwhom-panel-btn" id="forwhom-detail-btn">${UI.more}</button>
         <div class="forwhom-panel-detail" id="forwhom-detail">
           ${item.detail.map((p) => `<p>${p}</p>`).join('')}
         </div>
@@ -117,7 +231,7 @@
       const detail = panel.querySelector('#forwhom-detail');
       detailBtn.addEventListener('click', () => {
         detail.classList.toggle('open');
-        detailBtn.textContent = detail.classList.contains('open') ? 'Свернуть' : 'Подробнее';
+        detailBtn.textContent = detail.classList.contains('open') ? UI.less : UI.more;
       });
     }
 
@@ -181,7 +295,7 @@
         const btn = e.target.closest('[data-leaders-btn]');
         if (btn) {
           e.preventDefault();
-          window.open('/ai-for-leaders/', '_blank');
+          window.open(P('/ai-for-leaders/'), '_blank');
         }
       },
       true
@@ -190,14 +304,9 @@
 
   function buildMobileMenu() {
     if (document.querySelector('.m-menu-btn')) return;
-    const links = [
-      ['О нас', '#about'],
-      ['Блог', '/blog/'],
-      ['Корп обучение', '#training'],
-      ['Кто мы', '#team'],
-      ['Мероприятия', '#events'],
-      ['Контакты', '#contacts'],
-    ];
+    const links = ['#about', P('/blog/'), '#training', '#team', '#events', '#contacts'].map(
+      (href, i) => [UI.links[i], href]
+    );
 
     const overlay = document.createElement('div');
     overlay.className = 'm-menu-overlay';
@@ -207,8 +316,8 @@
         .map(([t, h]) => `<a href="${h}" class="m-menu-link">${t}</a>`)
         .join('') +
       '<div class="m-menu-cta">' +
-      '<a href="' + (window.AIRL_LMS_URL || 'https://lms.magauin.kz/') + '" target="_blank" rel="noopener noreferrer" class="m-cta-primary m-menu-link-cta m-cta-lms">Начать обучение</a>' +
-      '<a href="#contacts" class="m-cta-secondary m-menu-link-cta">Контакты ↗</a>' +
+      '<a href="' + (window.AIRL_LMS_URL || 'https://lms.magauin.kz/') + '" target="_blank" rel="noopener noreferrer" class="m-cta-primary m-menu-link-cta m-cta-lms">' + UI.start + '</a>' +
+      '<a href="#contacts" class="m-cta-secondary m-menu-link-cta">' + UI.contactsCta + '</a>' +
       '</div>' +
       '</nav>';
     document.body.appendChild(overlay);
@@ -217,7 +326,7 @@
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'm-menu-btn';
-      btn.setAttribute('aria-label', 'Меню');
+      btn.setAttribute('aria-label', UI.menu);
       btn.innerHTML = '<span></span><span></span><span></span>';
       btn.addEventListener('click', () => {
         const open = overlay.classList.toggle('open');
@@ -294,6 +403,12 @@
     'Куаныш Магауин': '/team/kuanysh-magauin',
     'Азамат Арманұлы': '/team/azamat-armanuly',
     'Джангельдин Алиби': '/team/alibi-dzhangeldin',
+    // Английская версия: имена в бандле латиницей.
+    'Zhanibek Serkulov': '/team/zhanibek-serkulov',
+    'Dmitry Mun': '/team/dmitry-mun',
+    'Kuanysh Magauin': '/team/kuanysh-magauin',
+    'Azamat Armanuly': '/team/azamat-armanuly',
+    'Alibi Dzhangeldin': '/team/alibi-dzhangeldin',
   };
 
   function linkTeamCards() {
@@ -303,7 +418,7 @@
       const href = TEAM_PAGES[name];
       if (!href) return;
       const link = document.createElement('a');
-      link.href = href;
+      link.href = P(href);
       link.className = 'team-card-link';
       link.textContent = name;
       el.textContent = '';
@@ -314,8 +429,8 @@
   // Preserve the existing detail buttons while making program pages discoverable.
   function linkProgramHeadings() {
     const programs = [
-      ['.pcard:not(.pcard-leaders) .pcard-name', '/ai-for-work/'],
-      ['.pcard-leaders .pcard-name', '/ai-for-leaders/'],
+      ['.pcard:not(.pcard-leaders) .pcard-name', P('/ai-for-work/')],
+      ['.pcard-leaders .pcard-name', P('/ai-for-leaders/')],
     ];
     programs.forEach(([selector, href]) => {
       const heading = document.querySelector(selector);

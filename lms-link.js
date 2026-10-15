@@ -21,11 +21,12 @@
     '',
   );
 
-  /** Text on the buttons that should open the platform. */
-  var CTA_TEXT = 'начать обучение';
+  /** Text on the buttons that should open the platform (ru / kk / en). */
+  var CTA_TEXTS = ['начать обучение', 'оқуды бастау', 'start learning'];
 
   function isCta(a) {
-    return (a.textContent || '').trim().toLowerCase().indexOf(CTA_TEXT) !== -1;
+    var text = (a.textContent || '').trim().toLowerCase();
+    return CTA_TEXTS.some(function (t) { return text.indexOf(t) !== -1; });
   }
 
   function pointAtLms(a) {
