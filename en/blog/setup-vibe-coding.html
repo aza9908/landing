@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How to Set Up Claude Code in VS Code: A Step-by-Step Guide for Beginners | AI Research Labs</title>
+    <link rel="canonical" href="https://airl.kz/en/blog/setup-vibe-coding" />
+    <!-- i18n:start -->
+    <link rel="alternate" hreflang="ru" href="https://airl.kz/blog/setup-vibe-coding" />
+    <link rel="alternate" hreflang="kk" href="https://airl.kz/kk/blog/setup-vibe-coding" />
+    <link rel="alternate" hreflang="en" href="https://airl.kz/en/blog/setup-vibe-coding" />
+    <link rel="alternate" hreflang="x-default" href="https://airl.kz/blog/setup-vibe-coding" />
+    <script src="/lang-switch.js?v=1"></script>
+    <!-- i18n:end -->
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="AI Research Labs" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://airl.kz/en/blog/setup-vibe-coding" />
+    <meta property="og:title" content="How to Set Up Claude Code in VS Code: A Step-by-Step Guide for Beginners | AI Research Labs" />
+    <meta property="og:description" content="A step-by-step guide for beginners: set up Claude Code inside VS Code from scratch on Mac and Windows. A Google account, a GitHub account, installing the editor, and your first task for the AI — no terminal required." />
+    <meta property="og:image" content="https://airl.kz/en/blog/cover-setup-guide.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BlogPosting",
+      "@id": "https://airl.kz/en/blog/setup-vibe-coding#article",
+      "mainEntityOfPage": "https://airl.kz/en/blog/setup-vibe-coding",
+      "url": "https://airl.kz/en/blog/setup-vibe-coding",
+      "headline": "How to Set Up Claude Code in VS Code: A Step-by-Step Guide for Beginners",
+      "description": "A step-by-step guide for beginners: set up Claude Code inside VS Code from scratch on Mac and Windows. A Google account, a GitHub account, installing the editor, and your first task for the AI — no terminal required.",
+      "image": "https://airl.kz/en/blog/cover-setup-guide.svg",
+      "inLanguage": "en",
+      "dateModified": "2026-10-07",
+      "author": {
+        "@type": "EducationalOrganization",
+        "@id": "https://airl.kz/#organization",
+        "name": "AI Research Labs",
+        "url": "https://airl.kz/",
+        "logo": "https://airl.kz/logo-airl.png"
+      },
+      "publisher": {
+        "@type": "EducationalOrganization",
+        "@id": "https://airl.kz/#organization",
+        "name": "AI Research Labs",
+        "url": "https://airl.kz/",
+        "logo": "https://airl.kz/logo-airl.png"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://airl.kz/en/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Blog",
+          "item": "https://airl.kz/en/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "How to Set Up Claude Code in VS Code: A Step-by-Step Guide for Beginners",
+          "item": "https://airl.kz/en/blog/setup-vibe-coding"
+        }
+      ]
+    }
+  ]
+}
+    </script>
+    <meta name="description" content="A step-by-step guide for beginners: set up Claude Code inside VS Code from scratch on Mac and Windows. A Google account, a GitHub account, installing the editor, and your first task for the AI — no terminal required." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Victor+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/blog/blog.css?v=24" />
+      <script src="/airl-attr.js?v=1"></script>
+  </head>
+  <body>
+    <div class="blog-shell">
+      <header class="blog-topbar">
+        <a href="/en/" class="blog-logo">
+          <img src="/logo-airl-white.png" alt="AI Research Labs" class="brand-logo" />
+        </a>
+        <nav class="blog-topnav">
+          <a href="/en/">Home</a>
+          <a href="/en/team/">Team</a>
+          <a href="/en/blog/" class="active">Blog</a>
+          <a href="/en/#contacts">Contact</a>
+        </nav>
+        <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle theme">☀️</button>
+      </header>
+
+      <main class="blog-main article-main">
+        <a href="/en/blog/" class="back-link">← All articles</a>
+
+        <div class="blog-post-tags article-tags">
+          <span class="tag">Guide</span>
+          <span class="tag">Vibe Coding</span>
+          <span class="tag">For beginners</span>
+        </div>
+
+        <h1 class="article-title">How to Set Up Claude Code in VS Code: A Step-by-Step Guide for Beginners</h1>
+
+        <div class="article-meta">
+          <div class="blog-post-author">
+            <span class="author-badge">AI</span>
+            <div>
+              <strong>AI Research Labs</strong>
+              <span>Applied AI center</span>
+            </div>
+          </div>
+          <span>2026 · 10 min read</span>
+        </div>
+
+        <figure class="article-hero">
+          <img src="/en/blog/cover-setup-guide.svg" alt="Diagram: Claude Code in the center, surrounded by VS Code, GitHub, and a Claude Pro subscription" />
+        </figure>
+
+        <article class="article-body">
+          <p class="lead">
+            This guide is for people who have never written code but want to build websites and apps
+            by describing them in plain words — an approach known as vibe coding. We’ll set up just one combo: the VS Code editor
+            with the AI assistant Claude Code inside it. No scary black terminal window — just your mouse, buttons,
+            and a friendly chat. The whole thing takes about an hour.
+          </p>
+
+          <div class="guide-note tip">
+            <span class="guide-note-icon">💡</span>
+            <p><strong>How to use this guide.</strong> First, skim the whole text all the way
+            to the end, then come back and follow the steps exactly in order. Wherever Mac and Windows
+            differ, each step covers them separately.</p>
+          </div>
+
+          <h2>What we’ll install and why</h2>
+          <p>
+            To “program with words,” you need just three things. Here they are, explained with simple analogies:
+          </p>
+          <ul>
+            <li><strong>VS Code</strong> is like Microsoft Word, but for code. It’s the window you’ll work in.</li>
+            <li><strong>Claude Code</strong> is an AI assistant that lives inside VS Code. You describe a task in plain words, and it writes the code.</li>
+            <li><strong>GitHub</strong> is a cloud for code, like Google Drive, but with a history of every change. Your code is stored here, and this is where your site goes live from.</li>
+          </ul>
+          <p>
+            The toolkit itself is free. The only paid part is a Claude Pro subscription —
+            think of it as your AI assistant’s “salary,” about $20/month.
+          </p>
+
+          <h2>Step 0. Create a Google account (Gmail)</h2>
+          <p>
+            Everything else starts here. Signing up for GitHub and Claude with your Google account
+            is the easiest way — no separate passwords to create and remember.
+            <strong>If you already have Gmail, you can skip this step.</strong>
+          </p>
+
+          <div class="guide-steps">
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Open the sign-up page</h3>
+                <p>Go to <strong>accounts.google.com/signup</strong> in any browser.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Enter your name and choose an address</h3>
+                <p>Google will suggest available addresses. Pick a calm, “grown-up” one —
+                you’ll be giving it to colleagues and putting it on your resume.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Set a password and verify your phone</h3>
+                <p>Google will text you a code. Enter it, and your inbox is ready.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="guide-note tip">
+            <span class="guide-note-icon">💡</span>
+            <p><strong>Tip.</strong> Write down your Google login and password somewhere safe
+            (for example, in a passcode-protected note on your phone). From here on, you’ll use this
+            account to sign in to other services.</p>
+          </div>
+
+          <h2>Step 1. Create a GitHub account with Google</h2>
+          <p>
+            GitHub is the cloud where your code lives. You only need to sign up once.
+          </p>
+
+          <figure class="guide-figure">
+            <img src="/en/blog/guide-github.svg" alt="Signing up for GitHub: use your existing Google email, enter a username, and create the account" />
+            <figcaption>Sign up at github.com/signup — use your Gmail as the email</figcaption>
+          </figure>
+
+          <div class="guide-steps">
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Open github.com/signup</h3>
+                <p>In the email field, enter <strong>your Gmail</strong> from Step 0.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Choose a username</h3>
+                <p>This name becomes part of your project addresses: <em>github.com/your-username</em>.
+                Keep it short and clear, for example <em>azamat-dev</em>.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Verify your email</h3>
+                <p>GitHub will send a code to your Gmail. Enter it, and your account is ready.
+                Choose the <strong>Free</strong> plan — it’s enough for the entire course.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="guide-note tip">
+            <span class="guide-note-icon">🔗</span>
+            <p><strong>Why Gmail matters here.</strong> When your GitHub email matches
+            your Google email, signing in to other services (and recovering access if you
+            forget your password) is hassle-free. That’s why it’s best for everyone to have Gmail.</p>
+          </div>
+
+          <h2>Step 2. Install VS Code</h2>
+          <p>
+            VS Code is a free editor from Microsoft and the most popular one in the world.
+            It’s the window where you’ll see your project and talk to Claude.
+          </p>
+
+          <figure class="guide-figure">
+            <img src="/en/blog/guide-vscode.svg" alt="Downloading VS Code and installing it on Mac and on Windows" />
+            <figcaption>code.visualstudio.com/download — the site will suggest the right version for your system</figcaption>
+          </figure>
+
+          <div class="guide-steps">
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Download the installer</h3>
+                <p>Go to <strong>code.visualstudio.com/download</strong> and click the big
+                button for your system. The site usually detects on its own whether you’re on a Mac or Windows.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Install it</h3>
+                <div class="guide-os">
+                  <div class="guide-os-col">
+                    <h4> Mac</h4>
+                    <p>Open the downloaded file and drag the VS Code icon into the Applications folder.</p>
+                  </div>
+                  <div class="guide-os-col">
+                    <h4>▦ Windows</h4>
+                    <p>Run the downloaded .exe and click “Next” on every screen — the default settings are fine.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Open VS Code</h3>
+                <p>Launch the app. Project files appear on the left, and the workspace is in the middle.
+                For now, just make sure the editor opens.</p>
+              </div>
+            </div>
+          </div>
+
+          <h2>Step 3. Install the Claude Code extension</h2>
+          <p>
+            An extension is an add-on for the editor. You need exactly one: <strong>Claude Code</strong>.
+            It puts an AI assistant right inside the VS Code window.
+          </p>
+
+          <figure class="guide-figure">
+            <img src="/en/blog/guide-extension.svg" alt="The Extensions panel in VS Code: search for Claude Code and click Install" />
+            <figcaption>Extensions panel → search for “Claude Code” → Install button</figcaption>
+          </figure>
+
+          <div class="guide-steps">
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Open the Extensions panel</h3>
+                <p>On the left side of VS Code, find the icon made of four small squares (Extensions).
+                You can also open it with <em>Cmd+Shift+X</em> on Mac or <em>Ctrl+Shift+X</em> on Windows.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Find Claude Code</h3>
+                <p>Type <strong>Claude Code</strong> in the search bar. The one you need is by Anthropic.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Click Install</h3>
+                <p>Wait for the installation to finish. You don’t need to install anything else —
+                Claude can format code, find bugs, and save changes on its own.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="guide-note warn">
+            <span class="guide-note-icon">⚠️</span>
+            <p><strong>Don’t install extras.</strong> It’s easy for a beginner to get lost among dozens of extensions.
+            Claude Code alone is enough to get started — anything else will only confuse you.</p>
+          </div>
+
+          <h2>Step 4. Sign in to Claude and subscribe</h2>
+          <p>
+            For the assistant to work, you need a Claude account and a Pro subscription.
+          </p>
+
+          <div class="guide-steps">
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Create a Claude account</h3>
+                <p>Go to <strong>claude.ai</strong> and sign in <strong>with Google</strong>,
+                using the same Gmail. No separate password needed.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Get Claude Pro</h3>
+                <p>On <strong>claude.ai/upgrade</strong>, choose the Pro plan (about $20/month).
+                The free plan isn’t enough for real work with Claude Code.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Connect Claude Code to your account</h3>
+                <p>Go back to VS Code, open the Claude Code panel (the spark icon on the left),
+                and click “Sign in.” A browser window will open — confirm the sign-in with the same Claude account.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="guide-note tip">
+            <span class="guide-note-icon">💳</span>
+            <p><strong>Paying from Kazakhstan.</strong> Kaspi and Halyk cards often
+            don’t go through directly. The usual workaround is a virtual dollar card (Wise, for example)
+            topped up via Kaspi — a completely legal option.</p>
+          </div>
+
+          <h2>Step 5. Give Claude its first task</h2>
+          <p>
+            You’re all set. Now for the fun part: just ask Claude to do something
+            in plain words.
+          </p>
+
+          <figure class="guide-figure">
+            <img src="/en/blog/guide-claude-chat.svg" alt="The Claude Code panel in VS Code: the user describes a task in words, and Claude replies that it created the files" />
+            <figcaption>Claude Code panel: describe the task in words, and it creates the files</figcaption>
+          </figure>
+
+          <div class="guide-say">
+            <span class="guide-say-label">✦ Tell Claude</span>
+            <p>Make a simple business-card page about me: my name, my profession, and a “Message me” button. Then show me how to open it in the browser.</p>
+          </div>
+
+          <p>
+            Claude will create the files and tell you how to open a preview. If you want to change
+            something, just say so in your next message, for example:
+          </p>
+
+          <div class="guide-say">
+            <span class="guide-say-label">✦ Tell Claude</span>
+            <p>Make the background dark and the button purple and a bit bigger.</p>
+          </div>
+
+          <p>
+            Once you like the result, ask Claude to save it to the GitHub cloud:
+          </p>
+
+          <div class="guide-say">
+            <span class="guide-say-label">✦ Tell Claude</span>
+            <p>Save the project and upload it to my GitHub with a clear description.</p>
+          </div>
+
+          <div class="guide-note tip">
+            <span class="guide-note-icon">🗣️</span>
+            <p><strong>The key principle.</strong> Don’t be afraid of “dumb” questions or everyday language.
+            That’s exactly what Claude is for: you describe the task in words, and it turns it into code
+            and explains what it did.</p>
+          </div>
+
+          <h2>Quick checklist</h2>
+          <p>Run through it — if every item is checked, you’re ready to work.</p>
+          <ul class="guide-checklist">
+            <li>You have a Google account (Gmail)</li>
+            <li>You’ve created a GitHub account with that Gmail</li>
+            <li>VS Code is installed (Mac or Windows)</li>
+            <li>The Claude Code extension is installed — and nothing else</li>
+            <li>You’ve subscribed to Claude Pro and signed in</li>
+            <li>Claude has completed your first task, written in plain words</li>
+          </ul>
+        </article>
+      </main>
+
+      <footer class="blog-footer">
+        <a href="/en/">← Back to home</a>
+        <span>© 2026 AI Research Labs</span>
+      </footer>
+    </div>
+
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var KEY = 'airl-blog-theme';
+        function apply(t) {
+          root.setAttribute('data-theme', t);
+          var b = document.getElementById('themeToggle');
+          if (b) b.textContent = t === 'light' ? '🌙' : '☀️';
+        }
+        apply(localStorage.getItem(KEY) || 'dark');
+        document.addEventListener('DOMContentLoaded', function () {
+          apply(localStorage.getItem(KEY) || 'dark');
+          document.getElementById('themeToggle').addEventListener('click', function () {
+            var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            localStorage.setItem(KEY, next);
+            apply(next);
+          });
+        });
+      })();
+    </script>
+
+        <script src="/firebase-bridge.js?v=27"></script>
+    <script src="/internal-tasks.js?v=24" defer></script>
+    <script src="/airl-lead.js?v=29" defer
+            data-project="landing-page-8e314"
+            data-key="AIzaSyDNSjN6mF5R5tVqrVtXeuOu3q6UtUdS39o"
+            data-whatsapp="77072212930"
+            data-diagnostics="/diagnostics"></script>
+  </body>
+</html>

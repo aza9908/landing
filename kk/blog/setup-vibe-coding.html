@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="kk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VS Code-та Claude Code-ты қалай баптау керек: жаңадан бастаушыларға арналған қадамдық нұсқаулық | AI Research Labs</title>
+    <link rel="canonical" href="https://airl.kz/kk/blog/setup-vibe-coding" />
+    <!-- i18n:start -->
+    <link rel="alternate" hreflang="ru" href="https://airl.kz/blog/setup-vibe-coding" />
+    <link rel="alternate" hreflang="kk" href="https://airl.kz/kk/blog/setup-vibe-coding" />
+    <link rel="alternate" hreflang="en" href="https://airl.kz/en/blog/setup-vibe-coding" />
+    <link rel="alternate" hreflang="x-default" href="https://airl.kz/blog/setup-vibe-coding" />
+    <script src="/lang-switch.js?v=1"></script>
+    <!-- i18n:end -->
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="AI Research Labs" />
+    <meta property="og:locale" content="kk_KZ" />
+    <meta property="og:url" content="https://airl.kz/kk/blog/setup-vibe-coding" />
+    <meta property="og:title" content="VS Code-та Claude Code-ты қалай баптау керек: жаңадан бастаушыларға арналған қадамдық нұсқаулық | AI Research Labs" />
+    <meta property="og:description" content="Жаңадан бастаушыларға арналған қадамдық нұсқаулық: Mac пен Windows-та Claude Code-ты VS Code ішінде нөлден баптау. Google поштасы, GitHub аккаунты, редакторды орнату және жасанды интеллектке алғашқы тапсырма — терминалсыз." />
+    <meta property="og:image" content="https://airl.kz/kk/blog/cover-setup-guide.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BlogPosting",
+      "@id": "https://airl.kz/kk/blog/setup-vibe-coding#article",
+      "mainEntityOfPage": "https://airl.kz/kk/blog/setup-vibe-coding",
+      "url": "https://airl.kz/kk/blog/setup-vibe-coding",
+      "headline": "VS Code-та Claude Code-ты қалай баптау керек: жаңадан бастаушыларға арналған қадамдық нұсқаулық",
+      "description": "Жаңадан бастаушыларға арналған қадамдық нұсқаулық: Mac пен Windows-та Claude Code-ты VS Code ішінде нөлден баптау. Google поштасы, GitHub аккаунты, редакторды орнату және жасанды интеллектке алғашқы тапсырма — терминалсыз.",
+      "image": "https://airl.kz/kk/blog/cover-setup-guide.svg",
+      "inLanguage": "kk",
+      "dateModified": "2026-10-07",
+      "author": {
+        "@type": "EducationalOrganization",
+        "@id": "https://airl.kz/#organization",
+        "name": "AI Research Labs",
+        "url": "https://airl.kz/",
+        "logo": "https://airl.kz/logo-airl.png"
+      },
+      "publisher": {
+        "@type": "EducationalOrganization",
+        "@id": "https://airl.kz/#organization",
+        "name": "AI Research Labs",
+        "url": "https://airl.kz/",
+        "logo": "https://airl.kz/logo-airl.png"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Басты бет",
+          "item": "https://airl.kz/kk/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Блог",
+          "item": "https://airl.kz/kk/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "VS Code-та Claude Code-ты қалай баптау керек: жаңадан бастаушыларға арналған қадамдық нұсқаулық",
+          "item": "https://airl.kz/kk/blog/setup-vibe-coding"
+        }
+      ]
+    }
+  ]
+}
+    </script>
+    <meta name="description" content="Жаңадан бастаушыларға арналған қадамдық нұсқаулық: Mac пен Windows-та Claude Code-ты VS Code ішінде нөлден баптау. Google поштасы, GitHub аккаунты, редакторды орнату және жасанды интеллектке алғашқы тапсырма — терминалсыз." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Victor+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/blog/blog.css?v=24" />
+      <script src="/airl-attr.js?v=1"></script>
+  </head>
+  <body>
+    <div class="blog-shell">
+      <header class="blog-topbar">
+        <a href="/kk/" class="blog-logo">
+          <img src="/logo-airl-white.png" alt="AI Research Labs" class="brand-logo" />
+        </a>
+        <nav class="blog-topnav">
+          <a href="/kk/">Басты бет</a>
+          <a href="/kk/team/">Команда</a>
+          <a href="/kk/blog/" class="active">Блог</a>
+          <a href="/kk/#contacts">Байланыс</a>
+        </nav>
+        <button type="button" class="theme-toggle" id="themeToggle" aria-label="Тақырыпты ауыстыру">☀️</button>
+      </header>
+
+      <main class="blog-main article-main">
+        <a href="/kk/blog/" class="back-link">← Барлық мақалалар</a>
+
+        <div class="blog-post-tags article-tags">
+          <span class="tag">Нұсқаулық</span>
+          <span class="tag">Vibe Coding</span>
+          <span class="tag">Жаңадан бастаушыларға</span>
+        </div>
+
+        <h1 class="article-title">VS Code-та Claude Code-ты қалай баптау керек: жаңадан бастаушыларға арналған қадамдық нұсқаулық</h1>
+
+        <div class="article-meta">
+          <div class="blog-post-author">
+            <span class="author-badge">AI</span>
+            <div>
+              <strong>AI Research Labs</strong>
+              <span>Қолданбалы жасанды интеллект орталығы</span>
+            </div>
+          </div>
+          <span>2026 · оқуға 10 мин</span>
+        </div>
+
+        <figure class="article-hero">
+          <img src="/kk/blog/cover-setup-guide.svg" alt="Сызба: ортада Claude Code, айналасында VS Code, GitHub және Claude Pro жазылымы" />
+        </figure>
+
+        <article class="article-body">
+          <p class="lead">
+            Бұл нұсқаулық бұрын ешқашан код жазбаған, бірақ сайттар мен қосымшаларды сөзбен
+            сипаттап жасағысы келетіндерге арналған — мұндай тәсілді вайб-кодинг деп атайды. Біз бір ғана жиынтық орнатамыз: VS Code редакторы
+            және оның ішіндегі жасанды интеллект көмекшісі Claude Code. Терминалдың «қара терезесі» мүлде жоқ — тек тінтуір, батырмалар
+            және түсінікті чат. Барлық қадамды шамамен бір сағатта өтуге болады.
+          </p>
+
+          <div class="guide-note tip">
+            <span class="guide-note-icon">💡</span>
+            <p><strong>Бұл нұсқаулықты қалай оқу керек.</strong> Алдымен бүкіл мәтінге соңына дейін
+            көз жүгіртіп шығыңыз, содан кейін басына оралып, қадамдарды ретімен мұқият орындаңыз. Mac пен
+            Windows арасында айырмашылық болса, әр қадам олар үшін бөлек жазылған.</p>
+          </div>
+
+          <h2>Не орнатамыз және не үшін</h2>
+          <p>
+            «Сөзбен бағдарламалау» үшін небәрі үш нәрсе керек. Оларды қарапайым салыстырумен түсіндірейік:
+          </p>
+          <ul>
+            <li><strong>VS Code</strong> — Microsoft Word сияқты, тек код үшін. Біз жұмыс істейтін терезе осы.</li>
+            <li><strong>Claude Code</strong> — VS Code ішінде «тұратын» ЖИ-көмекші. Сіз оған тапсырманы қарапайым сөзбен жазасыз, ал ол код жазады.</li>
+            <li><strong>GitHub</strong> — код сақталатын бұлт: Google Диск сияқты, бірақ барлық өзгерістің тарихы сақталады. Код осында тұрады, ал сайт интернетке осы жерден шығады.</li>
+          </ul>
+          <p>
+            Құралдардың өзі тегін. Тек Claude Pro жазылымы ақылы —
+            бұл ЖИ-көмекшіңіздің «жалақысы», айына шамамен 20 $.
+          </p>
+
+          <h2>0-қадам. Google поштасын (Gmail) ашыңыз</h2>
+          <p>
+            Қалғанының бәрі осыдан басталады. GitHub пен Claude-қа Google поштасы арқылы тіркелу
+            ең ыңғайлы — бөлек құпиясөздер ойлап тауып, оларды есте сақтаудың қажеті жоқ.
+            <strong>Gmail-іңіз бұрыннан бар болса, бұл қадамды өткізіп жіберуге болады.</strong>
+          </p>
+
+          <div class="guide-steps">
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Тіркелу бетін ашыңыз</h3>
+                <p>Кез келген браузерде <strong>accounts.google.com/signup</strong> бетіне кіріңіз.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Атыңызды жазып, мекенжай ойлап табыңыз</h3>
+                <p>Google бос мекенжай нұсқаларын ұсынады. Салмақты, «ересек» нұсқаны таңдаңыз —
+                оны әріптестеріңізге айтып, түйіндемеңізге жазасыз.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Құпиясөз қойып, телефонды растаңыз</h3>
+                <p>Google SMS арқылы код жібереді. Соны енгізсеңіз, пошта дайын.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="guide-note tip">
+            <span class="guide-note-icon">💡</span>
+            <p><strong>Кеңес.</strong> Google логині мен құпиясөзін сенімді жерге жазып қойыңыз
+            (мысалы, телефондағы кодпен қорғалған жазбаларға). Әрі қарай басқа сервистерге осы
+            аккаунт арқылы кіреміз.</p>
+          </div>
+
+          <h2>1-қадам. GitHub-та Google арқылы аккаунт ашыңыз</h2>
+          <p>
+            GitHub — кодыңыз сақталатын бұлт. Бір рет қана тіркелеміз.
+          </p>
+
+          <figure class="guide-figure">
+            <img src="/kk/blog/guide-github.svg" alt="GitHub-та тіркелу: бар Google поштасын қолданамыз, username енгізіп, аккаунт ашамыз" />
+            <figcaption>github.com/signup бетінде тіркелу — пошта ретінде өз Gmail-іңізді көрсетіңіз</figcaption>
+          </figure>
+
+          <div class="guide-steps">
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>github.com/signup бетін ашыңыз</h3>
+                <p>Пошта өрісіне 0-қадамда ашқан <strong>өз Gmail-іңізді</strong> енгізіңіз.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Username ойлап табыңыз</h3>
+                <p>Бұл атау жобаларыңыздың мекенжайына кіреді: <em>github.com/сіздің-username</em>.
+                Қысқа әрі түсінікті атау таңдаңыз, мысалы, <em>azamat-dev</em>.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Поштаны растаңыз</h3>
+                <p>GitHub Gmail-іңізге код жібереді. Соны енгізсеңіз, аккаунт дайын.
+                Тарифтен <strong>Free</strong> нұсқасын таңдаңыз — бүкіл оқуға сол жетеді.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="guide-note tip">
+            <span class="guide-note-icon">🔗</span>
+            <p><strong>Gmail дәл осы жерде не үшін керек.</strong> GitHub поштасы Google поштаңызбен
+            бірдей болса, басқа сервистерге кіру (құпиясөзді ұмытып қалсаңыз, қолжетімділікті
+            қалпына келтіру де) артық әурешіліксіз өтеді. Сондықтан Gmail әркімде болғаны жөн.</p>
+          </div>
+
+          <h2>2-қадам. VS Code-ты орнатыңыз</h2>
+          <p>
+            VS Code — Microsoft шығарған тегін редактор, әлемдегі ең танымал редактор.
+            Жобаңызды көріп, Claude-пен сөйлесетін терезе осы болады.
+          </p>
+
+          <figure class="guide-figure">
+            <img src="/kk/blog/guide-vscode.svg" alt="VS Code-ты жүктеу және оны Mac пен Windows-қа бөлек орнату" />
+            <figcaption>code.visualstudio.com/download — сайт жүйеңізге сай нұсқаны өзі ұсынады</figcaption>
+          </figure>
+
+          <div class="guide-steps">
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Орнатқышты жүктеп алыңыз</h3>
+                <p><strong>code.visualstudio.com/download</strong> бетіне кіріп, жүйеңізге сәйкес
+                үлкен батырманы басыңыз. Сайт әдетте компьютеріңіз Mac па, Windows па екенін өзі анықтайды.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Орнатыңыз</h3>
+                <div class="guide-os">
+                  <div class="guide-os-col">
+                    <h4> Mac</h4>
+                    <p>Жүктелген файлды ашып, VS Code белгішесін «Applications» («Бағдарламалар») қалтасына сүйреп апарыңыз.</p>
+                  </div>
+                  <div class="guide-os-col">
+                    <h4>▦ Windows</h4>
+                    <p>Жүктелген .exe файлын іске қосып, барлық терезеде «Next» («Келесі») батырмасын баса беріңіз — әдепкі баптаулар жарай береді.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>VS Code-ты ашыңыз</h3>
+                <p>Бағдарламаны іске қосыңыз. Сол жақта жоба файлдары, ортасында жұмыс аймағы болады.
+                Әзірге редактордың ашылатынына көз жеткізсеңіз болғаны.</p>
+              </div>
+            </div>
+          </div>
+
+          <h2>3-қадам. Claude Code кеңейтімін орнатыңыз</h2>
+          <p>
+            Кеңейтім — редакторға қосылатын «қондырма». Бізге тек біреуі керек: <strong>Claude Code</strong>.
+            Ол ЖИ-көмекшіні тікелей VS Code терезесіне қосады.
+          </p>
+
+          <figure class="guide-figure">
+            <img src="/kk/blog/guide-extension.svg" alt="VS Code-тағы кеңейтімдер панелі: Claude Code-ты іздеп, Install батырмасын басамыз" />
+            <figcaption>Extensions панелі → «Claude Code» деп іздеу → Install батырмасы</figcaption>
+          </figure>
+
+          <div class="guide-steps">
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Кеңейтімдер панелін ашыңыз</h3>
+                <p>VS Code-тың сол жағынан төрт шаршыдан тұратын белгішені (Extensions) табыңыз.
+                Оны Mac-та <em>Cmd+Shift+X</em>, Windows-та <em>Ctrl+Shift+X</em> пернелерімен де ашуға болады.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Claude Code-ты табыңыз</h3>
+                <p>Іздеу жолына <strong>Claude Code</strong> деп теріңіз. Сізге Anthropic шығарған кеңейтім керек.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Install батырмасын басыңыз</h3>
+                <p>Орнату аяқталғанша күтіңіз. Басқа ештеңе орнатудың қажеті жоқ —
+                Claude кодты пішімдеуді, қателерді табуды және өзгерістерді сақтауды өзі біледі.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="guide-note warn">
+            <span class="guide-note-icon">⚠️</span>
+            <p><strong>Артық ештеңе орнатпаңыз.</strong> Жаңадан бастаған адам ондаған кеңейтімнің арасында оңай адасып қалады.
+            Бастау үшін бір ғана Claude Code жеткілікті — қалғаны тек шатастырады.</p>
+          </div>
+
+          <h2>4-қадам. Claude-қа кіріп, жазылымды рәсімдеңіз</h2>
+          <p>
+            Көмекші жұмыс істеуі үшін Claude аккаунты мен Pro жазылымы керек.
+          </p>
+
+          <div class="guide-steps">
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Claude аккаунтын ашыңыз</h3>
+                <p><strong>claude.ai</strong> сайтына өтіп, сол Gmail-мен <strong>Google арқылы</strong> кіріңіз.
+                Бөлек құпиясөз ойлап табудың қажеті жоқ.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Claude Pro жазылымын рәсімдеңіз</h3>
+                <p><strong>claude.ai/upgrade</strong> бетінде Pro тарифін таңдаңыз (айына шамамен 20 $).
+                Claude Code-пен толыққанды жұмыс істеуге тегін тариф жетпейді.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-body">
+                <h3>Claude Code-ты аккаунтқа қосыңыз</h3>
+                <p>VS Code-қа оралыңыз, Claude Code панелін (сол жақтағы ұшқын белгішесі)
+                ашып, «Sign in» (Кіру) батырмасын басыңыз. Браузер ашылады — сол Claude аккаунтымен кіруді растаңыз.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="guide-note tip">
+            <span class="guide-note-icon">💳</span>
+            <p><strong>Қазақстаннан төлеу.</strong> Kaspi мен Halyk карталарымен тікелей төлем
+            көбіне өтпейді. Әдетте виртуалды долларлық карта ашып (мысалы, Wise),
+            оны Kaspi арқылы толтырады — бұл толықтай заңды тәсіл.</p>
+          </div>
+
+          <h2>5-қадам. Claude-қа алғашқы тапсырма беріңіз</h2>
+          <p>
+            Бәрі дайын. Енді ең қызығы: Claude-тан қарапайым сөзбен бірдеңе
+            жасап беруін сұраңыз.
+          </p>
+
+          <figure class="guide-figure">
+            <img src="/kk/blog/guide-claude-chat.svg" alt="VS Code-тағы Claude Code панелі: пайдаланушы тапсырманы сөзбен жазады, Claude файлдарды жасағанын айтады" />
+            <figcaption>Claude Code панелі: тапсырманы сөзбен жазасыз — ол файлдарды жасайды</figcaption>
+          </figure>
+
+          <div class="guide-say">
+            <span class="guide-say-label">✦ Claude-қа жазамыз</span>
+            <p>Мен туралы қарапайым визитка-бет жаса: атым, мамандығым және «маған жазу» батырмасы болсын. Содан кейін оны браузерде қалай ашуды көрсет.</p>
+          </div>
+
+          <p>
+            Claude керек файлдарды жасап, алдын ала қарауды қалай ашуға болатынын айтады. Бірдеңені
+            өзгерткіңіз келсе, келесі хабарламада соны жаза салыңыз, мысалы:
+          </p>
+
+          <div class="guide-say">
+            <span class="guide-say-label">✦ Claude-қа жазамыз</span>
+            <p>Фонды қараңғы, ал батырманы күлгін әрі үлкенірек етіп жаса.</p>
+          </div>
+
+          <p>
+            Нәтиже ұнаса, оны GitHub бұлтына сақтауды сұраңыз:
+          </p>
+
+          <div class="guide-say">
+            <span class="guide-say-label">✦ Claude-қа жазамыз</span>
+            <p>Жобаны сақтап, түсінікті сипаттамасымен менің GitHub-ыма жүкте.</p>
+          </div>
+
+          <div class="guide-note tip">
+            <span class="guide-note-icon">🗣️</span>
+            <p><strong>Басты қағида.</strong> «Ақымақ» сұрақтардан және күнделікті қарапайым тілден қорықпаңыз.
+            Claude дәл сол үшін керек: сіз тапсырманы сөзбен айтасыз, ол оны кодқа айналдырып,
+            не істегенін түсіндіреді.</p>
+          </div>
+
+          <h2>Қысқа чек-лист</h2>
+          <p>Осы тізімді тексеріп шығыңыз — барлық тармаққа белгі қойылса, жұмысқа дайынсыз.</p>
+          <ul class="guide-checklist">
+            <li>Google поштасы (Gmail) бар</li>
+            <li>Осы Gmail арқылы GitHub-та аккаунт ашылды</li>
+            <li>VS Code орнатылды (Mac немесе Windows)</li>
+            <li>Claude Code кеңейтімі орнатылды — тек сол ғана</li>
+            <li>Claude Pro жазылымы рәсімделіп, аккаунтқа кіру орындалды</li>
+            <li>Claude сөзбен жазылған алғашқы тапсырманы орындады</li>
+          </ul>
+        </article>
+      </main>
+
+      <footer class="blog-footer">
+        <a href="/kk/">← Басты бетке</a>
+        <span>© 2026 AI Research Labs</span>
+      </footer>
+    </div>
+
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var KEY = 'airl-blog-theme';
+        function apply(t) {
+          root.setAttribute('data-theme', t);
+          var b = document.getElementById('themeToggle');
+          if (b) b.textContent = t === 'light' ? '🌙' : '☀️';
+        }
+        apply(localStorage.getItem(KEY) || 'dark');
+        document.addEventListener('DOMContentLoaded', function () {
+          apply(localStorage.getItem(KEY) || 'dark');
+          document.getElementById('themeToggle').addEventListener('click', function () {
+            var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            localStorage.setItem(KEY, next);
+            apply(next);
+          });
+        });
+      })();
+    </script>
+
+        <script src="/firebase-bridge.js?v=27"></script>
+    <script src="/internal-tasks.js?v=24" defer></script>
+    <script src="/airl-lead.js?v=29" defer
+            data-project="landing-page-8e314"
+            data-key="AIzaSyDNSjN6mF5R5tVqrVtXeuOu3q6UtUdS39o"
+            data-whatsapp="77072212930"
+            data-diagnostics="/diagnostics"></script>
+  </body>
+</html>

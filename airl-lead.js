@@ -31,7 +31,97 @@
     collection: (s && s.dataset.collection) || "leads"
   };
 
-  var TRIGGER_TEXT = /оставить\s+заявку|заявка|тапсырыс|leave\s+a\s+request/i;
+  var TRIGGER_TEXT = /оставить\s+заявку|заявка|өтінім|тапсырыс|submit\s+a\s+request|leave\s+a\s+request/i;
+
+  /* Тексты формы на языке страницы (lang-switch.js кладёт его в AIRL_LANG).
+     Уведомление менеджерам в Telegram остаётся на русском. */
+  var LANG = window.AIRL_LANG || "ru";
+  var T = {
+    ru: {
+      title: "Оставить заявку",
+      close: "Закрыть",
+      sub: "Заполните пять полей. Мы свяжемся в WhatsApp, договоримся о созвоне " +
+           "и выдадим код группы для диагностики.",
+      company: "Компания", companyPh: "Название компании",
+      name: "Как к вам обращаться", namePh: "Ваше имя",
+      phone: "WhatsApp или телефон",
+      size: "Сколько человек в команде",
+      wish: "Что хотите изменить",
+      wishPh: "Например: много ручной отчётности, менеджеры тонут в WhatsApp",
+      send: "Отправить заявку", sending: "Отправляем…",
+      haveCode: "Уже есть код группы?", diag: "Пройти диагностику",
+      errCompany: "Напишите название компании", errName: "Напишите имя",
+      errPhone: "Проверьте номер — нужно не меньше 10 цифр",
+      errSend: "Не получилось отправить.", errWa: " Или напишите нам в WhatsApp: +",
+      okTitle: "Заявка принята",
+      okText: function (name) {
+        return (name ? name + ", мы" : "Мы") + " пришлём в WhatsApp ссылку на диагностику с кодом " +
+               "вашей группы и свяжемся в течение рабочего дня.";
+      },
+      steps: [
+        "Созвон 20 минут. Разберём, что у вас происходит, и договоримся о формате.",
+        "Ссылка на экспресс-диагностику в WhatsApp: 8 вопросов, около 5 минут.",
+        "Присылаем разбор: уровень AI-зрелости, главные боли и первые шаги."
+      ],
+      ok: "Понятно"
+    },
+    kk: {
+      title: "Өтінім қалдыру",
+      close: "Жабу",
+      sub: "Бес жолды толтырыңыз. Біз WhatsApp арқылы хабарласып, қоңырау уақытын " +
+           "келісеміз және диагностикаға арналған топ кодын береміз.",
+      company: "Компания", companyPh: "Компания атауы",
+      name: "Сізге қалай жүгінейік", namePh: "Атыңыз",
+      phone: "WhatsApp немесе телефон",
+      size: "Командада неше адам бар",
+      wish: "Нені өзгерткіңіз келеді",
+      wishPh: "Мысалы: қолмен жасалатын есептер көп, менеджерлер WhatsApp-қа батып жүр",
+      send: "Өтінімді жіберу", sending: "Жіберіп жатырмыз…",
+      haveCode: "Топ коды бар ма?", diag: "Диагностикадан өту",
+      errCompany: "Компания атауын жазыңыз", errName: "Атыңызды жазыңыз",
+      errPhone: "Нөмірді тексеріңіз — кемінде 10 цифр болуы керек",
+      errSend: "Жіберу мүмкін болмады.", errWa: " Немесе бізге WhatsApp-қа жазыңыз: +",
+      okTitle: "Өтінім қабылданды",
+      okText: function (name) {
+        return (name ? name + ", біз" : "Біз") + " WhatsApp-қа топ коды бар диагностика сілтемесін " +
+               "жіберіп, бір жұмыс күні ішінде хабарласамыз.";
+      },
+      steps: [
+        "20 минуттық қоңырау. Жағдайыңызды талқылап, оқыту форматын келісеміз.",
+        "WhatsApp-қа экспресс-диагностика сілтемесі: 8 сұрақ, шамамен 5 минут.",
+        "Талдау жібереміз: ЖИ-жетілу деңгейі, негізгі қиындықтар және алғашқы қадамдар."
+      ],
+      ok: "Түсінікті"
+    },
+    en: {
+      title: "Submit a request",
+      close: "Close",
+      sub: "Fill in five fields. We'll reach out on WhatsApp, schedule a call " +
+           "and give you a group code for the assessment.",
+      company: "Company", companyPh: "Company name",
+      name: "Your name", namePh: "How should we address you?",
+      phone: "WhatsApp or phone",
+      size: "Team size",
+      wish: "What would you like to change?",
+      wishPh: "For example: too much manual reporting, managers drowning in WhatsApp",
+      send: "Send request", sending: "Sending…",
+      haveCode: "Already have a group code?", diag: "Take the assessment",
+      errCompany: "Please enter your company name", errName: "Please enter your name",
+      errPhone: "Please check the number — it needs at least 10 digits",
+      errSend: "Something went wrong.", errWa: " You can also message us on WhatsApp: +",
+      okTitle: "Request received",
+      okText: function (name) {
+        return (name ? name + ", we'll" : "We'll") + " send you a WhatsApp link to the assessment with " +
+               "your group code and get in touch within one business day.";
+      },
+      steps: [
+        "A 20-minute call to understand where you are and agree on the format.",
+        "A WhatsApp link to the express assessment: 8 questions, about 5 minutes.",
+        "Your results: AI maturity level, key pain points and first steps."
+      ],
+      ok: "Got it"
+    }
+  }[LANG];
 
   var CSS = [
     ':host{all:initial}',
@@ -241,25 +331,23 @@
     root.appendChild(style);
 
     var card = el("div", { "class": "card", role: "dialog", "aria-modal": "true",
-      "aria-label": "Оставить заявку" });
+      "aria-label": T.title });
     var wrap = el("div", { "class": "wrap" }, [card]);
     root.appendChild(wrap);
 
     var head = el("div");
     var top = el("div", { "class": "top" });
-    top.appendChild(el("h2", { text: "Оставить заявку" }));
-    var x = el("button", { "class": "x", "aria-label": "Закрыть", text: "×" });
+    top.appendChild(el("h2", { text: T.title }));
+    var x = el("button", { "class": "x", "aria-label": T.close, text: "×" });
     x.addEventListener("click", close);
     top.appendChild(x);
     head.appendChild(top);
-    head.appendChild(el("div", { "class": "sub",
-      text: "Заполните пять полей. Мы свяжемся в WhatsApp, договоримся о созвоне " +
-            "и выдадим код группы для диагностики." }));
+    head.appendChild(el("div", { "class": "sub", text: T.sub }));
 
     var form = el("form", { novalidate: "" });
-    form.appendChild(field("Компания", "company", { placeholder: "Название компании" }));
-    form.appendChild(field("Как к вам обращаться", "name", { placeholder: "Ваше имя" }));
-    var phoneWrap = field("WhatsApp или телефон", "phone", {
+    form.appendChild(field(T.company, "company", { placeholder: T.companyPh }));
+    form.appendChild(field(T.name, "name", { placeholder: T.namePh }));
+    var phoneWrap = field(T.phone, "phone", {
       type: "tel", placeholder: "+7 (700) 000 00 00", autocomplete: "tel", maxlength: "18"
     });
     form.appendChild(phoneWrap);
@@ -286,18 +374,18 @@
       phoneInput.setSelectionRange(newCaret, newCaret);
       lastPhone = phoneInput.value;
     });
-    form.appendChild(field("Сколько человек в команде", "team_size",
+    form.appendChild(field(T.size, "team_size",
       { tag: "select", options: SIZES }));
-    form.appendChild(field("Что хотите изменить", "wish",
-      { tag: "textarea", placeholder: "Например: много ручной отчётности, менеджеры тонут в WhatsApp" }));
+    form.appendChild(field(T.wish, "wish",
+      { tag: "textarea", placeholder: T.wishPh }));
 
-    var go = el("button", { "class": "go", type: "submit", text: "Отправить заявку" });
+    var go = el("button", { "class": "go", type: "submit", text: T.send });
     form.appendChild(go);
     form.appendChild(el("div", { "class": "err", "data-err": "form" }));
 
     var note = el("div", { "class": "note" });
-    note.appendChild(el("p", { text: "Уже есть код группы?" }));
-    note.appendChild(el("a", { href: CFG.diagnostics, text: "Пройти диагностику" }));
+    note.appendChild(el("p", { text: T.haveCode }));
+    note.appendChild(el("a", { href: CFG.diagnostics, text: T.diag }));
     form.appendChild(note);
 
     card.appendChild(head);
@@ -323,16 +411,18 @@
       ["company", "name", "phone", "form"].forEach(function (k) { showErr(k, ""); });
 
       var bad = false;
-      if (data.company.length < 2) { showErr("company", "Напишите название компании"); bad = true; }
-      if (data.name.length < 2) { showErr("name", "Напишите имя"); bad = true; }
+      if (data.company.length < 2) { showErr("company", T.errCompany); bad = true; }
+      if (data.name.length < 2) { showErr("name", T.errName); bad = true; }
       if (data.phone.replace(/\D/g, "").length < 10) {
-        showErr("phone", "Проверьте номер — нужно не меньше 10 цифр"); bad = true;
+        showErr("phone", T.errPhone); bad = true;
       }
       if (bad) return;
 
       go.disabled = true;
-      go.textContent = "Отправляем…";
+      go.textContent = T.sending;
 
+      // Язык виден по пути (/kk/…, /en/…): отдельного поля нет, правила
+      // Firestore пропускают только перечисленные поля заявки.
       data.source = location.pathname;
       // Откуда пришёл посетитель (airl-attr.js) — для статистики лидов.
       var attr = window.AIRL_ATTR ? window.AIRL_ATTR() : {};
@@ -351,17 +441,16 @@
             "Телефон: " + data.phone + "\n" +
             "Команда: " + data.team_size +
             (data.wish ? "\nЧто хотят изменить: " + data.wish : "") +
-            "\nСтраница: " + data.source
+            "\nСтраница: " + data.source +
+            (LANG !== "ru" ? "\nЯзык сайта: " + { kk: "казахский", en: "английский" }[LANG] : "")
           );
         }
         success(data.name);
       }).catch(function (err) {
         go.disabled = false;
-        go.textContent = "Отправить заявку";
-        var wa = CFG.whatsapp
-          ? " Или напишите нам в WhatsApp: +" + CFG.whatsapp
-          : "";
-        showErr("form", "Не получилось отправить." + wa + " (" + err.message + ")");
+        go.textContent = T.send;
+        var wa = CFG.whatsapp ? T.errWa + CFG.whatsapp : "";
+        showErr("form", T.errSend + wa + " (" + err.message + ")");
       });
     });
 
@@ -369,17 +458,11 @@
       card.textContent = "";
       var ok = el("div", { "class": "ok" });
       ok.appendChild(el("div", { "class": "mark", text: "✓" }));
-      ok.appendChild(el("h2", { text: "Заявка принята" }));
-      ok.appendChild(el("div", { "class": "sub",
-        text: (name ? name + ", мы" : "Мы") + " пришлём в WhatsApp ссылку на диагностику с кодом вашей группы и свяжемся " +
-              "в течение рабочего дня." }));
+      ok.appendChild(el("h2", { text: T.okTitle }));
+      ok.appendChild(el("div", { "class": "sub", text: T.okText(name) }));
 
       var steps = el("div", { "class": "steps" });
-      [
-        ["01", "Созвон 20 минут. Разберём, что у вас происходит, и договоримся о формате."],
-        ["02", "Ссылка на экспресс-диагностику в WhatsApp: 8 вопросов, около 5 минут."],
-        ["03", "Присылаем разбор: уровень AI-зрелости, главные боли и первые шаги."]
-      ].forEach(function (row) {
+      T.steps.map(function (text, i) { return ["0" + (i + 1), text]; }).forEach(function (row) {
         var d = el("div");
         d.appendChild(el("span", { text: row[0] }));
         d.appendChild(el("div", { text: row[1] }));
@@ -387,7 +470,7 @@
       });
       ok.appendChild(steps);
 
-      var b = el("button", { "class": "go", text: "Понятно" });
+      var b = el("button", { "class": "go", text: T.ok });
       b.addEventListener("click", close);
       ok.appendChild(b);
       card.appendChild(ok);
