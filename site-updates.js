@@ -443,6 +443,60 @@
     });
   }
 
+  // Секция «Наши партнёры» после мероприятий: бесконечная лента логотипов.
+  const PARTNERS = [
+    { name: 'Kaizen Center', logo: '/partner-kaizen.png' },
+    { name: 'Astana IT University', logo: '/partner-aitu.png' },
+    { name: 'Yassa Education', logo: '/partner-yassa.png' },
+  ];
+  const PARTNERS_UI = {
+    ru: {
+      eyebrow: 'Партнёры',
+      title: 'Наши партнёры',
+      subtitle: 'Организации, с которыми мы вместе развиваем прикладной ИИ в Казахстане',
+    },
+    kk: {
+      eyebrow: 'Серіктестер',
+      title: 'Біздің серіктестер',
+      subtitle: 'Қазақстанда қолданбалы жасанды интеллектті бірге дамытып жүрген ұйымдар',
+    },
+    en: {
+      eyebrow: 'Partners',
+      title: 'Our partners',
+      subtitle: 'Organizations we work with to advance applied AI in Kazakhstan',
+    },
+  }[LANG];
+
+  function buildPartnersSection() {
+    const events = document.getElementById('events');
+    if (!events || document.getElementById('partners')) return;
+
+    // Логотипов мало, поэтому в одной половине ленты они повторяются,
+    // чтобы она была шире любого экрана. Вторая половина — копия первой:
+    // сдвиг на -50% зацикливается без шва. Читалкам экрана — только первый набор.
+    const REPEAT = 4;
+    const card = (p, hidden) =>
+      `<li class="partners-card"${hidden ? ' aria-hidden="true"' : ''}>` +
+      `<img src="${p.logo}" alt="${hidden ? '' : p.name}" loading="lazy" decoding="async" /></li>`;
+    const half = (copy) =>
+      Array.from({ length: REPEAT }, (_, r) => PARTNERS.map((p) => card(p, copy || r > 0)).join('')).join('');
+
+    const section = document.createElement('section');
+    section.id = 'partners';
+    section.className = 'partners-section';
+    section.innerHTML = `
+      <div class="partners-head">
+        <span class="partners-eyebrow">${PARTNERS_UI.eyebrow}</span>
+        <h2 class="partners-title">${PARTNERS_UI.title}</h2>
+        <p class="partners-subtitle">${PARTNERS_UI.subtitle}</p>
+      </div>
+      <div class="partners-marquee">
+        <ul class="partners-track" aria-label="${PARTNERS_UI.title}">${half(false)}${half(true)}</ul>
+      </div>
+    `;
+    events.after(section);
+  }
+
   function swapBrandLogos() {
     const targets = [
       document.querySelector('.header .logo'),
@@ -474,6 +528,7 @@
     removeHomeBlogSection();
     fixBlogNavLinks();
     fixEventTags();
+    buildPartnersSection();
     rebuildForWhomSection();
     rebuildTeamSection();
     bindLeadersButton();
