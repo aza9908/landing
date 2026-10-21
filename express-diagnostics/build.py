@@ -34,7 +34,7 @@ rep('var CFG = { whatsapp: "77072314955", lead: "https://airl.kz/", askContact: 
     '// storeInFirestore:true — результат пишется в Firestore express_diagnostics (правила разрешают только create), отсюда его читает статистика лидов stats.html.\n'
     '// showReportToClient:false — клиент видит только экран «Спасибо», полный разбор приходит от менеджера. Команда видит всё по адресу #airl-team.\n'
     '// communityChat — ссылка на единый чат участников (Telegram/WhatsApp): появится кнопка на экране «Спасибо».\n'
-    '// Уведомления менеджеру и Firestore берутся из firebase-bridge.js лендинга airl.kz (window.AIRL_notifyTelegram, window.AIRL_TELEGRAM, window.AIRL_FIREBASE_CONFIG) — ключей здесь нет.')
+    '// Уведомления менеджеру и Firestore берутся из firebase-bridge.js лендинга airl.kz (window.AIRL_TELEGRAM_AGENT, window.AIRL_FIREBASE_CONFIG) — ключей здесь нет.')
 
 # 2. доставка разбора менеджеру: Telegram (сводка + документ HTML) и Firestore
 rep('function applyCapsToResult(){', '''function tgMessage(a, r){

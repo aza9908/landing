@@ -268,7 +268,7 @@ exports.interview = onRequest(OPTIONS_PUBLIC, async (req, res) => {
         // Без имени и должности сотрудника — только код группы и
         // направление, этого достаточно, чтобы понять, что анкета
         // закрыта, не раскрывая, кто именно её заполнил.
-        await notifyTelegram(`✅ Анкета заполнена\nКод группы: ${code}\nНаправление: ${department}`);
+        await notifyTelegram("tasks", `✅ Анкета заполнена\nКод группы: ${code}\nНаправление: ${department}`);
         responseBody = { reply: turn.reply, done: true, step: 9, suggestions: [] };
       } catch (e) {
         // Модель посчитала разговор законченным, но данные неполные —
@@ -337,6 +337,7 @@ exports.onLeadCreated = onDocumentCreated(
             encodeURIComponent(group.whatsapp_message))}">Отправить клиенту ссылку и код в WhatsApp</a>`
         : "";
       await notifyTelegram(
+        "leads",
         `🆕 Заявка → код выдан автоматически\n` +
         `Компания: ${escapeHtml(group.company)}\nИмя: ${escapeHtml(lead.name || "—")}\n` +
         `Телефон: ${escapeHtml(lead.phone || "—")}\n` +

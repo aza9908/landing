@@ -11,8 +11,8 @@
   - PDF-summary для клиента: балл AI-зрелости, оси, боли, зоны роста, первый
     шаг. Фирменный стиль AIRL (акцент #5B5BCA, шрифт Nunito Sans). Собирается
     в браузере через pdfmake; шрифты лежат рядом, в /express-diagnostics/fonts/.
-  - В Telegram менеджеру (канал агента AIRL_TELEGRAM_AGENT, а пока он не
-    настроен — общий AIRL_TELEGRAM): сводка со ссылкой, которая открывает WhatsApp
+  - В Telegram менеджеру (канал AIRL-diagnostics, AIRL_TELEGRAM_AGENT —
+    туда же идут заявки с сайта): сводка со ссылкой, которая открывает WhatsApp
     с номером клиента и уже набранным абзацем, следом PDF и отчёт менеджера.
     WhatsApp без платного Business API сам писать не умеет, поэтому
     отправляет менеджер, одним нажатием.
@@ -138,11 +138,10 @@ window.AIRLDelivery = (function () {
       return j;
     });
   }
-  // Результаты агента — в свой канал (AIRL_TELEGRAM_AGENT); пока он не
-  // настроен, в общий канал заявок (AIRL_TELEGRAM).
+  // Результаты агента — только в канал AIRL-diagnostics (AIRL_TELEGRAM_AGENT).
+  // Запасного канала нет: во внутренний «Задачи AIRL» диагностика не уходит.
   function tg() {
-    var agent = window.AIRL_TELEGRAM_AGENT || {};
-    var t = agent.botToken && agent.chatId ? agent : (window.AIRL_TELEGRAM || {});
+    var t = window.AIRL_TELEGRAM_AGENT || {};
     if (!t.botToken || !t.chatId) throw new Error("Telegram не настроен в firebase-bridge.js");
     return t;
   }

@@ -25,7 +25,7 @@ service cloud.firestore {
 ```
 Заявки смотрите в Console → Firestore → коллекция `requests`.
 
-## 4. Telegram-канал для задач
-1. Создайте канал, 2) создайте бота через @BotFather,
-3) добавьте бота админом канала,
-4) вставьте botToken и chatId (@имя_канала) в firebase-bridge.js (AIRL_TELEGRAM).
+## 4. Telegram-канал для заявок и диагностики
+Заявки с формы и результаты airl.kz/diagnostics идут в канал «AIRL-diagnostics»
+(t.me/airldiagnostics9089086): botToken и chatId — в firebase-bridge.js (AIRL_TELEGRAM_AGENT)
+и в functions/lib/telegram.js (LEADS). Внутренний канал «Задачи AIRL» (@AIRLtasks) сайт не трогает.

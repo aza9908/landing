@@ -14,25 +14,15 @@ window.AIRL_FIREBASE_CONFIG = {
   measurementId: "G-V0VD438TFZ"
 };
 
-/* Telegram-уведомления для внутренних задач.
-   Когда создадите канал: 1) создайте бота через @BotFather, 2) добавьте бота
-   администратором канала, 3) вставьте токен и @имя_канала ниже. */
-window.AIRL_TELEGRAM = {
-  /* ВНИМАНИЕ: токен бота виден любому посетителю сайта (клиентский код).
-     Если в канале появится спам — отзовите токен через @BotFather (/revoke)
-     и попросите перенести отправку в Cloud Function. */
-  botToken: "8793362793:AAFPq56gfITGyBDn9IZCcWB-MDxnOEaYSls",
-  // Числовой номер канала «Задачи AIRL» (@AIRLtasks): он не меняется, если
-  // канал сделать частным, а имя @AIRLtasks при этом пропадает.
-  chatId: "-1004450740658"
-};
-
-/* Отдельный канал для результатов агента airl.kz/diagnostics (экспресс-
-   диагностика): сводка, PDF для клиента, отчёт менеджера. Заявки с формы
-   и коды групп по-прежнему идут в AIRL_TELEGRAM выше.
-   Если поля очистить, результаты агента снова пойдут в AIRL_TELEGRAM.
-   Токен, как и выше, виден в коде сайта — поэтому боту в канале дайте
-   только право «Публикация сообщений», без удаления и редактирования. */
+/* Единственный Telegram-канал, куда сайт пишет сам: «AIRL-diagnostics»
+   (t.me/airldiagnostics9089086). Сюда идут и заявки с формы airl.kz,
+   и результаты агента airl.kz/diagnostics (сводка, PDF, отчёт менеджера).
+   Внутренний канал «Задачи AIRL» (@AIRLtasks) сайт не трогает: его бота
+   здесь нет, поэтому заявка туда попасть не может.
+   ВНИМАНИЕ: токен бота виден любому посетителю сайта (клиентский код),
+   поэтому боту в канале дайте только право «Публикация сообщений», без
+   удаления и редактирования. Если появится спам — отзовите токен через
+   @BotFather (/revoke) и вставьте новый сюда и в functions/lib/telegram.js. */
 window.AIRL_TELEGRAM_AGENT = {
   botToken: "8711954523:AAEvCtEQ91TUizGNwSc00gNkuHPyXbjMC8s", // @airl9499_bot
   chatId: "-1004358402425"                                     // канал «AIRL-diagnostics»
@@ -147,11 +137,11 @@ window.AIRL_TELEGRAM_AGENT = {
     },
   };
 
-  /* Telegram-уведомление (работает после вставки токена и chatId).
+  /* Уведомление о заявке — в канал AIRL-diagnostics (AIRL_TELEGRAM_AGENT).
      opts.html — текст размечен HTML (ссылки, жирный); всё, что ввёл
      посетитель, вызывающий обязан экранировать сам. */
   window.AIRL_notifyTelegram = function (text, opts) {
-    var t = window.AIRL_TELEGRAM || {};
+    var t = window.AIRL_TELEGRAM_AGENT || {};
     if (!t || !t.botToken || !t.chatId) return Promise.resolve(false);
     var body = { chat_id: t.chatId, text: text };
     if (opts && opts.html) {

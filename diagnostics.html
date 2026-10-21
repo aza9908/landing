@@ -8,7 +8,7 @@
 <meta property="og:description" content="5 минут: где ваша компания теряет на AI прямо сейчас.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%236E56F5%27/%3E%3Ccircle cx=%2724%27 cy=%2734%27 r=%275%27 fill=%27white%27/%3E%3Ccircle cx=%2740%27 cy=%2734%27 r=%275%27 fill=%27white%27/%3E%3C/svg%3E">
 <meta name="robots" content="noindex">
-<script src="https://airl.kz/firebase-bridge.js?v=27"></script>
+<script src="https://airl.kz/firebase-bridge.js?v=28"></script>
 <script src="/airl-attr.js?v=1"></script>
 <title>Экспресс-диагностика AI — AI Research Lab</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1288,7 +1288,7 @@ var CFG = { whatsapp: "77072212930", lead: "https://airl.kz/", askContact: true,
 // storeInFirestore:true — результат пишется в Firestore express_diagnostics (правила разрешают только create), отсюда его читает статистика лидов stats.html.
 // showReportToClient:false — клиент видит только экран «Спасибо», полный разбор приходит от менеджера. Команда видит всё по адресу #airl-team.
 // communityChat — ссылка на единый чат участников (Telegram/WhatsApp): появится кнопка на экране «Спасибо».
-// Уведомления менеджеру и Firestore берутся из firebase-bridge.js лендинга airl.kz (window.AIRL_notifyTelegram, window.AIRL_TELEGRAM, window.AIRL_FIREBASE_CONFIG) — ключей здесь нет.
+// Уведомления менеджеру и Firestore берутся из firebase-bridge.js лендинга airl.kz (window.AIRL_TELEGRAM_AGENT, window.AIRL_FIREBASE_CONFIG) — ключей здесь нет.
 var CONTACT_STEP = { id: "contact", type: "text", short: "Контакт", contact: true, ask: "Последний шаг: куда менеджеру прислать разбор? Напишите номер WhatsApp или ник в Telegram.", placeholder: "+7 700 000 00 00 или @username", min: 5, max: 60 };
 var R = window.ExpressReport, V = window.Voice;
 var STEPS = R.INTRO.concat(R.QUESTIONS, CFG.askContact ? [CONTACT_STEP] : []);
@@ -1732,8 +1732,8 @@ $("restart").addEventListener("click", function(){ V.tts.cancel(); V.stt.stop();
   - PDF-summary для клиента: балл AI-зрелости, оси, боли, зоны роста, первый
     шаг. Фирменный стиль AIRL (акцент #5B5BCA, шрифт Nunito Sans). Собирается
     в браузере через pdfmake; шрифты лежат рядом, в /express-diagnostics/fonts/.
-  - В Telegram менеджеру (канал агента AIRL_TELEGRAM_AGENT, а пока он не
-    настроен — общий AIRL_TELEGRAM): сводка со ссылкой, которая открывает WhatsApp
+  - В Telegram менеджеру (канал AIRL-diagnostics, AIRL_TELEGRAM_AGENT —
+    туда же идут заявки с сайта): сводка со ссылкой, которая открывает WhatsApp
     с номером клиента и уже набранным абзацем, следом PDF и отчёт менеджера.
     WhatsApp без платного Business API сам писать не умеет, поэтому
     отправляет менеджер, одним нажатием.
@@ -1859,11 +1859,10 @@ window.AIRLDelivery = (function () {
       return j;
     });
   }
-  // Результаты агента — в свой канал (AIRL_TELEGRAM_AGENT); пока он не
-  // настроен, в общий канал заявок (AIRL_TELEGRAM).
+  // Результаты агента — только в канал AIRL-diagnostics (AIRL_TELEGRAM_AGENT).
+  // Запасного канала нет: во внутренний «Задачи AIRL» диагностика не уходит.
   function tg() {
-    var agent = window.AIRL_TELEGRAM_AGENT || {};
-    var t = agent.botToken && agent.chatId ? agent : (window.AIRL_TELEGRAM || {});
+    var t = window.AIRL_TELEGRAM_AGENT || {};
     if (!t.botToken || !t.chatId) throw new Error("Telegram не настроен в firebase-bridge.js");
     return t;
   }

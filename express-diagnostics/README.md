@@ -25,7 +25,7 @@ python3 express-diagnostics/build.py
 ## После диагностики
 
 Клиент видит экран «Спасибо», результат приходит от менеджера. В Telegram-канал
-(`AIRL_TELEGRAM` из `/firebase-bridge.js`) уходят по очереди:
+«AIRL-diagnostics» (`AIRL_TELEGRAM_AGENT` из `/firebase-bridge.js`) уходят по очереди:
 
 1. Сводка для менеджера, код группы и ссылка «Отправить клиенту разбор в WhatsApp». Она
    открывает чат с номером, который клиент оставил на последнем шаге, и уже набранным
@@ -64,8 +64,9 @@ firebase deploy --only hosting --config express-diagnostics/airl-express-redirec
 
 ## Канал Telegram для агента
 
-Результаты бота уходят в `AIRL_TELEGRAM_AGENT` из `/firebase-bridge.js`, а пока он пустой —
-в общий канал заявок `AIRL_TELEGRAM`. Заявки с формы и коды групп остаются в общем канале.
+Результаты бота уходят только в `AIRL_TELEGRAM_AGENT` из `/firebase-bridge.js` — канал
+«AIRL-diagnostics» (t.me/airldiagnostics9089086). Туда же идут заявки с формы airl.kz и коды
+групп. Во внутренний канал «Задачи AIRL» (@AIRLtasks) ни заявки, ни диагностика не попадают.
 
 ## Статистика
 
