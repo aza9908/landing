@@ -268,7 +268,7 @@ exports.interview = onRequest(OPTIONS_PUBLIC, async (req, res) => {
         // Без имени и должности сотрудника — только код группы и
         // направление, этого достаточно, чтобы понять, что анкета
         // закрыта, не раскрывая, кто именно её заполнил.
-        await notifyTelegram("tasks", `✅ Анкета заполнена\nКод группы: ${code}\nНаправление: ${department}`);
+        await notifyTelegram("leads", `✅ Анкета заполнена\nКод группы: ${code}\nНаправление: ${department}`);
         responseBody = { reply: turn.reply, done: true, step: 9, suggestions: [] };
       } catch (e) {
         // Модель посчитала разговор законченным, но данные неполные —
