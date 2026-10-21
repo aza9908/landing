@@ -1416,6 +1416,10 @@ body.m-menu-lock { overflow: hidden; }
   object-fit: contain;
   transition: transform .35s cubic-bezier(.2, .7, .2, 1);
 }
+/* Широкий логотип (МГУ) в обычной карточке выходит мелким — даём ей место. */
+.partners-card--wide { width: 400px; }
+/* Плотный тёмный знак (Q.ai) визуально крупнее остальных — чуть уменьшаем. */
+.partners-card--small img { max-height: 60px; }
 
 @media (hover: hover) {
   .partners-card:hover {
@@ -1440,6 +1444,8 @@ body.m-menu-lock { overflow: hidden; }
   }
   .partners-card { width: 200px; height: 108px; padding: 20px 26px; border-radius: 18px; }
   .partners-card img { max-height: 60px; }
+  .partners-card--wide { width: 290px; }
+  .partners-card--small img { max-height: 44px; }
 }
 
 /* Без анимации — три логотипа по центру, повторы скрыты */

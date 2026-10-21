@@ -448,6 +448,16 @@
     { name: 'Kaizen Center', logo: '/partner-kaizen.png' },
     { name: 'Astana IT University', logo: '/partner-aitu.png' },
     { name: 'Yassa Education', logo: '/partner-yassa.png' },
+    { name: 'Q.ai', logo: '/partner-qai.png', small: true },
+    {
+      name: {
+        ru: 'Казахстанский филиал МГУ имени М. В. Ломоносова',
+        kk: 'М. В. Ломоносов атындағы ММУ Қазақстан филиалы',
+        en: 'Lomonosov Moscow State University, Kazakhstan Branch',
+      },
+      logo: '/partner-mgu.png',
+      wide: true,
+    },
   ];
   const PARTNERS_UI = {
     ru: {
@@ -476,8 +486,9 @@
     // сдвиг на -50% зацикливается без шва. Читалкам экрана — только первый набор.
     const REPEAT = 4;
     const card = (p, hidden) =>
-      `<li class="partners-card"${hidden ? ' aria-hidden="true"' : ''}>` +
-      `<img src="${p.logo}" alt="${hidden ? '' : p.name}" loading="lazy" decoding="async" /></li>`;
+      `<li class="partners-card${p.wide ? ' partners-card--wide' : ''}${p.small ? ' partners-card--small' : ''}"` +
+      `${hidden ? ' aria-hidden="true"' : ''}>` +
+      `<img src="${p.logo}" alt="${hidden ? '' : (p.name[LANG] || p.name)}" loading="lazy" decoding="async" /></li>`;
     const half = (copy) =>
       Array.from({ length: REPEAT }, (_, r) => PARTNERS.map((p) => card(p, copy || r > 0)).join('')).join('');
 
