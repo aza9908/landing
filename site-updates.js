@@ -443,7 +443,7 @@
     });
   }
 
-  // Секция «Наши партнёры» после мероприятий: бесконечная лента логотипов.
+  // Секция «Наши партнёры» сразу под первым экраном: бесконечная лента логотипов.
   const PARTNERS = [
     { name: 'Kaizen Center', logo: '/partner-kaizen.png' },
     { name: 'Astana IT University', logo: '/partner-aitu.png' },
@@ -478,8 +478,8 @@
   }[LANG];
 
   function buildPartnersSection() {
-    const events = document.getElementById('events');
-    if (!events || document.getElementById('partners')) return;
+    const hero = document.querySelector('.hero-page');
+    if (!hero || document.getElementById('partners')) return;
 
     // Логотипов мало, поэтому в одной половине ленты они повторяются,
     // чтобы она была шире любого экрана. Вторая половина — копия первой:
@@ -505,7 +505,7 @@
         <ul class="partners-track" aria-label="${PARTNERS_UI.title}">${half(false)}${half(true)}</ul>
       </div>
     `;
-    events.after(section);
+    hero.after(section);
   }
 
   function swapBrandLogos() {

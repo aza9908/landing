@@ -1320,7 +1320,7 @@ body.m-menu-lock { overflow: hidden; }
    ══════════════════════════════════════ */
 .partners-section {
   background: #e8e8f2;
-  padding: 104px 0 112px;
+  padding: 64px 0 104px;
   overflow: hidden;
 }
 
@@ -1430,7 +1430,7 @@ body.m-menu-lock { overflow: hidden; }
 }
 
 @media (max-width: 768px) {
-  .partners-section { padding: 64px 0 72px; }
+  .partners-section { padding: 40px 0 64px; }
   .partners-head { margin-bottom: 36px; padding: 0 16px; }
   .partners-eyebrow { font-size: 12px; gap: 10px; }
   .partners-eyebrow::before,
