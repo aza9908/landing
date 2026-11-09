@@ -53,7 +53,11 @@
         sessionStorage.removeItem('airl_wa_link');
       } catch (e) {}
       if (!link) return;
-      document.getElementById('thank-wa').href = link;
+      var button = document.getElementById('thank-wa');
+      button.href = link;
+      // При автопереходе кнопка не нужна; покажем её, только если WhatsApp не открылся
+      button.style.display = 'none';
+      setTimeout(function () { button.style.display = ''; }, 5000);
       document.getElementById('thank-text').textContent =
         'Сейчас откроется WhatsApp — отправьте сообщение менеджеру, и он ответит вам.';
       if (window.fbq) fbq('track', 'Lead');
