@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Спасибо! Заявка принята — AI Research Labs</title>
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#17162b" />
+    <link rel="icon" type="image/png" href="/ai-for-work/workshop/favicon.png" />
+    <link rel="stylesheet" crossorigin href="/ai-for-work/workshop/assets/index-C9v190lA.css">
+    <style>
+      body { margin: 0; background: var(--dark); }
+      .thank { min-height: 100vh; min-height: 100dvh; box-sizing: border-box; display: flex; align-items: center; justify-content: center; padding: 16px; }
+      .thank__card { width: 100%; max-width: 440px; box-sizing: border-box; padding: 32px 24px; background: var(--bg); border-radius: var(--radius); }
+      .thank__card .link-btn { display: inline-block; margin-top: 16px; text-decoration: none; }
+    </style>
+
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1677800013871546');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1677800013871546&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
+  </head>
+  <body>
+    <main class="thank">
+      <div class="thank__card lead-done">
+        <div class="lead-done__icon" aria-hidden="true">✓</div>
+        <h1 id="thank-title">Спасибо! Заявка принята</h1>
+        <p id="thank-text">Менеджер свяжется с вами в WhatsApp.</p>
+        <a class="btn btn--lg btn--block" id="thank-wa" href="https://wa.me/77072314955">Написать в WhatsApp</a>
+        <a class="link-btn" href="/ai-for-work/workshop/">Вернуться на страницу</a>
+      </div>
+    </main>
+    <script>
+    // Форма кладёт сюда ссылку на WhatsApp с данными заявки: в адрес страницы их не выносим,
+    // чтобы имя и телефон не уходили в пиксель. Нет ссылки — зашли не из формы: без Lead и перехода.
+    (function () {
+      var link = null;
+      try {
+        link = sessionStorage.getItem('airl_wa_link');
+        sessionStorage.removeItem('airl_wa_link');
+      } catch (e) {}
+      if (!link) return;
+      document.getElementById('thank-wa').href = link;
+      document.getElementById('thank-text').textContent =
+        'Сейчас откроется WhatsApp — отправьте сообщение менеджеру, и он ответит вам.';
+      if (window.fbq) fbq('track', 'Lead');
+      setTimeout(function () { window.location.href = link; }, 1500);
+    })();
+    </script>
+  </body>
+</html>
