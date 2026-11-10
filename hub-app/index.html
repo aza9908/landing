@@ -50,7 +50,8 @@ section{scroll-margin-top:84px}
 .nav a{flex:none;text-decoration:none;font-size:14px;font-weight:500;color:var(--ink2);padding:9px 16px;border-radius:22px;white-space:nowrap;transition:background .15s,color .15s}
 .nav a:hover{background:var(--soft)}
 .nav a.on{background:var(--ink);color:#fff}
-.groups{display:grid;gap:16px;align-content:stretch}
+.groups{display:grid;gap:16px;grid-template-rows:1fr 1fr}
+.groups>div{display:flex;flex-direction:column}.groups .tiles{flex:1}
 .glabel{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin:0 0 8px 6px}
 .dc{display:flex;flex-direction:column}.dc .donut{flex:1}
 .more{display:block;margin:16px auto 0;border:1px solid var(--line);background:#fff;border-radius:24px;padding:10px 20px;font:500 14px var(--sans);color:var(--ink);cursor:pointer}
@@ -71,9 +72,10 @@ section{scroll-margin-top:84px}
 .badge{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:3px 10px;font-family:var(--mono);font-size:12px;background:#ffffff1a;color:#fff}
 .badge.alert{background:#ff9bb433;color:#ffc2d1}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:16px}
-.tile{background:var(--card);border-radius:24px;padding:16px 20px;display:flex;flex-direction:column;justify-content:space-between;min-height:128px}
-.tile .v{font-size:clamp(21px,1.75vw,25px);font-weight:600;letter-spacing:-.035em;font-variant-numeric:tabular-nums;white-space:nowrap;margin-top:12px}
-.tile .n{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:4px}
+.tile{background:var(--card);border-radius:24px;padding:18px 20px;display:grid;grid-template-rows:auto 1fr auto;min-height:150px;min-width:0}
+.tile .eyebrow{min-height:2.7em;line-height:1.35}
+.tile .v{align-self:end;font-size:clamp(20px,1.62vw,24px);font-weight:600;letter-spacing:-.035em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tile .n{font-family:var(--mono);font-size:12px;line-height:1.4;color:var(--muted);margin-top:6px;min-height:2.8em}
 .neg{color:var(--bad)}.pos{color:var(--good)}
 /* attention */
 .att{display:grid;gap:10px}
@@ -254,7 +256,7 @@ function table(el,head,rows,foot){
     (rows.length?rows.map(r=>'<tr>'+r.map((c,i)=>`<td class="${head[i][1]||''}">${c}</td>`).join('')+'</tr>').join(''):`<tr><td colspan="${head.length}" class="small">Нет данных</td></tr>`)+'</tbody>'+
     (foot?'<tfoot><tr>'+foot.map((c,i)=>`<td class="${head[i][1]||''}">${c}</td>`).join('')+'</tr></tfoot>':'');
 }
-const tile=(l,v,n,cls)=>`<div class="tile"><span class="eyebrow">${l}</span><div><div class="v ${cls||''}">${v}</div><div class="n">${n||''}</div></div></div>`;
+const tile=(l,v,n,cls)=>`<div class="tile"><span class="eyebrow">${l}</span><div class="v ${cls||''}">${v}</div><div class="n">${n||''}</div></div>`;
 
 function render(d){
   const k=d.kpi,m=d.months,L=m.map(x=>ml(x.ym)),last=m[m.length-1],prev=m[m.length-2];
