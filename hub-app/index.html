@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>AIRL · 1С Hub</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Victor+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#e8e8f2;--card:#fff;--ink:#16161a;--ink2:#4a4a58;--muted:#79798e;--line:#e4e4ee;--grid:#ededf3;--soft:#f4f4f9;
+  --c1:#7663ea;--c2:#17a398;--c3:#e0862b;--c4:#d655b3;--c5:#2f86d6;--c6:#6aa82f;
+  --good:#1c8a5b;--bad:#c2325a;
+  --mono:'Victor Mono',ui-monospace,monospace;--sans:'Inter Tight',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.wrap{max-width:1280px;margin:0 auto;padding:16px clamp(16px,3vw,38px) 64px}
+.bar{background:var(--ink);border-radius:32px;height:64px;display:flex;align-items:center;gap:14px;padding:0 12px 0 14px;color:#fff}
+.bar img{height:34px;display:block}
+.bar .tag{font-family:var(--mono);font-size:13px;color:#c7c7d2;border-left:1px solid #ffffff2e;padding-left:14px;white-space:nowrap}
+.bar .sp{flex:1}
+.bar .upd{font-family:var(--mono);font-size:12px;color:#c7c7d2;text-align:right;line-height:1.35}
+.pill{border:1px solid #ffffff55;border-radius:24px;padding:9px 16px;font-size:14px;font-weight:500;text-decoration:none;white-space:nowrap}
+.pill:hover{background:#ffffff14}
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 32px;margin:44px 0 26px}
+h1{font-size:clamp(40px,7vw,72px);font-weight:600;letter-spacing:-.05em;line-height:.95;display:flex;align-items:center;gap:.08em;flex-wrap:wrap}
+h1 img{width:.9em;height:.9em}
+.lead{font-family:var(--mono);color:var(--muted);font-size:15px;max-width:460px}
+.g{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px;margin-bottom:16px}
+.card{background:var(--card);border-radius:24px;padding:22px 24px;min-width:0}
+.s4{grid-column:span 4}.s5{grid-column:span 5}.s6{grid-column:span 6}.s7{grid-column:span 7}.s8{grid-column:span 8}.s12{grid-column:span 12}
+@media (max-width:980px){.s4,.s5,.s6,.s7,.s8{grid-column:span 12}.bar .tag,.bar .upd{display:none}}
+.eyebrow{font-family:var(--mono);font-size:12.5px;color:var(--muted);letter-spacing:.01em}
+h3{font-size:19px;font-weight:600;letter-spacing:-.02em;margin-bottom:2px}
+section{scroll-margin-top:84px}
+.sec{display:flex;gap:16px;align-items:baseline;margin:52px 0 18px}
+.sec>span{font-family:var(--mono);font-size:13px;color:var(--muted);flex:none}
+.sec h2{font-size:clamp(26px,3.2vw,34px);font-weight:600;letter-spacing:-.035em;line-height:1.1}
+.sec p{font-family:var(--mono);font-size:13.5px;color:var(--muted);margin-top:6px}
+.nav{position:sticky;top:10px;z-index:10;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;background:#ffffffd9;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:28px;padding:6px;box-shadow:0 6px 24px #16161a14;margin-bottom:-18px}
+.nav::-webkit-scrollbar{display:none}
+.nav a{flex:none;text-decoration:none;font-size:14px;font-weight:500;color:var(--ink2);padding:9px 16px;border-radius:22px;white-space:nowrap;transition:background .15s,color .15s}
+.nav a:hover{background:var(--soft)}
+.nav a.on{background:var(--ink);color:#fff}
+.groups{display:grid;gap:16px;align-content:stretch}
+.glabel{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin:0 0 8px 6px}
+.dc{display:flex;flex-direction:column}.dc .donut{flex:1}
+.more{display:block;margin:16px auto 0;border:1px solid var(--line);background:#fff;border-radius:24px;padding:10px 20px;font:500 14px var(--sans);color:var(--ink);cursor:pointer}
+.more:hover{background:var(--soft)}
+.more:focus-visible,.nav a:focus-visible,.pill:focus-visible{outline:2px solid var(--c1);outline-offset:2px}
+@media (min-width:981px){.hb.two{grid-template-columns:1fr 1fr;column-gap:40px}.att{grid-template-columns:1fr 1fr}}
+.hint{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin-bottom:16px}
+/* hero */
+.hero{background:var(--ink);color:#fff;position:relative;overflow:hidden;display:flex;flex-direction:column;min-height:340px}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(60% 70% at 85% 0%,#8f7bf055 0%,transparent 60%),radial-gradient(50% 60% at 0% 100%,#e08bd42e 0%,transparent 60%);pointer-events:none}
+.hero>*{position:relative}
+.hero .eyebrow{color:#c7c7d2}
+.hero .big{font-size:clamp(40px,4.4vw,56px);font-weight:600;letter-spacing:-.045em;line-height:1.05;margin:8px 0 4px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.hero .big small{font-size:.5em;font-weight:500;letter-spacing:-.02em;color:#c7c7d2}
+.hero .row{display:flex;gap:28px;flex-wrap:wrap;margin-top:14px}
+.hero .row b{display:block;font-size:20px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.hero .spark{flex:1;min-height:90px;margin:18px -6px -6px;position:relative}
+.badge{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:3px 10px;font-family:var(--mono);font-size:12px;background:#ffffff1a;color:#fff}
+.badge.alert{background:#ff9bb433;color:#ffc2d1}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:16px}
+.tile{background:var(--card);border-radius:24px;padding:16px 20px;display:flex;flex-direction:column;justify-content:space-between;min-height:128px}
+.tile .v{font-size:clamp(21px,1.75vw,25px);font-weight:600;letter-spacing:-.035em;font-variant-numeric:tabular-nums;white-space:nowrap;margin-top:12px}
+.tile .n{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:4px}
+.neg{color:var(--bad)}.pos{color:var(--good)}
+/* attention */
+.att{display:grid;gap:10px}
+.att li{list-style:none;display:flex;gap:12px;align-items:flex-start;background:var(--soft);border-radius:16px;padding:12px 16px;font-size:14.5px}
+.att i{flex:none;width:24px;height:24px;border-radius:50%;background:var(--ink);color:#fff;font:500 12px/24px var(--mono);text-align:center;font-style:normal}
+/* charts */
+.chart{position:relative;height:290px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:14px;font-size:13px;color:var(--ink2)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.dot{width:10px;height:10px;border-radius:3px;flex:none}
+.donut{display:grid;grid-template-columns:minmax(140px,190px) 1fr;gap:22px;align-items:center}
+@media (max-width:520px){.donut{grid-template-columns:1fr}.donut .ring{max-width:230px;margin:0 auto}}
+.ring{position:relative;aspect-ratio:1;width:100%}
+.ring .mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;text-align:center}
+.ring .mid b{font-size:clamp(19px,2vw,24px);font-weight:600;letter-spacing:-.035em;font-variant-numeric:tabular-nums}
+.ring .mid span{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.dl{display:grid;gap:2px}
+.dl div{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--grid);font-size:14px}
+.dl div:last-child{border-bottom:0}
+.dl .nm{line-height:1.25;overflow-wrap:anywhere}
+.dl .r{text-align:right;line-height:1.25}
+.dl .am{display:block;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:500}
+.dl .pc{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.hb{display:grid;gap:14px}
+.hb>div{min-width:0}
+.hb .top{display:flex;justify-content:space-between;gap:12px;font-size:14px;margin-bottom:6px}
+.hb .top span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hb .top b{font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap}
+.hb .tr{height:8px;border-radius:99px;background:var(--grid);overflow:hidden}
+.hb .tr i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#8f7bf0,#e08bd4)}
+.hb .wh{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* tables */
+.tw{overflow-x:auto;margin:0 -4px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{text-align:left;font:400 12px var(--mono);color:var(--muted);padding:0 12px 10px 4px;white-space:nowrap}
+td{padding:11px 12px 11px 4px;border-top:1px solid var(--grid);vertical-align:top}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.num{font-weight:500}
+.small{font-family:var(--mono);color:var(--muted);font-size:11.5px;margin-top:2px}
+.st{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:3px 10px;font-size:12.5px;font-weight:500;white-space:nowrap}
+.st::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.st.paid{background:#e3f4ec;color:var(--good)}.st.open{background:#fbe6ec;color:var(--bad)}.st.partial{background:#fdf0dc;color:#9a5b00}.st.off{background:var(--soft);color:var(--muted)}
+tfoot td{font-weight:600;border-top:2px solid var(--ink)}
+footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px;display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between}
+#err{display:none;background:#fbe6ec;color:var(--bad);border-radius:16px;padding:14px 18px;margin-top:24px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <a href="/" aria-label="AI Research Labs"><img src="/logo-airl-white.png" alt="AI Research Labs"></a>
+    <span class="tag">1С Hub</span><span class="sp"></span>
+    <span class="upd" id="stamp"></span>
+    <a class="pill" href="/airl-1c-hub/logout">Выйти</a>
+  </div>
+  <div id="err"></div>
+  <div class="head">
+    <h1>1С<img src="/star-mark.svg" alt="">Hub</h1>
+    <p class="lead" id="lead">Загрузка данных…</p>
+  </div>
+
+  <nav class="nav" id="nav" aria-label="Разделы">
+    <a href="#overview">Обзор</a><a href="#pnl">Доходы и расходы</a><a href="#cash">Деньги</a><a href="#clients">Клиенты и счета</a><a href="#debts">Обязательства</a><a href="#team">Команда</a><a href="#ops">Операции</a>
+  </nav>
+
+  <section id="overview">
+    <div class="sec"><span>01</span><div><h2>Обзор</h2><p>Главные цифры компании на сегодня</p></div></div>
+    <div class="g">
+      <div class="card hero s4">
+        <div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><span class="eyebrow">Деньги на счетах</span><span class="badge" id="runway"></span></div>
+        <div class="big" id="cash"></div>
+        <div class="eyebrow" id="cashDate"></div>
+        <div class="row"><div><span class="eyebrow">Чистый отток в месяц</span><b id="burn"></b></div><div><span class="eyebrow">Изменение за месяц</span><b id="cashDelta"></b></div></div>
+        <div class="spark"><canvas id="cSpark"></canvas></div>
+      </div>
+      <div class="s8 groups">
+        <div><div class="glabel">Результат за период</div><div class="tiles" id="tilesA"></div></div>
+        <div><div class="glabel">Долги и ожидаемые поступления</div><div class="tiles" id="tilesB"></div></div>
+      </div>
+    </div>
+    <div class="g" id="attWrap" hidden><div class="card s12"><h3>На что обратить внимание</h3><p class="hint">Автоматическая проверка данных учёта</p><ul class="att" id="att"></ul></div></div>
+  </section>
+
+  <section id="pnl">
+    <div class="sec"><span>02</span><div><h2>Доходы и расходы</h2><p>Сколько заработали и на что потратили — по начислению</p></div></div>
+    <div class="g">
+      <div class="card s7"><h3>Выручка и расходы по месяцам</h3><p class="hint">Наведите на месяц, чтобы увидеть результат</p><div class="chart"><canvas id="cPL"></canvas></div><div class="legend" id="lPL"></div></div>
+      <div class="card s5 dc"><h3>Структура расходов</h3><p class="hint">Начисленные расходы за весь период</p><div class="donut"><div class="ring"><canvas id="dExp"></canvas><div class="mid" id="mExp"></div></div><div class="dl" id="lExp"></div></div></div>
+    </div>
+    <div class="g"><div class="card s12"><h3>Подрядчики и поставщики</h3><p class="hint">Кому и за что начислено — сумма поступлений услуг</p><div class="hb two" id="supp"></div></div></div>
+  </section>
+
+  <section id="cash">
+    <div class="sec"><span>03</span><div><h2>Деньги</h2><p>Фактическое движение по кассе и расчётным счетам</p></div></div>
+    <div class="g">
+      <div class="card s7"><h3>Остаток денег</h3><p class="hint">На конец каждого месяца</p><div class="chart"><canvas id="cCash"></canvas></div></div>
+      <div class="card s5 dc"><h3>Откуда пришли деньги</h3><p class="hint">Поступления на счёт за весь период</p><div class="donut"><div class="ring"><canvas id="dIn"></canvas><div class="mid" id="mIn"></div></div><div class="dl" id="lIn"></div></div></div>
+    </div>
+    <div class="g"><div class="card s12"><h3>Куда уходят деньги</h3><p class="hint">Фактические выплаты со счёта, по месяцам</p><div class="chart"><canvas id="cOut"></canvas></div><div class="legend" id="lOut"></div></div></div>
+  </section>
+
+  <section id="clients">
+    <div class="sec"><span>04</span><div><h2>Клиенты и счета</h2><p>Кто приносит выручку и какие счета ещё не оплачены</p></div></div>
+    <div class="g">
+      <div class="card s5 dc"><h3>Выручка по клиентам</h3><p class="hint">По актам за весь период</p><div class="donut"><div class="ring"><canvas id="dCust"></canvas><div class="mid" id="mCust"></div></div><div class="dl" id="lCust"></div></div></div>
+      <div class="card s7"><h3>Счета покупателям</h3><p class="hint" id="invHint">Статус — по платежам, привязанным к счёту в 1С</p><div class="tw"><table id="inv"></table></div></div>
+    </div>
+  </section>
+
+  <section id="debts">
+    <div class="sec"><span>05</span><div><h2>Обязательства</h2><p>Что компания должна: займы, налоги, зарплата</p></div></div>
+    <div class="g"><div class="card s12"><div class="tw"><table id="liab"></table></div></div></div>
+  </section>
+
+  <section id="team">
+    <div class="sec"><span>06</span><div><h2>Команда</h2><p>Сотрудники организации по данным кадрового учёта</p></div></div>
+    <div class="g"><div class="card s12"><div class="tw"><table id="staff"></table></div></div></div>
+  </section>
+
+  <section id="ops">
+    <div class="sec"><span>07</span><div><h2>Операции по банку</h2><p>Последние платёжные документы</p></div></div>
+    <div class="g"><div class="card s12"><div class="tw"><table id="ops-t"></table></div><button class="more" id="more" hidden></button></div></div>
+  </section>
+  <footer><span>Источник: 1С:Бухгалтерия (OData) · обновление каждые 30 минут</span><span>AI Research Labs · только для внутреннего использования</span></footer>
+</div>
+<script src="chart.umd.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const nf=new Intl.NumberFormat('ru-RU',{maximumFractionDigits:0});
+const tg=v=>nf.format(Math.round(v))+' ₸';
+const short=v=>{const a=Math.abs(v),f=n=>n.toFixed(1).replace('.0','').replace('.',',');return a>=1e9?f(v/1e9)+' млрд':a>=1e6?f(v/1e6)+' млн':a>=1e3?Math.round(v/1e3)+' тыс':String(Math.round(v))};
+const MN=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+const ml=k=>MN[+k.slice(5,7)-1]+' '+k.slice(2,4);
+const dfmt=s=>s?s.slice(8,10)+'.'+s.slice(5,7)+'.'+s.slice(0,4):'—';
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const C=['--c1','--c2','--c3','--c4','--c5','--c6'].map(css);
+const INK=css('--ink'),MUTED=css('--muted'),GRID=css('--grid');
+const MONO="'Victor Mono', ui-monospace, monospace",SANS="'Inter Tight', system-ui, sans-serif";
+
+Chart.defaults.font.family=SANS;Chart.defaults.font.size=13;Chart.defaults.color=MUTED;
+Chart.defaults.animation.duration=matchMedia('(prefers-reduced-motion: reduce)').matches?0:700;Chart.defaults.animation.easing='easeOutQuart';
+const TIP={backgroundColor:INK,titleColor:'#fff',bodyColor:'#e8e8f2',footerColor:'#fff',padding:12,cornerRadius:14,boxPadding:6,usePointStyle:true,
+  titleFont:{family:SANS,weight:'600',size:13},bodyFont:{family:SANS,size:13},footerFont:{family:SANS,weight:'600',size:13},displayColors:true};
+const AX={x:{grid:{display:false},border:{display:false},ticks:{font:{family:MONO,size:12},padding:6}},
+  y:{beginAtZero:true,border:{display:false},grid:{color:GRID,tickLength:0},ticks:{font:{family:MONO,size:11.5},padding:10,maxTicksLimit:6,callback:v=>short(v)}}};
+const legend=(el,items)=>$(el).innerHTML=items.map(([n,c])=>`<span><i class="dot" style="background:${c}"></i>${esc(n)}</span>`).join('');
+
+function bars(id,labels,sets,stacked){
+  return new Chart($(id),{type:'bar',data:{labels,datasets:sets.map((s,i)=>({label:s.label,data:s.data,backgroundColor:s.color,
+    borderColor:'#fff',borderWidth:stacked?{top:2,bottom:0,left:0,right:0}:0,borderRadius:stacked?4:8,borderSkipped:stacked?false:'bottom',maxBarThickness:stacked?56:34,categoryPercentage:.62,barPercentage:.86}))},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>' '+c.dataset.label+': '+tg(c.parsed.y),
+        footer:stacked?it=>'Итого: '+tg(it.reduce((a,c)=>a+c.parsed.y,0)):it=>it.length==2?'Результат: '+(it[0].parsed.y-it[1].parsed.y>0?'+':'')+tg(it[0].parsed.y-it[1].parsed.y):''}}},
+      scales:{x:{...AX.x,stacked:!!stacked},y:{...AX.y,stacked:!!stacked}}}});
+}
+function area(id,labels,data,opt={}){
+  const col=opt.color||C[0];
+  return new Chart($(id),{type:'line',data:{labels,datasets:[{label:'Остаток денег',data,borderColor:col,borderWidth:opt.spark?2:2.5,tension:.35,fill:true,
+    pointRadius:opt.spark?0:5,pointHoverRadius:opt.spark?4:7,pointBackgroundColor:col,pointBorderColor:opt.spark?INK:'#fff',pointBorderWidth:2.5,
+    backgroundColor:c=>{const a=c.chart.chartArea;if(!a)return 'transparent';const g=c.chart.ctx.createLinearGradient(0,a.top,0,a.bottom);g.addColorStop(0,col+(opt.spark?'66':'40'));g.addColorStop(1,col+'00');return g}}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},layout:opt.spark?{padding:{top:6,bottom:0,left:6,right:6}}:{},
+      plugins:{legend:{display:false},tooltip:{...TIP,displayColors:false,callbacks:{label:c=>tg(c.parsed.y)}}},
+      scales:opt.spark?{x:{display:false},y:{display:false,beginAtZero:true}}:AX}});
+}
+function donut(key,rows,caption){
+  rows=rows.filter(r=>r.v>0);const total=rows.reduce((a,r)=>a+r.v,0);
+  let shown=rows.slice(0,5);if(rows.length>6){shown.push({n:'Прочее',v:rows.slice(5).reduce((a,r)=>a+r.v,0)})}else shown=rows.slice(0,6);
+  $('m'+key).innerHTML=`<b>${short(total)} ₸</b><span>${caption}</span>`;
+  $('l'+key).innerHTML=shown.map((r,i)=>`<div><i class="dot" style="background:${C[i]}"></i><span class="nm" title="${esc(r.n)}">${esc(r.n)}</span><span class="r"><span class="am">${tg(r.v)}</span><span class="pc">${(r.v/total*100).toFixed(0)}%</span></span></div>`.replace('>0%<','>&lt;1%<')).join('')||'<span class="small">Нет данных</span>';
+  if(!shown.length)return;
+  new Chart($('d'+key),{type:'doughnut',data:{labels:shown.map(r=>r.n),datasets:[{data:shown.map(r=>r.v),backgroundColor:C,borderColor:'#fff',borderWidth:3,borderRadius:8,hoverOffset:6,minBarLength:3}]},
+    options:{responsive:true,maintainAspectRatio:true,cutout:'70%',layout:{padding:6},plugins:{legend:{display:false},
+      tooltip:{...TIP,callbacks:{label:c=>' '+tg(c.parsed)+' · '+(c.parsed/total*100).toFixed(1).replace('.',',')+'%'}}}}});
+}
+function table(el,head,rows,foot){
+  $(el).innerHTML='<thead><tr>'+head.map(h=>`<th class="${h[1]||''}">${h[0]}</th>`).join('')+'</tr></thead><tbody>'+
+    (rows.length?rows.map(r=>'<tr>'+r.map((c,i)=>`<td class="${head[i][1]||''}">${c}</td>`).join('')+'</tr>').join(''):`<tr><td colspan="${head.length}" class="small">Нет данных</td></tr>`)+'</tbody>'+
+    (foot?'<tfoot><tr>'+foot.map((c,i)=>`<td class="${head[i][1]||''}">${c}</td>`).join('')+'</tr></tfoot>':'');
+}
+const tile=(l,v,n,cls)=>`<div class="tile"><span class="eyebrow">${l}</span><div><div class="v ${cls||''}">${v}</div><div class="n">${n||''}</div></div></div>`;
+
+function render(d){
+  const k=d.kpi,m=d.months,L=m.map(x=>ml(x.ym)),last=m[m.length-1],prev=m[m.length-2];
+  $('lead').textContent=d.orgs.join(', ')+' · '+ml(m[0].ym)+' — '+ml(last.ym)+' · данные 1С по '+dfmt(d.data_through);
+  $('stamp').innerHTML='Обновлено<br>'+new Date(d.generated_at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  $('cash').innerHTML=nf.format(k.cash)+' <small>₸</small>';
+  $('cashDate').textContent='на '+dfmt(d.data_through);
+  $('burn').textContent=tg(k.burn);
+  const dl=prev?last.cash_end-prev.cash_end:0;$('cashDelta').textContent=(dl>0?'+':'−')+tg(Math.abs(dl));
+  const rw=$('runway');rw.textContent='Запас: '+(k.runway==null?'—':k.runway<1?'меньше месяца':k.runway.toFixed(1).replace('.',',')+' мес.');if(k.runway!=null&&k.runway<3)rw.classList.add('alert');
+  area('cSpark',L,m.map(x=>x.cash_end),{spark:true,color:'#a99bf5'});
+  $('tilesA').innerHTML=[
+    tile('Выручка',tg(k.revenue),ml(last.ym)+': '+short(last.revenue)+' ₸'),
+    tile('Расходы',tg(k.expenses),ml(last.ym)+': '+short(last.expenses)+' ₸'),
+    tile('Финансовый результат',(k.profit>0?'+':'−')+tg(Math.abs(k.profit)),'выручка минус расходы',k.profit<0?'neg':'pos'),
+    tile('Сотрудников',k.headcount,'в справочнике '+d.staff.length),
+  ].join('');
+  $('tilesB').innerHTML=[
+    tile('Займы полученные',tg(k.loans),'к возврату'),
+    tile('Налоги и взносы',tg(k.tax_debt),'ИПН, СН, ОПВ, СО, ОСМС'),
+    tile('Зарплата',tg(k.payroll_debt),'начислено, не выплачено'),
+    tile('Счета не оплачены',tg(k.invoiced_open),'ждём от покупателей',k.invoiced_open>0?'':''),
+  ].join('');
+  if(d.warnings.length){$('attWrap').hidden=false;$('att').innerHTML=d.warnings.map((w,i)=>`<li><i>${i+1}</i><span>${esc(w)}</span></li>`).join('')}
+  bars('cPL',L,[{label:'Выручка',color:C[0],data:m.map(x=>x.revenue)},{label:'Расходы',color:INK,data:m.map(x=>x.expenses)}]);
+  legend('lPL',[['Выручка',C[0]],['Расходы',INK]]);
+  const out=d.cash_out.slice(0,6);
+  bars('cOut',L,out.map((s,i)=>({label:s.name,color:C[i],data:s.values})),true);
+  legend('lOut',out.map((s,i)=>[s.name,C[i]]));
+  area('cCash',L,m.map(x=>x.cash_end));
+  donut('Exp',d.expense_structure.map(s=>({n:s.name,v:s.total})),'расходы');
+  donut('In',d.cash_in.map(s=>({n:s.name,v:s.total})),'поступило');
+  donut('Cust',d.customers.map(c=>({n:c.name,v:c.revenue})),'выручка');
+  const sm=Math.max(...d.suppliers.map(s=>s.amount),1);
+  $('supp').innerHTML=d.suppliers.slice(0,8).map(s=>`<div><div class="top"><span title="${esc(s.name)}">${esc(s.name)}</span><b>${tg(s.amount)}</b></div><div class="tr"><i style="width:${Math.max(s.amount/sm*100,1.5)}%"></i></div><div class="wh" title="${esc(s.what)}">${esc(s.what)}</div></div>`).join('')||'<span class="small">Нет данных</span>';
+  const st={paid:'Оплачен',open:'Не оплачен',partial:'Частично'};
+  const open=d.invoices.filter(i=>i.status!=='paid');
+  $('invHint').textContent='Не оплачено: '+open.length+' из '+d.invoices.length+' на '+tg(k.invoiced_open)+' · статус по платежам, привязанным к счёту в 1С';
+  const ord={open:0,partial:1,paid:2};d.invoices.sort((a,b)=>ord[a.status]-ord[b.status]||b.date.localeCompare(a.date));
+  table('inv',[['Дата'],['№'],['Покупатель'],['Сумма','num'],['Статус']],d.invoices.map(i=>[dfmt(i.date),esc(i.number),esc(i.customer)+'<div class="small">'+esc(i.what)+'</div>',tg(i.amount),`<span class="st ${i.status}">${st[i.status]}</span>`]));
+  table('liab',[['Счёт'],['Наименование'],['Сумма','num']],d.liabilities.map(l=>[`<span class="small" style="font-size:13px">${esc(l.code)}</span>`,esc(l.name),tg(l.amount)]),['','Итого',tg(d.liabilities.reduce((a,l)=>a+l.amount,0))]);
+  table('staff',[['Сотрудник'],['Должность'],['Принят'],['Статус']],d.staff.map(s=>[esc(s.name),esc(s.position),dfmt(s.hired),s.fired?`<span class="st off">уволен ${dfmt(s.fired)}</span>`:'<span class="st paid">работает</span>']));
+  const opRows=d.operations.map(o=>[dfmt(o.date),esc(o.party),`<span style="color:var(--ink2)">${esc(o.note)}</span>`,`<span class="${o.amount<0?'':'pos'}">${o.amount>0?'+':'−'}${tg(Math.abs(o.amount))}</span>`]);
+  const opHead=[['Дата'],['Контрагент'],['Назначение'],['Сумма','num']],N=8;
+  table('ops-t',opHead,opRows.slice(0,N));
+  if(opRows.length>N){const b=$('more');b.hidden=false;b.textContent='Показать все '+opRows.length;b.onclick=()=>{table('ops-t',opHead,opRows);b.hidden=true}}
+  const links=[...document.querySelectorAll('#nav a')],secs=links.map(a=>document.querySelector(a.getAttribute('href')));
+  const spy=()=>{let cur=0;secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<140)cur=i});links.forEach((a,i)=>a.classList.toggle('on',i===cur));
+    const on=links[cur],nav=$('nav');if(on.offsetLeft<nav.scrollLeft||on.offsetLeft+on.offsetWidth>nav.scrollLeft+nav.clientWidth)nav.scrollLeft=on.offsetLeft-16};
+  addEventListener('scroll',spy,{passive:true});spy();
+}
+fetch('data.json?'+Date.now(),{credentials:'same-origin'}).then(r=>{if(r.status===401){location.replace('/airl-1c-hub/');throw new Error('нужен вход')}if(!r.ok)throw new Error('код '+r.status);return r.json()})
+  .then(d=>document.fonts.ready.then(()=>render(d)))
+  .catch(e=>{$('err').style.display='block';$('err').textContent='Не удалось загрузить данные: '+e.message;$('lead').textContent=''});
+</script>
+</body>
+</html>

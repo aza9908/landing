@@ -26,6 +26,12 @@ function hubPath(url) {
 const fs = require('fs');
 const path_ = require('path');
 const LOGIN_HTML = fs.readFileSync(path_.join(__dirname, 'hub-login.html'), 'utf8');
+// Интерфейс хаба (без данных) лежит в hub-app/ и отдаётся только после входа;
+// сами данные (data.json) каждый раз берутся с сервера AIRL.
+const HUB_APP = {
+  '': ['text/html; charset=utf-8', fs.readFileSync(path_.join(__dirname, 'hub-app', 'index.html'))],
+  'chart.umd.js': ['text/javascript; charset=utf-8', fs.readFileSync(path_.join(__dirname, 'hub-app', 'chart.umd.js'))],
+};
 const NO_STORE = { 'Cache-Control': 'private, no-store', 'X-Robots-Tag': 'noindex, nofollow' };
 // Сессия хаба: в cookie лежат введённые логин и пароль (как при обычной
 // HTTP-авторизации браузер шлёт их с каждым запросом). Cookie недоступна
@@ -106,7 +112,9 @@ function proxyHub(req, res, path) {
     return res.end();
   }
   if (path === HUB_PATH + 'login') { res.writeHead(303, { ...NO_STORE, Location: HUB_PATH }); return res.end(); }
-  upstream(req.method, path, auth, (err, r) => {
+  const local = HUB_APP[path.slice(HUB_PATH.length)];
+  // страницу хаба отдаём сами, но сначала сервер AIRL подтверждает логин и пароль
+  upstream(local ? 'HEAD' : req.method, local ? HUB_PATH + 'data.json' : path, auth, (err, r) => {
     if (err) return unavailable(res);
     if (r.statusCode === 401) {   // пароль сменили или cookie испорчена
       r.resume();
@@ -115,6 +123,12 @@ function proxyHub(req, res, path) {
       return res.end();
     }
     if (r.statusCode >= 300 && r.statusCode < 400) { r.resume(); return unavailable(res); } // хаб на сервере не подключён
+    if (local) {
+      r.resume();
+      if (r.statusCode !== 200) return unavailable(res);
+      res.writeHead(200, { ...NO_STORE, 'Content-Type': local[0], 'Content-Length': local[1].length });
+      return res.end(req.method === 'HEAD' ? undefined : local[1]);
+    }
     const out = { ...NO_STORE };
     for (const h of PASS_HEADERS) if (r.headers[h]) out[h] = r.headers[h];
     res.writeHead(r.statusCode, out);
@@ -125,6 +139,7 @@ function proxyHub(req, res, path) {
 http.createServer(async (req, res) => {
   const path = hubPath(req.url || '/');
   if (path) return proxyHub(req, res, path);
+  if (/^\/hub-app(\/|$)/i.test((req.url || '').split('?')[0])) { res.writeHead(404); return res.end(); }
   await compress(req, res);
   return handler(req, res, { etag: true });
 }).listen(PORT, () => console.log(`airl.kz landing on :${PORT}`));
