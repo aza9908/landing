@@ -32,7 +32,8 @@ function proxyHub(req, res, path) {
     res.writeHead(405, noStore);
     return res.end();
   }
-  const headers = { host: HUB_UPSTREAM.host, accept: req.headers.accept || '*/*' };
+  // сервер отдаёт хаб только запросам с этим заголовком: напрямую по своему адресу он хаб не показывает
+  const headers = { host: HUB_UPSTREAM.host, accept: req.headers.accept || '*/*', 'x-airl-hub': 'landing-proxy' };
   if (req.headers.authorization) headers.authorization = req.headers.authorization;
   const lib = HUB_UPSTREAM.protocol === 'http:' ? http : https;
   const up = lib.request({
