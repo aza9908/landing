@@ -1,0 +1,41 @@
+name: Copy airl-tasks.web.app into airl-tasks/
+
+# The task app (https://airl.kz/airl-tasks/) is built elsewhere and published on
+# airl-tasks.web.app. Run this workflow after each new release of the app:
+# Actions -> "Copy airl-tasks.web.app into airl-tasks/" -> Run workflow.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/mirror-airl-tasks.yml
+      - scripts/mirror-airl-tasks.py
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mirror-airl-tasks
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download and adapt the app
+        run: python3 scripts/mirror-airl-tasks.py --source https://airl-tasks.web.app --out airl-tasks
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A airl-tasks
+          if git diff --cached --quiet; then
+            echo "airl-tasks/ is already up to date"
+          else
+            git commit -m "airl-tasks: copy from https://airl-tasks.web.app"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
