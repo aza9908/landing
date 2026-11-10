@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /airl-1c-hub/
 
 Sitemap: https://airl.kz/sitemap.xml

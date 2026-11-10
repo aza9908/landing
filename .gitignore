@@ -1,3 +1,4 @@
 
 # Firebase CLI deploy cache
 .firebase/
+node_modules/
