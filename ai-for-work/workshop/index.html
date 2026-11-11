@@ -406,5 +406,15 @@
         <button class="link-btn" type="button" data-close-form>Вернуться на страницу</button>
       </div>
     </dialog>
+    <!-- Meta Pixel: событие Lead, когда форма показала «Заявка принята» -->
+    <script>
+    (function () {
+      var done = document.getElementById('lead-done');
+      if (!done) return;
+      new MutationObserver(function () {
+        if (!done.hidden && window.fbq) fbq('track', 'Lead');
+      }).observe(done, { attributes: true, attributeFilter: ['hidden'] });
+    })();
+    </script>
   </body>
 </html>
