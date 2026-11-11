@@ -152,6 +152,9 @@ function proxyLms(req, res) {
   headers.host = LMS_UPSTREAM.host;
   headers['x-forwarded-host'] = req.headers.host || 'airl.kz';
   headers['x-forwarded-proto'] = 'https';
+  // Marks requests from this proxy: the VPS redirects every other visitor of
+  // the old host (lms.magauin.kz) to https://airl.kz/lms.
+  headers['x-airl-lms-proxy'] = '1';
   const lib = LMS_UPSTREAM.protocol === 'http:' ? http : https;
   const up = lib.request({
     protocol: LMS_UPSTREAM.protocol, hostname: LMS_UPSTREAM.hostname,
