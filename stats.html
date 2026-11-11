@@ -234,7 +234,7 @@ var UTM_NAMES = { instagram: "Instagram", ig: "Instagram", facebook: "Facebook",
 var HOSTS = [[/google\./, "Google"], [/yandex\.|ya\.ru/, "Яндекс"], [/instagram\.com/, "Instagram"], [/facebook\.com|fb\.com|fb\.me/, "Facebook"],
   [/t\.me|telegram/, "Telegram"], [/wa\.me|whatsapp/, "WhatsApp"], [/linkedin/, "LinkedIn"], [/youtube|youtu\.be/, "YouTube"],
   [/tiktok/, "TikTok"], [/2gis/, "2GIS"], [/bing\./, "Bing"], [/airl-express\.web\.app/, "Старый адрес диагностики"],
-  [/lms\.magauin\.kz/, "LMS"], [/chatgpt|openai|perplexity|claude\.ai/, "ИИ-ассистенты"]];
+  [/lms\.magauin\.kz|airl\.kz\/lms/, "LMS"], [/chatgpt|openai|perplexity|claude\.ai/, "ИИ-ассистенты"]];
 // Учёт источника включён 8 октября 2026: у более ранних записей полей нет.
 function channel(r, isDiag){
   var s = String(r.utm_source || "").trim().toLowerCase();

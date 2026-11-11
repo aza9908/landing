@@ -136,7 +136,52 @@ function proxyHub(req, res, path) {
   });
 }
 
+// ── LMS: https://airl.kz/lms/… ───────────────────────────────────────────────
+// The LMS (Next.js, built with NEXT_PUBLIC_BASE_PATH=/lms) runs on the AIRL
+// VPS. We stream /lms and /lms/* to it unchanged, so the platform lives at
+// airl.kz/lms/{ru,uz,kk,en} instead of a separate domain.
+const LMS_UPSTREAM = new URL(process.env.LMS_UPSTREAM || 'https://lms.magauin.kz');
+const LMS_RE = /^\/lms(\/|$)/;
+// Hop-by-hop headers are per-connection and must not be forwarded.
+const HOP = new Set(['connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization',
+  'te', 'trailer', 'transfer-encoding', 'upgrade', 'host']);
+
+function proxyLms(req, res) {
+  const headers = {};
+  for (const [k, v] of Object.entries(req.headers)) if (!HOP.has(k)) headers[k] = v;
+  headers.host = LMS_UPSTREAM.host;
+  headers['x-forwarded-host'] = req.headers.host || 'airl.kz';
+  headers['x-forwarded-proto'] = 'https';
+  const lib = LMS_UPSTREAM.protocol === 'http:' ? http : https;
+  const up = lib.request({
+    protocol: LMS_UPSTREAM.protocol, hostname: LMS_UPSTREAM.hostname,
+    port: LMS_UPSTREAM.port || undefined, method: req.method, path: req.url, headers,
+    timeout: 30000,
+  }, (r) => {
+    const out = {};
+    for (const [k, v] of Object.entries(r.headers)) if (!HOP.has(k)) out[k] = v;
+    // Redirects that name the upstream origin must stay on airl.kz.
+    if (typeof out.location === 'string' && out.location.startsWith(LMS_UPSTREAM.origin)) {
+      out.location = out.location.slice(LMS_UPSTREAM.origin.length) || '/lms';
+    }
+    // Cookies scoped to the upstream domain would be rejected by the browser.
+    if (out['set-cookie']) {
+      out['set-cookie'] = [].concat(out['set-cookie']).map((c) => c.replace(/;\s*domain=[^;]*/i, ''));
+    }
+    res.writeHead(r.statusCode || 502, out);
+    r.pipe(res);
+  });
+  up.on('timeout', () => up.destroy(new Error('timeout')));
+  up.on('error', () => {
+    if (res.headersSent) return res.end();
+    res.writeHead(502, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' });
+    res.end('LMS временно недоступна');
+  });
+  req.pipe(up);
+}
+
 http.createServer(async (req, res) => {
+  if (LMS_RE.test((req.url || '/').split('?')[0])) return proxyLms(req, res);
   const path = hubPath(req.url || '/');
   if (path) return proxyHub(req, res, path);
   if (/^\/hub-app(\/|$)/i.test((req.url || '').split('?')[0])) { res.writeHead(404); return res.end(); }

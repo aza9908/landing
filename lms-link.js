@@ -10,13 +10,15 @@
  * the URL lives in ONE place and survives a bundle rebuild.
  *
  * ── TO CHANGE THE PLATFORM URL, EDIT ONE LINE ────────────────────────────────
- *   index.html:  <script>window.AIRL_LMS_URL = 'https://lms.magauin.kz/';</script>
+ *   index.html:  <script>window.AIRL_LMS_URL = '/lms/';</script>
+ *   (en/index.html → '/lms/en', kk/index.html → '/lms/kk'). The LMS itself is
+ *   served at https://airl.kz/lms/ — server.js proxies /lms/* to it.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 (function () {
   'use strict';
 
-  var LMS_URL = (window.AIRL_LMS_URL || 'https://lms.magauin.kz/').replace(
+  var LMS_URL = (window.AIRL_LMS_URL || '/lms/').replace(
     /\/+$/,
     '',
   );

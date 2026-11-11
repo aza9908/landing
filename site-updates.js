@@ -316,7 +316,7 @@
         .map(([t, h]) => `<a href="${h}" class="m-menu-link">${t}</a>`)
         .join('') +
       '<div class="m-menu-cta">' +
-      '<a href="' + (window.AIRL_LMS_URL || 'https://lms.magauin.kz/') + '" target="_blank" rel="noopener noreferrer" class="m-cta-primary m-menu-link-cta m-cta-lms">' + UI.start + '</a>' +
+      '<a href="' + (window.AIRL_LMS_URL || '/lms/') + '" target="_blank" rel="noopener noreferrer" class="m-cta-primary m-menu-link-cta m-cta-lms">' + UI.start + '</a>' +
       '<a href="#contacts" class="m-cta-secondary m-menu-link-cta">' + UI.contactsCta + '</a>' +
       '</div>' +
       '</nav>';
