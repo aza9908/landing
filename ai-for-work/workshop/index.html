@@ -50,6 +50,10 @@
         if (b) b.click();
       });
     </script>
+    <style>
+      /* Две узкие карточки тренеров на планшете: фото над текстом, чтобы текст не сжимался */
+      @media (width >= 480px) and (width <= 959px) { .trainer { flex-direction: column; } }
+    </style>
   </head>
   <body>
     <header class="header">
@@ -278,10 +282,13 @@
             <div>
               <h3 class="card__title">Жанибек Серкулов</h3>
               <p class="eyebrow">CEO AI Research Labs LTD · ведущий тренер</p>
-              <p class="muted">
-                Сессии по ИИ-агентам для топ-менеджмента Air Astana и FlyArystan, воркшопы для 500+ предпринимателей.
-                Участвовал в открытии Astana IT University. Выпускник мехмата МГУ.
-              </p>
+              <ul class="checks muted">
+                <li>Руководил University of Unicorns (Choco Holding)</li>
+                <li>Ex-CEO AI Research Centre Ltd.</li>
+                <li>Тренинги для топ-менеджеров FlyArystan и Air Astana, обучил 500+ предпринимателей</li>
+                <li>Образовательные проекты: открытие Astana IT University, запуск лабораторий Cisco, Huawei, Kaspersky, 1C</li>
+                <li>Запускал логистические компании в США, Германии и Турции</li>
+              </ul>
             </div>
           </article>
           <article class="card card--line trainer">
