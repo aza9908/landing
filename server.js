@@ -183,7 +183,20 @@ function proxyLms(req, res) {
   req.pipe(up);
 }
 
+// ── Онлайн-урок: https://online.airl.kz/ ────────────────────────────────────
+// Поддомен смотрит на этот же сервер. Его страницы лежат в папке online/:
+// online.airl.kz/ → online/index.html, /thankpage/ → online/thankpage/.
+// Остальные адреса (стили, видео кейсов, /online/online.js) — общие с airl.kz.
+const ONLINE_HOST_RE = /^online\.airl\.kz(:\d+)?$/i;
+const ONLINE_PAGE_RE = /^\/(thankpage\/?)?(\?|$)/;
+
+function isOnlineHost(req) {
+  const host = String(req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim();
+  return ONLINE_HOST_RE.test(host);
+}
+
 http.createServer(async (req, res) => {
+  if (isOnlineHost(req) && ONLINE_PAGE_RE.test(req.url || '/')) req.url = '/online' + (req.url || '/');
   if (LMS_RE.test((req.url || '/').split('?')[0])) return proxyLms(req, res);
   const path = hubPath(req.url || '/');
   if (path) return proxyHub(req, res, path);
