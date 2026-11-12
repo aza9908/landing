@@ -1,0 +1,104 @@
+/* Карусель кейсов. Цвета и радиусы — из переменных страницы воркшопа (assets/index-*.css). */
+.cases { position: relative; margin-top: 20px; }
+.cases:focus-visible { outline: 3px solid var(--primary-soft); outline-offset: 4px; border-radius: var(--radius); }
+
+.cases__track {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  align-items: flex-start;
+}
+.cases__track::-webkit-scrollbar { display: none; }
+
+.case { flex: 0 0 100%; min-width: 0; scroll-snap-align: start; scroll-snap-stop: always; display: grid; gap: 16px; }
+
+/* Видео 9:16, на телефоне не выше 64% экрана, чтобы под ним было видно начало текста */
+.case__media {
+  --h: min(64svh, 640px);
+  position: relative;
+  width: min(100%, calc(var(--h) * 9 / 16));
+  aspect-ratio: 9 / 16;
+  margin: 0 auto;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--dark);
+  isolation: isolate;
+}
+.case__video { width: 100%; height: 100%; object-fit: cover; display: block; cursor: pointer; }
+
+.case__count {
+  position: absolute; top: 12px; left: 12px;
+  padding: 4px 10px; border-radius: 999px;
+  background: var(--overlay); color: var(--on-dark);
+  font-size: 13px; font-weight: 800;
+  pointer-events: none;
+}
+
+.case__sound {
+  position: absolute; right: 12px; bottom: 18px;
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 40px; padding: 0 14px 0 10px; border: 0; border-radius: 999px;
+  background: var(--overlay); color: var(--on-dark);
+  font: inherit; font-size: 14px; font-weight: 800; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.case__sound svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.case__sound svg path:first-child { fill: currentColor; }
+.has-sound .case__sound { width: 40px; padding: 0; justify-content: center; }
+
+.case__play {
+  position: absolute; inset: 0; margin: auto;
+  width: 72px; height: 72px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--overlay); color: var(--on-dark);
+  opacity: 0; pointer-events: none; transition: opacity .15s;
+}
+.case__play svg { width: 32px; height: 32px; fill: currentColor; margin-left: 4px; }
+.is-paused .case__play { opacity: 1; pointer-events: auto; cursor: pointer; }
+
+.case__progress { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--overlay); pointer-events: none; }
+.case__progress span { display: block; height: 100%; width: 0; background: var(--on-dark); }
+
+.case__arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 44px; height: 44px; border: 0; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--bg); color: var(--primary);
+  box-shadow: 0 6px 18px var(--overlay);
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: transform .1s;
+}
+.case__arrow:active { transform: translateY(-50%) scale(.94); }
+.case__arrow:focus-visible { outline: 3px solid var(--primary-soft); outline-offset: 2px; }
+.case__arrow svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.case__arrow--prev { left: 10px; }
+.case__arrow--next { right: 10px; }
+
+.case__body { display: grid; gap: 10px; align-content: start; }
+.case__title { font-size: 22px; font-weight: 800; line-height: 1.2; }
+.case__text { display: grid; gap: 10px; color: var(--muted); }
+.case__text strong { color: var(--text); font-weight: 800; }
+.case__more { display: none; }
+.case.is-open .case__more { display: block; }
+.case__toggle { justify-self: start; min-height: 40px; padding: 0; }
+
+.cases__dots { display: flex; justify-content: center; gap: 8px; margin-top: 16px; }
+.cases__dot {
+  width: 10px; height: 10px; padding: 0; border: 0; border-radius: 999px;
+  background: var(--border); cursor: pointer; transition: width .2s, background .2s;
+}
+.cases__dot.is-active { width: 28px; background: var(--primary); }
+
+/* Ноутбук: видео слева, вся статья справа */
+@media (width >= 900px) {
+  .case { grid-template-columns: auto 1fr; gap: 40px; align-items: center; }
+  .case__media { --h: min(76vh, 640px); margin: 0; }
+  .case__body { max-width: 560px; }
+  .case__title { font-size: 28px; }
+  .case__more { display: block; }
+  .case__toggle { display: none; }
+  .cases__dots { justify-content: flex-start; }
+}
