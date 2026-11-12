@@ -1,14 +1,23 @@
 // Онлайн-урок (online.airl.kz): форма регистрации, нижняя кнопка на телефоне, тень у шапки.
 // Форма и проверки — как на странице воркшопа, но без поля «Город».
-// Заявки пока никуда не отправляются: Битрикс и Google Таблицу подключим позже.
+// Регистрация уходит в Google Apps Script «Заявки с сайта воркшопа» (form=online):
+// он пишет её в таблицу «Онлайн-урок 19 ноября — регистрации» и создаёт сделку
+// в Битриксе, воронка «Вебинар», этап «Регистрации».
 // После регистрации — страница «Спасибо», оттуда переход в сообщество WhatsApp.
 (function () {
+  var ENDPOINT = 'https://script.google.com/macros/s/AKfycbwUzcJovHizktKKgPKnBjWKrOtmVdOreT6N9-hL-wqGW1OuubTy9y-WUA1tgq2kXAzqZA/exec';
   // Страница открыта на online.airl.kz/ или как airl.kz/online/ — «Спасибо» лежит рядом
   var base = location.pathname.indexOf('/online') === 0 ? '/online' : '';
   var modal = document.getElementById('lead-modal');
   var form = document.getElementById('lead-form');
+  var submit = form.querySelector('[type=submit]');
   var field = function (n) { return form.elements.namedItem(n); };
   var fields = ['name', 'phone'];
+  var utm = {};
+  var query = new URLSearchParams(location.search);
+  ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach(function (k) {
+    if (query.get(k)) utm[k] = query.get(k).slice(0, 200);
+  });
 
   // Номер приводим к виду 7XXXXXXXXXX: 8 в начале, лишняя 7 и любые разделители убираются
   function digits(v) {
@@ -79,11 +88,31 @@
       if (err && !first) first = field(n);
     });
     if (first) { first.focus(); return; }
-    if (field('website').value) return; // бот заполнил скрытое поле
-    // Метка для страницы «Спасибо»: по ней она понимает, что человек пришёл из формы
-    try { sessionStorage.setItem('airl_online_reg', field('name').value.trim()); } catch (err) {}
-    location.href = base + '/thankpage/';
+    if (submit.disabled) return;
+    var body = new URLSearchParams(Object.assign({
+      form: 'online',
+      name: field('name').value.trim(),
+      phone: pretty(phone.value),
+      page: location.origin + location.pathname,
+      website: field('website').value,
+    }, utm));
+    submit.disabled = true;
+    submit.textContent = 'Отправляем…';
+    // Ответ скрипта Google страница прочитать не может (no-cors), поэтому ждём окончания
+    // отправки, но не дольше 4 секунд, и переходим на «Спасибо»
+    var done = false;
+    var next = function () {
+      if (done) return;
+      done = true;
+      // Метка для страницы «Спасибо»: по ней она понимает, что человек пришёл из формы
+      try { sessionStorage.setItem('airl_online_reg', field('name').value.trim()); } catch (err) {}
+      location.href = base + '/thankpage/';
+    };
+    setTimeout(next, 4000);
+    fetch(ENDPOINT, { method: 'POST', mode: 'no-cors', body: body, keepalive: true }).then(next, next);
   });
+  // Вернулись кнопкой «Назад» со страницы «Спасибо» — форма снова готова
+  addEventListener('pageshow', function () { submit.disabled = false; submit.textContent = 'Зарегистрироваться'; });
 
   var header = document.querySelector('.header');
   var shade = function () { header.classList.toggle('is-scrolled', scrollY > 4); };
