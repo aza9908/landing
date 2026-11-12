@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Вы зарегистрированы — онлайн-урок AI Research Labs</title>
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#17162b" />
+    <link rel="icon" type="image/png" href="/ai-for-work/workshop/favicon.png" />
+    <link rel="stylesheet" href="/ai-for-work/workshop/assets/index-C9v190lA.css" />
+    <style>
+      body { margin: 0; background: var(--dark); }
+      .thank { min-height: 100vh; min-height: 100dvh; box-sizing: border-box; display: flex; align-items: center; justify-content: center; padding: 16px; }
+      .thank__card { width: 100%; max-width: 440px; box-sizing: border-box; padding: 32px 24px; background: var(--bg); border-radius: var(--radius); }
+      .thank__card .btn { text-decoration: none; margin-top: 8px; }
+      .thank__card .link-btn { display: inline-block; margin-top: 16px; text-decoration: none; }
+      .thank__when { margin: 12px 0; padding: 12px 16px; border-radius: var(--radius); background: var(--card); font-weight: 800; }
+    </style>
+
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1677800013871546');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1677800013871546&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
+  </head>
+  <body>
+    <main class="thank">
+      <div class="thank__card lead-done">
+        <div class="lead-done__icon" aria-hidden="true">✓</div>
+        <h1 id="thank-title">Вы зарегистрированы!</h1>
+        <p class="thank__when">Онлайн-урок · 19 ноября, четверг, 20:00 по Астане</p>
+        <p id="thank-text">Вступите в сообщество WhatsApp — туда пришлём ссылку на трансляцию и напоминание перед началом.</p>
+        <a class="btn btn--lg btn--block" id="thank-wa" href="https://chat.whatsapp.com/C7BneuIReakDO1O6pxVDV4">Вступить в сообщество WhatsApp</a>
+        <a class="link-btn" id="thank-back" href="/">Вернуться на страницу</a>
+      </div>
+    </main>
+    <script>
+    // Форма кладёт сюда имя: по нему понимаем, что человек пришёл из формы.
+    // Нет имени — зашли не из формы: без Lead и автоперехода, только кнопка.
+    (function () {
+      var community = 'https://chat.whatsapp.com/C7BneuIReakDO1O6pxVDV4';
+      if (location.pathname.indexOf('/online') === 0) document.getElementById('thank-back').href = '/online/';
+      var name = null;
+      try {
+        name = sessionStorage.getItem('airl_online_reg');
+        sessionStorage.removeItem('airl_online_reg');
+      } catch (e) {}
+      if (!name) return;
+      document.getElementById('thank-title').textContent = 'Спасибо, ' + name + '! Вы зарегистрированы';
+      document.getElementById('thank-text').textContent =
+        'Сейчас откроется сообщество в WhatsApp — вступите, туда пришлём ссылку на трансляцию.';
+      var button = document.getElementById('thank-wa');
+      // При автопереходе кнопка не нужна; покажем её, только если WhatsApp не открылся
+      button.style.display = 'none';
+      setTimeout(function () { button.style.display = ''; }, 5000);
+      if (window.fbq) fbq('track', 'Lead');
+      setTimeout(function () { window.location.href = community; }, 2500);
+    })();
+    </script>
+  </body>
+</html>
