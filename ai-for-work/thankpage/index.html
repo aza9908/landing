@@ -39,29 +39,29 @@
         <div class="lead-done__icon" aria-hidden="true">✓</div>
         <h1 id="thank-title">Спасибо! Заявка принята</h1>
         <p id="thank-text">Менеджер свяжется с вами в WhatsApp.</p>
-        <a class="btn btn--lg btn--block" id="thank-wa" href="https://wa.me/77072314955">Написать в WhatsApp</a>
+        <a class="btn btn--lg btn--block" id="thank-wa" href="https://chat.whatsapp.com/Ce7Q6JbBHppGIORybNS39P">Вступить в сообщество WhatsApp</a>
         <a class="link-btn" href="/ai-for-work/workshop/">Вернуться на страницу</a>
       </div>
     </main>
     <script>
-    // Форма кладёт сюда ссылку на WhatsApp с данными заявки: в адрес страницы их не выносим,
-    // чтобы имя и телефон не уходили в пиксель. Нет ссылки — зашли не из формы: без Lead и перехода.
+    // Форма кладёт сюда ссылку на WhatsApp: по ней понимаем, что человек пришёл из формы.
+    // Нет ссылки — зашли не из формы: без Lead и перехода. Ведём в сообщество, а не в личный чат.
     (function () {
-      var link = null;
+      var community = 'https://chat.whatsapp.com/Ce7Q6JbBHppGIORybNS39P';
+      var fromForm = null;
       try {
-        link = sessionStorage.getItem('airl_wa_link');
+        fromForm = sessionStorage.getItem('airl_wa_link');
         sessionStorage.removeItem('airl_wa_link');
       } catch (e) {}
-      if (!link) return;
+      if (!fromForm) return;
       var button = document.getElementById('thank-wa');
-      button.href = link;
       // При автопереходе кнопка не нужна; покажем её, только если WhatsApp не открылся
       button.style.display = 'none';
       setTimeout(function () { button.style.display = ''; }, 5000);
       document.getElementById('thank-text').textContent =
-        'Сейчас откроется WhatsApp — отправьте сообщение менеджеру, и он ответит вам.';
+        'Сейчас откроется сообщество AIRL в WhatsApp — вступите, чтобы не пропустить новости воркшопа.';
       if (window.fbq) fbq('track', 'Lead');
-      setTimeout(function () { window.location.href = link; }, 1500);
+      setTimeout(function () { window.location.href = community; }, 1500);
     })();
     </script>
   </body>
