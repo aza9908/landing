@@ -195,22 +195,26 @@ a { color: inherit; }
 .hero__art,
 .final__art {
   position: absolute; z-index: -1; pointer-events: none;
-  /* /crystal-spin.mp4, /dna-spin.mp4 — 3D-рендер с главной, вращение вокруг
-     своей оси; фон в ролике чёрный, screen делает его прозрачным */
+  /* 3D-объект рисует /crystal3d.js (WebGL) на чёрном фоне — screen делает фон
+     прозрачным. Внутри лежит запасная картинка: она видна до загрузки скрипта
+     и если WebGL недоступен. */
   mix-blend-mode: screen;
   aspect-ratio: 1; height: auto;
-  object-fit: contain;
-  background: transparent;
   animation: crystal-float 9s ease-in-out infinite;
 }
+.hero__art > img,
+.final__art > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; transition: opacity .8s ease; }
+.hero__art.is-3d > img,
+.final__art.is-3d > img { opacity: 0; }
 @keyframes crystal-float {
-  0%, 100% { translate: 0 0; scale: 1; }
-  50% { translate: 0 -14px; scale: 1.03; }
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -10px; }
 }
 .hero__art {
-  right: -34%; top: -8%;
-  width: 115%;
-  opacity: .6;
+  /* телефон: звезда уходит вправо-вверх и приглушена, чтобы не спорить с текстом */
+  right: -46%; top: -12%;
+  width: 104%;
+  opacity: .42;
 }
 
 .hero__body { padding: 32px 20px 0; }
@@ -627,26 +631,33 @@ body.modal-open { overflow: hidden; }
 /* ── Фото «Нам доверяют»: при наведении фото раскрывается до полного кадра
    (4:3, как снято) и становится цветным, соседние сужаются ── */
 @media (hover: hover) and (min-width: 960px) {
-  /* Наведённое фото раскрывается во все стороны (выше, ниже и шире — до
-     полного кадра 4:3) и становится цветным. Соседи сужаются, а зазор между
-     карточками остаётся — фото не наезжает на соседние. */
+  /* Наведённое (или нажатое) фото увеличивается из своего центра до полного
+     кадра 4:3 и становится цветным. Оно ложится ПОВЕРХ соседних: остальные
+     карточки не двигаются, не сжимаются и не меняют размер. */
   .gallery {
-    --gh: clamp(320px, 33vw, 400px);   /* высота в покое */
-    --grow: 56px;                       /* насколько фото вырастает по высоте */
-    display: flex; align-items: center; gap: 16px;
-    height: calc(var(--gh) + var(--grow));
+    --gh: clamp(320px, 31vw, 392px);                 /* высота карточки в покое */
+    --full-h: calc(var(--gh) + 64px);                /* высота раскрытого фото */
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: var(--gh);
+    gap: 16px; margin-block: 60px 32px;              /* запас сверху и снизу под раскрытое фото */
   }
   .gallery figure {
-    flex: 1 1 0; min-width: 0; height: var(--gh); aspect-ratio: auto;
-    transition: flex .7s var(--ease), height .7s var(--ease), box-shadow .7s var(--ease), border-radius .7s var(--ease);
+    justify-self: center; align-self: center;
+    width: 100%; height: 100%; aspect-ratio: auto;
+    z-index: 1; cursor: zoom-in; outline: 0;
+    transition: width .55s var(--ease), height .55s var(--ease), box-shadow .55s var(--ease), z-index 0s .55s;
   }
-  .gallery figure:hover {
-    flex: 0 0 calc((var(--gh) + var(--grow)) * 4 / 3);
-    height: calc(var(--gh) + var(--grow));
-    border-radius: 22px;
-    box-shadow: 0 36px 70px -34px #16161aa6;
+  /* крайние раскрываются внутрь, чтобы не вылезать за поля страницы */
+  .gallery figure:first-child { justify-self: start; }
+  .gallery figure:last-child { justify-self: end; }
+  .gallery figure:hover,
+  .gallery figure:focus {
+    width: calc(var(--full-h) * 4 / 3); height: var(--full-h);
+    z-index: 5;
+    box-shadow: 0 0 0 1px #ffffff14, 0 40px 80px -30px #16161acc;
+    transition: width .55s var(--ease), height .55s var(--ease), box-shadow .55s var(--ease), z-index 0s;
   }
-  .gallery figure:hover img { filter: grayscale(0); transform: none; }
+  .gallery figure:hover img,
+  .gallery figure:focus img { filter: grayscale(0); transform: none; }
 }
 /* Телефон и планшет: фото цветные и целиком, без эффектов */
 @media (hover: none), (width <= 959px) {

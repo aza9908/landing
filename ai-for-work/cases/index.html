@@ -26,7 +26,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Victor+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/ai-for-work/cases/cases.css?v=3" />
-    <link rel="stylesheet" href="/ai-for-work/workshop/workshop.css?v=5" />
+    <link rel="stylesheet" href="/ai-for-work/workshop/workshop.css?v=6" />
     <script src="/ai-for-work/cases/cases.js?v=4" defer></script>
 
     <!-- Meta Pixel Code -->
@@ -51,15 +51,17 @@
       /* ДНК-кристалл справа (как на главной), текст слева */
       .cases-hero .hero__body { padding-bottom: 48px; position: relative; }
       /* .cases-hero в селекторе — чтобы общий стиль .hero__art из workshop.css не перебивал */
-      .cases-hero .hero__art--dna { right: -30%; top: 0; width: 100%; margin-top: 0; opacity: .5; }
+      .cases-hero .hero__art--dna { right: -34%; top: -2%; width: 96%; margin-top: 0; opacity: .42; }
       @media (width >= 768px) {
         .cases-hero .hero__body { padding: 88px 44% 96px 56px; }
         /* ролик квадратный, сама ДНК занимает ~55 % его высоты — так она целиком и крупно */
-        .cases-hero .hero__art--dna { right: 0; top: 50%; width: min(52%, 640px); margin-top: calc(min(52%, 640px) / -2); opacity: 1; }
+        .cases-hero .hero__art--dna { right: 0; top: 50%; width: min(46%, 560px); margin-top: calc(min(46%, 560px) / -2); opacity: 1; }
       }
       .final .btn { text-decoration: none; }
       .sticky-cta .btn { text-align: center; line-height: 1.2; padding-top: 8px; padding-bottom: 8px; }
     </style>
+    <!-- Стеклянные 3D-объекты (звезда, ДНК): scripts/crystal3d.src.js -->
+    <script type="module" src="/crystal3d.js?v=1"></script>
   </head>
   <body>
     <header class="header">
@@ -83,7 +85,7 @@
             инструменты они сделали на воркшопах AI Research Labs, — и представьте, что можно собрать для вашей задачи.
           </p>
           </div>
-          <video class="hero__art hero__art--dna" src="/dna-spin.mp4?v=2" poster="/dna-spin.webp?v=2" autoplay muted loop playsinline preload="auto" aria-hidden="true" tabindex="-1"></video>
+          <div class="hero__art hero__art--dna" data-crystal="dna" aria-hidden="true"><img src="/dna-still.webp" alt="" width="1400" height="1400" decoding="async" /></div>
         </div>
       </section>
 
@@ -99,7 +101,7 @@
       <section class="container section" id="final-cta">
         <div class="final">
           <div class="hero__grid" aria-hidden="true"></div>
-          <video class="final__art" src="/crystal-spin.mp4?v=2" poster="/crystal-spin.webp?v=2" autoplay muted loop playsinline preload="auto" aria-hidden="true" tabindex="-1"></video>
+          <div class="final__art" data-crystal="star" aria-hidden="true"><img src="/crystal-still.webp" alt="" width="1400" height="1400" decoding="async" /></div>
           <div class="final__body">
           <div>
             <h2 class="final__title">Хотите так же?</h2>

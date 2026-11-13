@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Готовый продукт за 1 день — воркшоп 15 ноября</title>
-    <meta name="description" content="Воркшоп AI Research Labs × Astana IT University. Утром приходите с задачей из бизнеса — вечером уходите с работающим MVP. 15 ноября, 11:00–17:00." />
+    <meta name="description" content="Воркшоп AI Research Labs × Astana IT University. Утром приходите с задачей из бизнеса — вечером уходите с работающим прототипом. 15 ноября, 11:00–17:00." />
     <meta name="theme-color" content="#ededf3" />
     <link rel="icon" type="image/png" href="/ai-for-work/workshop/favicon.png" />
     <link rel="apple-touch-icon" href="/ai-for-work/workshop/apple-touch-icon.png" />
@@ -14,7 +14,7 @@
     <meta property="og:locale" content="ru_RU" />
     <meta property="og:site_name" content="AI Research Labs" />
     <meta property="og:title" content="Готовый продукт за 1 день — воркшоп 15 ноября" />
-    <meta property="og:description" content="Утром приходите с задачей из бизнеса — вечером уходите с работающим MVP. Astana IT University, 11:00–17:00." />
+    <meta property="og:description" content="Утром приходите с задачей из бизнеса — вечером уходите с работающим прототипом. Astana IT University, 11:00–17:00." />
     <meta property="og:url" content="https://airl.kz/ai-for-work/workshop/" />
     <meta property="og:image" content="https://airl.kz/ai-for-work/workshop/og-image.jpg" />
     <meta property="og:image:width" content="1200" />
@@ -54,8 +54,10 @@
     </script>
     <link rel="stylesheet" href="/ai-for-work/cases/cases.css?v=3" />
     <!-- Стиль страницы в системе airl.kz: Inter Tight + Victor Mono, #16161a / #ededf3 -->
-    <link rel="stylesheet" href="/ai-for-work/workshop/workshop.css?v=5" />
+    <link rel="stylesheet" href="/ai-for-work/workshop/workshop.css?v=6" />
     <script src="/ai-for-work/cases/cases.js?v=4" defer></script>
+    <!-- Стеклянные 3D-объекты (звезда, ДНК): scripts/crystal3d.src.js -->
+    <script type="module" src="/crystal3d.js?v=1"></script>
   </head>
   <body>
     <header class="header">
@@ -79,12 +81,12 @@
       <section class="container hero-wrap">
         <div class="hero">
           <div class="hero__grid" aria-hidden="true"></div>
-          <video class="hero__art" src="/crystal-spin.mp4?v=2" poster="/crystal-spin.webp?v=2" autoplay muted loop playsinline preload="auto" aria-hidden="true" tabindex="-1"></video>
+          <div class="hero__art" data-crystal="star" aria-hidden="true"><img src="/crystal-still.webp" alt="" width="1400" height="1400" decoding="async" /></div>
           <div class="hero__body">
             <p class="pill">Sunday Open · Astana IT University × AI Research Labs</p>
             <h1 class="hero__title">Готовый продукт <span>за&nbsp;1&nbsp;день</span></h1>
             <p class="hero__lead">
-              Утром вы приходите с задачей из своего бизнеса. Вечером уходите с работающим MVP, который можно
+              Утром вы приходите с задачей из своего бизнеса. Вечером уходите с работающим прототипом, который можно
               показать команде. Без кода и без программистов.
             </p>
             <div class="hero__cta">
@@ -95,7 +97,7 @@
           <ul class="hero__stats">
             <li><strong>15 ноября</strong><span>Воскресенье, 11:00–17:00</span></li>
             <li><strong>6 часов</strong><span>Живой практики с тренерами</span></li>
-            <li><strong>1 продукт</strong><span>Ваш готовый MVP к вечеру</span></li>
+            <li><strong>1 продукт</strong><span>Ваш рабочий прототип к вечеру</span></li>
           </ul>
         </div>
       </section>
@@ -168,7 +170,7 @@
           </li>
           <li class="card card--line stage">
             <p class="stage__time">После обеда</p>
-            <h3 class="card__title">Сборка MVP</h3>
+            <h3 class="card__title">Сборка прототипа</h3>
             <p class="muted">Повторяй за мной → делай правильно → делай сам. Тренеры помогают каждому.</p>
             <p class="stage__result">Прототип работает</p>
           </li>
@@ -176,7 +178,7 @@
             <p class="stage__time">Финал · 17:00</p>
             <h3 class="card__title">Демо</h3>
             <p class="muted">Показываете продукт, тренеры разбирают его и дают следующий шаг.</p>
-            <p class="stage__result stage__result--solid">MVP + план развития</p>
+            <p class="stage__result stage__result--solid">Продукт + план развития</p>
           </li>
         </ol>
       </section>
@@ -188,7 +190,7 @@
           <h2 class="section__title">С чем вы уйдёте вечером</h2>
         </div>
         <ul class="rows">
-          <li><span class="index">01</span><h3>Ваш первый MVP</h3><p>Работающий ИИ-продукт под вашу задачу</p></li>
+          <li><span class="index">01</span><h3>Ваш первый продукт</h3><p>Работающий ИИ-продукт под вашу задачу</p></li>
           <li><span class="index">02</span><h3>Цель и план</h3><p>Что развивать дальше в вашей компании</p></li>
           <li><span class="index">03</span><h3>Навык сборки</h3><p>Сможете собирать прототипы сами</p></li>
           <li><span class="index">04</span><h3>Понимание IT</h3><p>Знаете, что реально и сколько это стоит</p></li>
@@ -203,7 +205,7 @@
         <div class="section__head">
           <p class="section__num">04 — Примеры</p>
           <h2 class="section__title">Что можно собрать за один день</h2>
-          <p class="section__aside">Примеры MVP участников</p>
+          <p class="section__aside">Примеры продуктов участников</p>
         </div>
         <div class="grid grid--3 grid--dense">
           <article class="card example"><p class="eyebrow">Руководитель</p><p>Дашборд с ключевыми цифрами компании</p></article>
@@ -214,7 +216,7 @@
           <article class="card example"><p class="eyebrow">Операции</p><p>Форма заявок с автоматической обработкой</p></article>
         </div>
         <p class="note">
-          За день MVP собирается на ваших примерах или выгрузке данных. Подключение к 1С, iiko и CRM, свой сервер и
+          За день прототип собирается на ваших примерах или выгрузке данных. Подключение к 1С, iiko и CRM, свой сервер и
           публикация — в основной программе.
         </p>
 
@@ -226,7 +228,7 @@
             <ul class="checks">
               <li>Сессии 1–2 программы</li>
               <li>Цель разработки и дизайн</li>
-              <li>Ваш первый MVP</li>
+              <li>Ваш первый продукт</li>
             </ul>
           </article>
           <span class="steps__arrow" aria-hidden="true">→</span>
@@ -243,7 +245,7 @@
           </article>
         </div>
         <p class="note note--strong">
-          После воркшопа MVP можно довести до рабочего решения для всей компании — без старта с нуля.
+          После воркшопа прототип можно довести до рабочего решения для всей компании — без старта с нуля.
         </p>
       </section>
 
@@ -305,19 +307,19 @@
           <li>Yassa Education</li>
         </ul>
         <div class="gallery">
-          <figure>
+          <figure tabindex="0">
             <img src="/ai-for-work/workshop/assets/event-msu-BlqMMisJ.07354769.jpg" alt="Выступление в Казахстанском филиале МГУ" width="640" height="480" loading="lazy" />
             <figcaption>Казахстанский филиал МГУ</figcaption>
           </figure>
-          <figure>
+          <figure tabindex="0">
             <img src="/ai-for-work/workshop/assets/event-aitu-partnership-BwCxZWmW.6dcad37e.jpg" alt="Партнёрство с Astana IT University" width="640" height="479" loading="lazy" />
             <figcaption>Партнёрство с Astana IT University</figcaption>
           </figure>
-          <figure>
+          <figure tabindex="0">
             <img src="/ai-for-work/workshop/assets/event-kaizen-S8ddtTM2.13821fae.jpg" alt="Воркшоп в Kaizen Center, Алматы" width="640" height="480" loading="lazy" />
             <figcaption>Kaizen Center, Алматы</figcaption>
           </figure>
-          <figure>
+          <figure tabindex="0">
             <img src="/ai-for-work/workshop/assets/event-pingwin-B-ZG5RIQ.53afea04.jpg" alt="Воркшоп для PINGWIN Entertainment Group" width="640" height="480" loading="lazy" />
             <figcaption>PINGWIN Entertainment Group</figcaption>
           </figure>
@@ -341,7 +343,7 @@
       <section class="container section" id="final-cta">
         <div class="final">
           <div class="hero__grid" aria-hidden="true"></div>
-          <video class="final__art" src="/crystal-spin.mp4?v=2" poster="/crystal-spin.webp?v=2" autoplay muted loop playsinline preload="auto" aria-hidden="true" tabindex="-1"></video>
+          <div class="final__art" data-crystal="star" aria-hidden="true"><img src="/crystal-still.webp" alt="" width="1400" height="1400" decoding="async" /></div>
           <div class="final__body">
             <p class="pill">15 ноября · Astana IT University</p>
             <h2 class="final__title">Запишитесь на&nbsp;15&nbsp;ноября</h2>
