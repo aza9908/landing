@@ -1454,3 +1454,24 @@ body.m-menu-lock { overflow: hidden; }
   .partners-track { animation: none; flex-wrap: wrap; justify-content: center; flex-shrink: 1; padding: 12px 16px 20px; }
   .partners-card[aria-hidden="true"] { display: none; }
 }
+
+/* ── Анонсы мероприятий сразу под «Наши партнёры» (см. moveUpcomingEvents) ── */
+.events-section.events-upcoming { background: #e8e8f2; padding: 0 32px 120px; overflow: hidden; }
+.events-content.events-upcoming-content {
+  clip-path: none; opacity: 1; transform: none;
+}
+.events-past .events-content { gap: 0; }
+/* Свой курсор-превью: стрелку не прячем, картинка идёт следом. */
+.events-upcoming .event-row.hovered { cursor: pointer; }
+.events-upcoming-preview {
+  position: absolute; left: 0; top: 0; z-index: 10;
+  width: 120px; height: 138px; object-fit: cover; border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, .15);
+  pointer-events: none; opacity: 0; scale: .85;
+  transition: opacity .25s, scale .3s cubic-bezier(.34, 1.25, .64, 1);
+}
+.events-upcoming.is-previewing .events-upcoming-preview { opacity: 1; scale: 1; }
+@media (hover: none), (max-width: 768px) {
+  .events-upcoming-preview { display: none; }
+  .events-section.events-upcoming { padding: 24px 16px 64px; }
+}

@@ -508,6 +508,54 @@
     hero.after(section);
   }
 
+  // Анонсы мероприятий (заголовок «Мероприятия» + список AI for work /
+  // AI for leaders) — сразу под «Наши партнёры». Переносим живой узел из
+  // бандла, поэтому клики по строкам по-прежнему открывают страницы программ.
+  // Прошедшие мероприятия остаются на своём месте ниже.
+  function moveUpcomingEvents() {
+    const partners = document.getElementById('partners');
+    const past = document.getElementById('events');
+    const top = past && past.querySelector('.events-top');
+    if (!partners || !top || document.getElementById('events-upcoming')) return;
+
+    const scope = top.getAttributeNames().find((n) => n.startsWith('data-v-'));
+    const section = document.createElement('section');
+    section.id = 'events-upcoming';
+    section.className = 'events-section events-upcoming';
+    if (scope) section.setAttribute(scope, '');
+    const content = document.createElement('div');
+    content.className = 'events-content events-upcoming-content';
+    if (scope) content.setAttribute(scope, '');
+    content.appendChild(top);
+    section.appendChild(content);
+    partners.after(section);
+
+    // Пункт меню «Мероприятия» ведёт к анонсам, а не к архиву.
+    past.id = 'events-past';
+    section.id = 'events';
+    past.classList.add('events-past');
+
+    // Превью-картинка бандла рисуется в старой секции и здесь бы «уехала»:
+    // показываем свою, привязанную к курсору внутри нового блока.
+    const preview = document.createElement('img');
+    preview.className = 'events-upcoming-preview';
+    preview.alt = '';
+    preview.setAttribute('aria-hidden', 'true');
+    section.appendChild(preview);
+    const rows = [...top.querySelectorAll('.event-row')];
+    rows.forEach((row, i) => {
+      row.addEventListener('mouseenter', () => {
+        preview.src = ['/2.jpg', '/3.jpg'][i] || '/2.jpg';
+        section.classList.add('is-previewing');
+      });
+      row.addEventListener('mouseleave', () => section.classList.remove('is-previewing'));
+    });
+    section.addEventListener('mousemove', (e) => {
+      const r = section.getBoundingClientRect();
+      preview.style.transform = `translate(${e.clientX - r.left}px, ${e.clientY - r.top}px) translate(-50%, -50%)`;
+    });
+  }
+
   function swapBrandLogos() {
     const targets = [
       document.querySelector('.header .logo'),
@@ -540,6 +588,7 @@
     fixBlogNavLinks();
     fixEventTags();
     buildPartnersSection();
+    moveUpcomingEvents();
     rebuildForWhomSection();
     rebuildTeamSection();
     bindLeadersButton();

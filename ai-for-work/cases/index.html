@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Кейсы участников — AI Research Labs</title>
     <meta name="description" content="Юрист, сисадмин, эксперт по стратегии и руководители без опыта программирования собрали рабочие продукты с ИИ на воркшопах AI Research Labs. Смотрите видео." />
-    <meta name="theme-color" content="#17162b" />
+    <meta name="theme-color" content="#ededf3" />
     <link rel="icon" type="image/png" href="/ai-for-work/workshop/favicon.png" />
     <link rel="apple-touch-icon" href="/ai-for-work/workshop/apple-touch-icon.png" />
 
@@ -22,8 +22,11 @@
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="canonical" href="https://airl.kz/ai-for-work/cases/" />
 
-    <link rel="stylesheet" href="/ai-for-work/workshop/assets/index-C9v190lA.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Victor+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/ai-for-work/cases/cases.css" />
+    <link rel="stylesheet" href="/ai-for-work/workshop/workshop.css?v=1" />
     <script src="/ai-for-work/cases/cases.js" defer></script>
 
     <!-- Meta Pixel Code -->
@@ -44,37 +47,42 @@
     /></noscript>
     <!-- End Meta Pixel Code -->
     <style>
-      .cases-hero .hero__title { font-size: clamp(32px, 8vw, 56px); }
+      .cases-hero .hero__title { font-size: clamp(38px, 8vw, 80px); }
+      .cases-hero .hero__body { padding-bottom: 40px; }
+      @media (width >= 768px) { .cases-hero .hero__body { padding-bottom: 80px; } }
       .final .btn { text-decoration: none; }
       .sticky-cta .btn { text-align: center; line-height: 1.2; padding-top: 8px; padding-bottom: 8px; }
-      .footer { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
-      @media (width >= 768px) { .footer { padding-bottom: 40px; } }
     </style>
   </head>
   <body>
     <header class="header">
-      <div class="container header__inner">
+      <div class="header__inner">
         <a class="header__logos" href="https://airl.kz" aria-label="AI Research Labs">
-          <img src="/ai-for-work/workshop/assets/logo-airl-CuS-uukJ.c050f0a8.png" alt="AI Research Labs" width="260" height="82" />
+          <img class="header__airl" src="/logo-airl-white.png" alt="AI Research Labs" width="560" height="179" />
         </a>
-        <a class="btn btn--sm" data-wa href="https://wa.me/77072314955" target="_blank" rel="noopener">Написать менеджеру</a>
+        <a class="btn btn--light btn--sm" data-wa href="https://wa.me/77072314955" target="_blank" rel="noopener">Написать менеджеру</a>
       </div>
     </header>
 
     <main>
       <section class="container hero-wrap">
         <div class="hero cases-hero">
-          <p class="eyebrow">AI Research Labs · кейсы участников</p>
+          <div class="hero__grid" aria-hidden="true"></div>
+          <img class="hero__art" src="/glass.jpg" alt="" width="1200" height="1800" />
+          <div class="hero__body">
+          <p class="pill">AI Research Labs · кейсы участников</p>
           <h1 class="hero__title">Они не программисты. <span>Но собрали это с ИИ</span></h1>
           <p class="hero__lead">
             Юрист, системный администратор, эксперт по стратегии, руководители бизнеса. Посмотрите, какие рабочие
             инструменты они сделали на воркшопах AI Research Labs, — и представьте, что можно собрать для вашей задачи.
           </p>
+          </div>
         </div>
       </section>
 
       <section class="container section" id="cases">
         <div class="section__head">
+          <p class="section__num">Видео-кейсы</p>
           <h2 class="section__title">6 историй участников</h2>
           <p class="section__aside">Листайте стрелкой вправо · нажмите на видео, чтобы включить звук</p>
         </div>
@@ -83,6 +91,9 @@
 
       <section class="container section" id="final-cta">
         <div class="final">
+          <div class="hero__grid" aria-hidden="true"></div>
+          <img class="final__art" src="/glass.jpg" alt="" width="1200" height="1800" loading="lazy" />
+          <div class="final__body">
           <div>
             <h2 class="final__title">Хотите так же?</h2>
             <p class="final__text">
@@ -93,12 +104,16 @@
             <a class="btn btn--lg btn--light" data-wa href="https://wa.me/77072314955" target="_blank" rel="noopener">Свяжитесь с менеджером</a>
             <p class="final__meta">Ответим в WhatsApp</p>
           </div>
+          </div>
         </div>
       </section>
     </main>
 
     <footer class="footer">
-      <div class="container">AI Research Labs · <a href="https://airl.kz" target="_blank" rel="noopener">airl.kz</a></div>
+      <div class="container footer__inner">
+        <img src="/logo-airl.png" alt="AI Research Labs" width="120" height="38" loading="lazy" />
+        <p>© 2026 AI Research Labs · <a href="https://airl.kz" target="_blank" rel="noopener">airl.kz</a></p>
+      </div>
     </footer>
 
     <div class="sticky-cta">

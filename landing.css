@@ -1062,3 +1062,89 @@ a { color: inherit; text-decoration: none; }
 .lp-cities--one { align-items: start; }
 .lp-cities--one .lp-city-wrap { display: block; min-height: 0; }
 .lp-cities--one .lp-city { height: auto; }
+
+
+/* ── v10: читаемость на тёмном фоне ──
+   Фон /lp-hero-bg.png — яркая пиксельная сетка. Тонкий серый Victor Mono
+   с прозрачностью 45–60 % на ней сливался. Притемняем фон под контентом,
+   текст делаем светлее и плотнее, карточкам даём плотную подложку. */
+html:not([data-theme='light']) .lp-bg::after {
+  background:
+    radial-gradient(ellipse 60% 46% at 50% 30%, #03030600 0%, #0303068c 100%),
+    linear-gradient(180deg, #03030673 0%, #030306a6 45%, #030306 100%);
+}
+
+html:not([data-theme='light']) .lp-hero-sub {
+  color: #ffffffe0;
+  font-weight: 500;
+  font-size: clamp(14px, 1.8vw, 17px);
+  line-height: 1.6;
+  text-shadow: 0 1px 16px #030306, 0 0 2px #030306;
+}
+
+html:not([data-theme='light']) .lp-section p {
+  color: #ffffffd1;
+  font-weight: 500;
+  line-height: 1.65;
+  text-shadow: 0 1px 14px #030306;
+}
+
+html:not([data-theme='light']) .lp-eyebrow {
+  color: #d4c9ff;
+  font-weight: 600;
+  text-shadow: 0 1px 12px #030306;
+}
+
+html:not([data-theme='light']) .lp-date-badge {
+  color: #fff;
+  font-weight: 600;
+  background: #0b0b12b3;
+  border-color: #ffffff33;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Карточки: плотная тёмная подложка вместо 3 % белого */
+html:not([data-theme='light']) :is(.lp-day, .lp-stat, .lp-feature, .lp-city, .lp-faq details) {
+  background: #0b0b12d9;
+  border-color: #ffffff21;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+html:not([data-theme='light']) :is(.lp-day, .lp-stat, .lp-feature, .lp-city):hover {
+  background: #11111ae6;
+  border-color: #ffffff38;
+}
+html:not([data-theme='light']) .lp-city-name { background: #ffffff0d; }
+
+html:not([data-theme='light']) .lp-feature,
+html:not([data-theme='light']) .lp-day li {
+  color: #ffffffd9;
+  font-weight: 500;
+}
+html:not([data-theme='light']) .lp-feature strong { color: #fff; }
+html:not([data-theme='light']) .lp-day-num,
+html:not([data-theme='light']) .lp-section .lp-day-result,
+html:not([data-theme='light']) .lp-rm-note { color: #d4c9ff; font-weight: 500; }
+
+html:not([data-theme='light']) .lp-stat span,
+html:not([data-theme='light']) .lp-rm-when {
+  color: #ffffffb8;
+  font-weight: 500;
+}
+
+html:not([data-theme='light']) .lp-city-tag {
+  color: #ffffffe6;
+  font-weight: 500;
+  background: #ffffff12;
+  border-color: #ffffff2e;
+}
+
+html:not([data-theme='light']) .lp-section .lp-faq p { color: #ffffffcc; text-shadow: none; }
+html:not([data-theme='light']) .lp-nav a { color: #ffffffc2; }
+html:not([data-theme='light']) .lp-nav a:hover { color: #fff; }
+html:not([data-theme='light']) .lp-footer,
+html:not([data-theme='light']) .lp-footer a { color: #ffffff99; }
+
+/* Штамп «Открыт набор» — светлее, чтобы не терялся на сетке */
+html:not([data-theme='light']) .lp-stamp-open text { fill: #ffffffd9; font-weight: 600; }

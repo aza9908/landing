@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Готовый продукт за 1 день — воркшоп 15 ноября</title>
     <meta name="description" content="Воркшоп AI Research Labs × Astana IT University. Утром приходите с задачей из бизнеса — вечером уходите с работающим MVP. 15 ноября, 11:00–17:00." />
-    <meta name="theme-color" content="#17162b" />
+    <meta name="theme-color" content="#ededf3" />
     <link rel="icon" type="image/png" href="/ai-for-work/workshop/favicon.png" />
     <link rel="apple-touch-icon" href="/ai-for-work/workshop/apple-touch-icon.png" />
 
@@ -21,7 +21,9 @@
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <script type="module" crossorigin src="/ai-for-work/workshop/assets/index-CzD24wWI.411de951.js"></script>
-    <link rel="stylesheet" crossorigin href="/ai-for-work/workshop/assets/index-C9v190lA.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Victor+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="canonical" href="https://airl.kz/ai-for-work/workshop/">
 
     <!-- Meta Pixel Code -->
@@ -51,41 +53,50 @@
       });
     </script>
     <link rel="stylesheet" href="/ai-for-work/cases/cases.css" />
+    <!-- Стиль страницы в системе airl.kz: Inter Tight + Victor Mono, #16161a / #ededf3 -->
+    <link rel="stylesheet" href="/ai-for-work/workshop/workshop.css?v=1" />
     <script src="/ai-for-work/cases/cases.js" defer></script>
-    <style>
-      /* Две узкие карточки тренеров на планшете: фото над текстом, чтобы текст не сжимался */
-      @media (width >= 480px) and (width <= 959px) { .trainer { flex-direction: column; } }
-    </style>
   </head>
   <body>
     <header class="header">
-      <div class="container header__inner">
-        <div class="header__logos">
-          <img src="/ai-for-work/workshop/assets/logo-airl-CuS-uukJ.c050f0a8.png" alt="AI Research Labs" width="260" height="82" />
+      <div class="header__inner">
+        <a class="header__logos" href="/" aria-label="AI Research Labs — на главную">
+          <img class="header__airl" src="/logo-airl-white.png" alt="AI Research Labs" width="560" height="179" />
           <span class="header__x" aria-hidden="true">×</span>
-          <img src="/ai-for-work/workshop/assets/logo-aitu-DjMDJ4KK.png" alt="Astana IT University" width="200" height="104" />
-        </div>
-        <button class="btn btn--sm" type="button" data-open-form>Зарегистрироваться</button>
+          <img class="header__aitu" src="/ai-for-work/workshop/assets/logo-aitu-DjMDJ4KK.png" alt="Astana IT University" width="200" height="104" />
+        </a>
+        <nav class="header__nav" aria-label="Разделы страницы">
+          <a href="#program">Программа</a>
+          <a href="#trainers">Тренеры</a>
+          <a href="#cases">Кейсы</a>
+        </nav>
+        <button class="btn btn--light btn--sm" type="button" data-open-form>Регистрация <span class="btn__arrow" aria-hidden="true">↗</span></button>
       </div>
     </header>
+
     <main id="app">
+      <!-- Первый экран -->
       <section class="container hero-wrap">
         <div class="hero">
-          <p class="eyebrow">Sunday Open · Astana IT University × AI Research Labs</p>
-          <h1 class="hero__title">Готовый продукт <span>за&nbsp;1&nbsp;день</span></h1>
-          <p class="hero__lead">
-            Утром вы приходите с задачей из своего бизнеса. Вечером уходите с работающим MVP, который можно
-            показать команде. Без кода и без программистов.
-          </p>
+          <div class="hero__grid" aria-hidden="true"></div>
+          <img class="hero__art" src="/glass.jpg" alt="" width="1200" height="1800" fetchpriority="high" />
+          <div class="hero__body">
+            <p class="pill">Sunday Open · Astana IT University × AI Research Labs</p>
+            <h1 class="hero__title">Готовый продукт <span>за&nbsp;1&nbsp;день</span></h1>
+            <p class="hero__lead">
+              Утром вы приходите с задачей из своего бизнеса. Вечером уходите с работающим MVP, который можно
+              показать команде. Без кода и без программистов.
+            </p>
+            <div class="hero__cta">
+              <button class="btn btn--light btn--lg" type="button" data-open-form>Хочу на воркшоп <span class="btn__arrow" aria-hidden="true">↗</span></button>
+              <span class="hero__price">Стоимость по запросу</span>
+            </div>
+          </div>
           <ul class="hero__stats">
             <li><strong>15 ноября</strong><span>Воскресенье, 11:00–17:00</span></li>
             <li><strong>6 часов</strong><span>Живой практики с тренерами</span></li>
             <li><strong>1 продукт</strong><span>Ваш готовый MVP к вечеру</span></li>
           </ul>
-          <div class="hero__cta">
-            <button class="btn btn--lg" type="button" data-open-form>Хочу на воркшоп</button>
-            <span class="hero__price">Стоимость по запросу</span>
-          </div>
         </div>
       </section>
       <div id="hero-end"></div>
@@ -101,39 +112,36 @@
               AI Research Labs — партнёр AITU, на Sunday Open мы уже проводили воркшоп по ИИ. Теперь — день практики
               для руководителей и предпринимателей.
             </p>
-            <ul class="chips">
-              <li>📅 15 ноября, воскресенье</li>
-              <li>🕚 11:00–17:00</li>
-              <li>📍 Astana IT University, Астана</li>
-            </ul>
+            <dl class="facts">
+              <div><dt>Дата</dt><dd>15 ноября, воскресенье</dd></div>
+              <div><dt>Время</dt><dd>11:00–17:00</dd></div>
+              <div><dt>Место</dt><dd>Astana IT University, Астана</dd></div>
+            </dl>
           </div>
         </div>
       </section>
 
       <!-- 01 Для кого -->
       <section class="container section" id="for-whom">
-        <h2 class="section__title"><span class="section__num">01</span>Для кого этот день</h2>
+        <div class="section__head">
+          <p class="section__num">01 — Аудитория</p>
+          <h2 class="section__title">Для кого этот день</h2>
+        </div>
         <div class="grid grid--3">
-          <article class="card card--soft card--row">
-            <span class="badge">1</span>
-            <div>
-              <h3 class="card__title">Собственники и CEO</h3>
-              <p class="muted">Хотите за один день понять, что ИИ реально даст вашему бизнесу.</p>
-            </div>
+          <article class="card card--line">
+            <span class="index">01</span>
+            <h3 class="card__title">Собственники и CEO</h3>
+            <p class="muted">Хотите за один день понять, что ИИ реально даст вашему бизнесу.</p>
           </article>
-          <article class="card card--soft card--row">
-            <span class="badge">2</span>
-            <div>
-              <h3 class="card__title">Руководители отделов</h3>
-              <p class="muted">Ищете, как снять рутину с команды, и хотите увидеть это на своей задаче.</p>
-            </div>
+          <article class="card card--line">
+            <span class="index">02</span>
+            <h3 class="card__title">Руководители отделов</h3>
+            <p class="muted">Ищете, как снять рутину с команды, и хотите увидеть это на своей задаче.</p>
           </article>
-          <article class="card card--soft card--row">
-            <span class="badge">3</span>
-            <div>
-              <h3 class="card__title">Предприниматели МСБ</h3>
-              <p class="muted">Нет IT-отдела, но есть идея инструмента, который давно нужен.</p>
-            </div>
+          <article class="card card--line">
+            <span class="index">03</span>
+            <h3 class="card__title">Предприниматели МСБ</h3>
+            <p class="muted">Нет IT-отдела, но есть идея инструмента, который давно нужен.</p>
           </article>
         </div>
       </section>
@@ -141,102 +149,69 @@
       <!-- 02 Как проходит день -->
       <section class="container section" id="program">
         <div class="section__head">
-          <h2 class="section__title"><span class="section__num">02</span>Как проходит день</h2>
+          <p class="section__num">02 — Программа</p>
+          <h2 class="section__title">Как проходит день</h2>
           <p class="section__aside">4 этапа · перерывы включены</p>
         </div>
-        <div class="grid grid--4">
-          <article class="card card--line stage">
-            <span class="badge">1</span>
+        <ol class="grid grid--4 timeline">
+          <li class="card card--line stage">
             <p class="stage__time">Старт · 11:00</p>
             <h3 class="card__title">Ваша цель разработки</h3>
             <p class="muted">Как ИИ работает в бизнесе. Решаем, какой продукт вы создадите.</p>
             <p class="stage__result">Цель определена</p>
-          </article>
-          <article class="card card--line stage">
-            <span class="badge">2</span>
+          </li>
+          <li class="card card--line stage">
             <p class="stage__time">До обеда</p>
             <h3 class="card__title">Задача и дизайн</h3>
             <p class="muted">Навыки AIRL. Описываем, что делает продукт и как выглядит.</p>
             <p class="stage__result">План продукта</p>
-          </article>
-          <article class="card card--line stage">
-            <span class="badge">3</span>
+          </li>
+          <li class="card card--line stage">
             <p class="stage__time">После обеда</p>
             <h3 class="card__title">Сборка MVP</h3>
             <p class="muted">Повторяй за мной → делай правильно → делай сам. Тренеры помогают каждому.</p>
             <p class="stage__result">Прототип работает</p>
-          </article>
-          <article class="card card--dark stage">
-            <span class="badge badge--light">4</span>
+          </li>
+          <li class="card card--dark stage">
             <p class="stage__time">Финал · 17:00</p>
             <h3 class="card__title">Демо</h3>
             <p class="muted">Показываете продукт, тренеры разбирают его и дают следующий шаг.</p>
             <p class="stage__result stage__result--solid">MVP + план развития</p>
-          </article>
-        </div>
+          </li>
+        </ol>
       </section>
 
       <!-- 03 С чем уйдёте -->
       <section class="container section" id="results">
-        <h2 class="section__title"><span class="section__num">03</span>С чем вы уйдёте вечером</h2>
-        <div class="grid grid--4">
-          <article class="card card--line">
-            <span class="badge">1</span>
-            <h3 class="card__title">Ваш первый MVP</h3>
-            <p class="muted">Работающий ИИ-продукт под вашу задачу</p>
-          </article>
-          <article class="card card--line">
-            <span class="badge">2</span>
-            <h3 class="card__title">Цель и план</h3>
-            <p class="muted">Что развивать дальше в вашей компании</p>
-          </article>
-          <article class="card card--line">
-            <span class="badge">3</span>
-            <h3 class="card__title">Навык сборки</h3>
-            <p class="muted">Сможете собирать прототипы сами</p>
-          </article>
-          <article class="card card--line">
-            <span class="badge">4</span>
-            <h3 class="card__title">Понимание IT</h3>
-            <p class="muted">Знаете, что реально и сколько это стоит</p>
-          </article>
+        <div class="section__head">
+          <p class="section__num">03 — Результат</p>
+          <h2 class="section__title">С чем вы уйдёте вечером</h2>
         </div>
+        <ul class="rows">
+          <li><span class="index">01</span><h3>Ваш первый MVP</h3><p>Работающий ИИ-продукт под вашу задачу</p></li>
+          <li><span class="index">02</span><h3>Цель и план</h3><p>Что развивать дальше в вашей компании</p></li>
+          <li><span class="index">03</span><h3>Навык сборки</h3><p>Сможете собирать прототипы сами</p></li>
+          <li><span class="index">04</span><h3>Понимание IT</h3><p>Знаете, что реально и сколько это стоит</p></li>
+        </ul>
         <div class="section__cta">
-          <button class="btn btn--lg" type="button" data-open-form>Хочу на воркшоп</button>
+          <button class="btn btn--lg" type="button" data-open-form>Хочу на воркшоп <span class="btn__arrow" aria-hidden="true">↗</span></button>
         </div>
       </section>
 
       <!-- 04 Что можно собрать -->
       <section class="container section" id="examples">
         <div class="section__head">
-          <h2 class="section__title"><span class="section__num">04</span>Что можно собрать за один день</h2>
+          <p class="section__num">04 — Примеры</p>
+          <h2 class="section__title">Что можно собрать за один день</h2>
           <p class="section__aside">Примеры MVP участников</p>
         </div>
         <div class="grid grid--3 grid--dense">
-          <article class="card card--soft example">
-            <p class="eyebrow">Руководитель</p>
-            <p>Дашборд с ключевыми цифрами компании</p>
-          </article>
-          <article class="card card--soft example">
-            <p class="eyebrow">Продажи</p>
-            <p>ИИ-ассистент, который отвечает клиентам</p>
-          </article>
-          <article class="card card--soft example">
-            <p class="eyebrow">Маркетинг</p>
-            <p>Сводный отчёт по рекламным кампаниям</p>
-          </article>
-          <article class="card card--soft example">
-            <p class="eyebrow">HR</p>
-            <p>Разбор откликов и отбор кандидатов</p>
-          </article>
-          <article class="card card--soft example">
-            <p class="eyebrow">Вся команда</p>
-            <p>Бот, который отвечает по базе знаний</p>
-          </article>
-          <article class="card card--soft example">
-            <p class="eyebrow">Операции</p>
-            <p>Форма заявок с автоматической обработкой</p>
-          </article>
+          <article class="card example"><p class="eyebrow">Руководитель</p><p>Дашборд с ключевыми цифрами компании</p></article>
+          <article class="card example"><p class="eyebrow">Продажи</p><p>ИИ-ассистент, который отвечает клиентам</p></article>
+          <article class="card example"><p class="eyebrow">Маркетинг</p><p>Сводный отчёт по рекламным кампаниям</p></article>
+          <article class="card example"><p class="eyebrow">HR</p><p>Разбор откликов и отбор кандидатов</p></article>
+          <article class="card example"><p class="eyebrow">Вся команда</p><p>Бот, который отвечает по базе знаний</p></article>
+          <article class="card example"><p class="eyebrow">Операции</p><p>Форма заявок с автоматической обработкой</p></article>
         </div>
         <p class="note">
           За день MVP собирается на ваших примерах или выгрузке данных. Подключение к 1С, iiko и CRM, свой сервер и
@@ -245,7 +220,7 @@
 
         <div class="steps">
           <article class="card card--dark step">
-            <p class="eyebrow eyebrow--on-dark">Шаг 1 · Сейчас</p>
+            <p class="eyebrow">Шаг 1 · Сейчас</p>
             <h3 class="step__title">Готовый продукт за 1 день</h3>
             <p class="step__sub">15 ноября · 6 часов</p>
             <ul class="checks">
@@ -275,16 +250,17 @@
       <!-- 05 Тренеры -->
       <section class="container section" id="trainers">
         <div class="section__head">
-          <h2 class="section__title"><span class="section__num">05</span>Ведут тренеры-практики</h2>
+          <p class="section__num">05 — Тренеры</p>
+          <h2 class="section__title">Ведут тренеры-практики</h2>
           <p class="section__aside">Наука и бизнес</p>
         </div>
         <div class="grid grid--2">
-          <article class="card card--line trainer">
+          <article class="trainer">
             <img class="trainer__photo" src="/ai-for-work/workshop/assets/trainer-zhanibek-BhTvAEm6.cb66dc05.jpg" alt="Жанибек Серкулов" width="238" height="240" loading="lazy" />
-            <div>
-              <h3 class="card__title">Жанибек Серкулов</h3>
-              <p class="eyebrow">CEO AI Research Labs LTD · ведущий тренер</p>
-              <ul class="checks muted">
+            <div class="trainer__body">
+              <h3 class="trainer__name">Жанибек Серкулов</h3>
+              <p class="trainer__role">CEO AI Research Labs LTD · ведущий тренер</p>
+              <ul class="checks">
                 <li>Руководил University of Unicorns (Choco Holding)</li>
                 <li>Ex-CEO AI Research Centre Ltd.</li>
                 <li>Тренинги для топ-менеджеров FlyArystan и Air Astana, обучил 500+ предпринимателей</li>
@@ -293,15 +269,17 @@
               </ul>
             </div>
           </article>
-          <article class="card card--line trainer">
+          <article class="trainer">
             <img class="trainer__photo" src="/ai-for-work/workshop/assets/trainer-azamat-D8IL1yWk.138fbb0a.jpg" alt="Азамат Арманұлы" width="236" height="240" loading="lazy" />
-            <div>
-              <h3 class="card__title">Азамат Арманұлы</h3>
-              <p class="eyebrow">Технический руководитель</p>
-              <p class="muted">
-                Бакалавр и магистр KAIST, ex-ML инженер CerebraAI. Соавтор обзора об ИИ в дизайне антител (mAbs,
-                2025). Тренер национальной сборной Казахстана по робототехнике.
-              </p>
+            <div class="trainer__body">
+              <h3 class="trainer__name">Азамат Арманұлы</h3>
+              <p class="trainer__role">CTO, Tech Lead AI Research Labs</p>
+              <ul class="checks">
+                <li>Бакалавр и магистр KAIST (Южная Корея)</li>
+                <li>Ex-ML инженер CerebraAI</li>
+                <li>Соавтор обзора об ИИ в дизайне антител (mAbs, 2025)</li>
+                <li>Тренер национальной сборной Казахстана по робототехнике</li>
+              </ul>
             </div>
           </article>
         </div>
@@ -309,11 +287,14 @@
 
       <!-- 06 Нам доверяют -->
       <section class="container section" id="trust">
-        <h2 class="section__title"><span class="section__num">06</span>Нам доверяют</h2>
-        <ul class="chips chips--brands">
-          <li class="is-accent">Astana IT University</li>
-          <li class="is-accent">Казахстанский филиал МГУ</li>
-          <li class="is-accent">Air Astana</li>
+        <div class="section__head">
+          <p class="section__num">06 — Клиенты и партнёры</p>
+          <h2 class="section__title">Нам доверяют</h2>
+        </div>
+        <ul class="brands">
+          <li>Astana IT University</li>
+          <li>Казахстанский филиал МГУ</li>
+          <li>Air Astana</li>
           <li>FlyArystan</li>
           <li>YPO Kazakhstan</li>
           <li>IQANAT</li>
@@ -326,7 +307,7 @@
         <div class="gallery">
           <figure>
             <img src="/ai-for-work/workshop/assets/event-msu-BlqMMisJ.07354769.jpg" alt="Выступление в Казахстанском филиале МГУ" width="640" height="480" loading="lazy" />
-            <figcaption>Выступление в Казахстанском филиале МГУ</figcaption>
+            <figcaption>Казахстанский филиал МГУ</figcaption>
           </figure>
           <figure>
             <img src="/ai-for-work/workshop/assets/event-aitu-partnership-BwCxZWmW.6dcad37e.jpg" alt="Партнёрство с Astana IT University" width="640" height="479" loading="lazy" />
@@ -346,35 +327,42 @@
       <!-- 07 Кейсы участников: та же карусель, что на /ai-for-work/cases/ -->
       <section class="container section" id="cases">
         <div class="section__head">
-          <h2 class="section__title"><span class="section__num">07</span>Что собрали участники</h2>
+          <p class="section__num">07 — Кейсы</p>
+          <h2 class="section__title">Что собрали участники</h2>
           <p class="section__aside">Листайте стрелкой вправо · нажмите на видео, чтобы включить звук</p>
         </div>
         <div class="cases" data-cases tabindex="0" aria-label="Кейсы участников"></div>
         <div class="section__cta">
-          <a class="btn btn--lg" href="https://chat.whatsapp.com/Ce7Q6JbBHppGIORybNS39P" target="_blank" rel="noopener">Записаться на воркшоп</a>
+          <a class="btn btn--lg" href="https://chat.whatsapp.com/Ce7Q6JbBHppGIORybNS39P" target="_blank" rel="noopener">Записаться на воркшоп <span class="btn__arrow" aria-hidden="true">↗</span></a>
         </div>
       </section>
 
       <!-- Финальный призыв -->
       <section class="container section" id="final-cta">
         <div class="final">
-          <div>
-            <h2 class="final__title">Запишитесь на 15 ноября</h2>
+          <div class="hero__grid" aria-hidden="true"></div>
+          <img class="final__art" src="/glass.jpg" alt="" width="1200" height="1800" loading="lazy" />
+          <div class="final__body">
+            <p class="pill">15 ноября · Astana IT University</p>
+            <h2 class="final__title">Запишитесь на&nbsp;15&nbsp;ноября</h2>
             <p class="final__text">
-              От вас: ноутбук, одна задача из вашего бизнеса и подписка Claude Pro.<br />
+              От вас: ноутбук, одна задача из вашего бизнеса и подписка Claude Pro.
               Astana IT University · 11:00–17:00. К вечеру — ваш готовый продукт.
             </p>
-          </div>
-          <div class="final__side">
-            <button class="btn btn--lg btn--light" type="button" data-open-form>Оставить заявку</button>
-            <p class="final__meta">airl.kz · Стоимость по запросу</p>
+            <div class="final__side">
+              <button class="btn btn--lg btn--light" type="button" data-open-form>Оставить заявку <span class="btn__arrow" aria-hidden="true">↗</span></button>
+              <p class="final__meta">Стоимость по запросу</p>
+            </div>
           </div>
         </div>
       </section>
     </main>
 
     <footer class="footer">
-      <div class="container">AI Research Labs · <a href="https://airl.kz" target="_blank" rel="noopener">airl.kz</a></div>
+      <div class="container footer__inner">
+        <img src="/logo-airl.png" alt="AI Research Labs" width="120" height="38" loading="lazy" />
+        <p>© 2026 AI Research Labs · <a href="https://airl.kz" target="_blank" rel="noopener">airl.kz</a></p>
+      </div>
     </footer>
 
     <div class="sticky-cta" aria-hidden="true">
@@ -385,7 +373,7 @@
       <button class="modal__close" type="button" data-close-form aria-label="Закрыть">×</button>
 
       <form class="lead-form" id="lead-form" novalidate>
-        <h2 class="modal__title" id="lead-title">Заявка на воркшоп 15 ноября</h2>
+        <h2 class="modal__title" id="lead-title">Заявка на воркшоп 15&nbsp;ноября</h2>
         <p class="modal__sub">Оставьте контакты — менеджер ответит в WhatsApp и расскажет о стоимости.</p>
 
         <label class="field">

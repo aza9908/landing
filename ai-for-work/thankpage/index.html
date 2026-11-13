@@ -5,14 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Спасибо! Заявка принята — AI Research Labs</title>
     <meta name="robots" content="noindex" />
-    <meta name="theme-color" content="#17162b" />
+    <meta name="theme-color" content="#16161a" />
     <link rel="icon" type="image/png" href="/ai-for-work/workshop/favicon.png" />
-    <link rel="stylesheet" crossorigin href="/ai-for-work/workshop/assets/index-C9v190lA.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Victor+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/ai-for-work/workshop/workshop.css?v=1" />
     <style>
-      body { margin: 0; background: var(--dark); }
-      .thank { min-height: 100vh; min-height: 100dvh; box-sizing: border-box; display: flex; align-items: center; justify-content: center; padding: 16px; }
-      .thank__card { width: 100%; max-width: 440px; box-sizing: border-box; padding: 32px 24px; background: var(--bg); border-radius: var(--radius); }
-      .thank__card .link-btn { display: inline-block; margin-top: 16px; text-decoration: none; }
+      body { background: radial-gradient(60% 60% at 70% 30%, #3a3550 0%, #16161a 60%, #0d0d11 100%); }
+      .thank { position: relative; isolation: isolate; overflow: hidden; min-height: 100vh; min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 16px; }
+      .thank .hero__art { right: -10%; top: -10%; width: 70%; height: 120%; opacity: .5; }
+      .thank__card { width: 100%; max-width: 460px; padding: 40px 28px 28px; background: #fff; border-radius: 28px; box-shadow: 0 40px 80px -30px #000; }
+      .thank__card h1 { font-size: 32px; font-weight: 500; letter-spacing: -.03em; line-height: 1.05; }
+      .thank__card p { color: var(--muted); font-family: var(--mono); font-size: 14px; line-height: 1.55; margin-bottom: 8px; }
+      .thank__card .link-btn { display: inline-block; margin-top: 4px; }
     </style>
 
     <!-- Meta Pixel Code -->
@@ -35,11 +41,13 @@
   </head>
   <body>
     <main class="thank">
+      <div class="hero__grid" aria-hidden="true"></div>
+      <img class="hero__art" src="/glass.jpg" alt="" width="1200" height="1800" />
       <div class="thank__card lead-done">
         <div class="lead-done__icon" aria-hidden="true">✓</div>
         <h1 id="thank-title">Спасибо! Заявка принята</h1>
         <p id="thank-text">Менеджер свяжется с вами в WhatsApp.</p>
-        <a class="btn btn--lg btn--block" id="thank-wa" href="https://chat.whatsapp.com/Ce7Q6JbBHppGIORybNS39P">Вступить в сообщество WhatsApp</a>
+        <a class="btn btn--lg btn--block" id="thank-wa" href="https://chat.whatsapp.com/Ce7Q6JbBHppGIORybNS39P">Вступить в сообщество WhatsApp <span class="btn__arrow" aria-hidden="true">↗</span></a>
         <a class="link-btn" href="/ai-for-work/workshop/">Вернуться на страницу</a>
       </div>
     </main>
