@@ -200,6 +200,7 @@ a { color: inherit; }
      и если WebGL недоступен. */
   mix-blend-mode: screen;
   aspect-ratio: 1; height: auto;
+  object-fit: contain;   /* для <video> со звездой */
   animation: crystal-float 9s ease-in-out infinite;
 }
 .hero__art > img,
