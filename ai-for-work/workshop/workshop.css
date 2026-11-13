@@ -195,15 +195,14 @@ a { color: inherit; }
 .hero__art,
 .final__art {
   position: absolute; z-index: -1; pointer-events: none;
-  /* /crystal.webp — квадрат на чёрном фоне: screen убирает фон,
-     поэтому кристалл можно вращать без видимых краёв картинки */
+  /* /crystal-spin.mp4, /dna-spin.mp4 — 3D-рендер с главной, вращение вокруг
+     своей оси; фон в ролике чёрный, screen делает его прозрачным */
   mix-blend-mode: screen;
   aspect-ratio: 1; height: auto;
   object-fit: contain;
-  will-change: rotate, translate;
-  animation: crystal-spin 40s linear infinite, crystal-float 9s ease-in-out infinite;
+  background: transparent;
+  animation: crystal-float 9s ease-in-out infinite;
 }
-@keyframes crystal-spin { to { rotate: 360deg; } }
 @keyframes crystal-float {
   0%, 100% { translate: 0 0; scale: 1; }
   50% { translate: 0 -14px; scale: 1.03; }
@@ -499,13 +498,12 @@ a { color: inherit; }
 
 /* Кейсы участников (разметку рисует cases.js) */
 .cases { margin-top: 0; }
-.case__media { border-radius: 20px; box-shadow: 0 30px 60px -30px #16161a80; }
+.case__media { border-radius: 20px; }
 .case__count, .case__sound { font-family: var(--mono); font-weight: 500; }
 .case__arrow { background: #fff; color: var(--ink); }
 .case__title { font-size: 26px; font-weight: 500; letter-spacing: -.025em; line-height: 1.12; }
 .case__body .eyebrow { color: var(--violet); }
 .case__text { color: var(--muted); font-family: var(--mono); font-size: 14px; line-height: 1.6; }
-.case__text strong { color: var(--ink); font-family: var(--sans); font-size: 15px; font-weight: 600; }
 .case__toggle, .link-btn {
   background: none; border: 0; padding: 0; min-height: 40px;
   color: var(--ink); font: 500 15px var(--sans);
@@ -626,33 +624,24 @@ body.modal-open { overflow: hidden; }
   html { scroll-behavior: auto; }
 }
 
-/* ── Фото «Нам доверяют»: просмотр целиком (workshop.js) ── */
-@media (hover: hover) and (min-width: 768px) {
-  .gallery figure { cursor: zoom-in; }
-  .gallery figure:focus-visible { outline: 2px solid var(--violet); outline-offset: 3px; }
+/* ── Фото «Нам доверяют»: при наведении фото раскрывается до полного кадра
+   (4:3, как снято) и становится цветным, соседние сужаются ── */
+@media (hover: hover) and (min-width: 960px) {
+  .gallery { --gh: clamp(340px, 36vw, 440px); display: flex; gap: 14px; height: var(--gh); }
+  .gallery figure {
+    flex: 1 1 0; min-width: 0; height: 100%; aspect-ratio: auto;
+    transition: flex .6s var(--ease), box-shadow .6s var(--ease);
+  }
+  /* наведённое фото получает ширину ровно под 4:3 — кадр виден целиком */
+  .gallery figure:hover {
+    flex: 0 0 calc(var(--gh) * 4 / 3);
+    box-shadow: 0 30px 60px -30px #16161a99;
+  }
+  .gallery figure:hover img { filter: grayscale(0); transform: none; }
+  .gallery figcaption { transition: opacity .3s; }
 }
-/* Телефон и планшет: фото цветные, без эффектов */
-@media (hover: none), (width <= 767px) {
+/* Телефон и планшет: фото цветные и целиком, без эффектов */
+@media (hover: none), (width <= 959px) {
   .gallery img { filter: none; }
   .gallery figure { aspect-ratio: 4 / 3; }
 }
-.lightbox {
-  position: fixed; inset: 0; z-index: 50;
-  display: grid; place-items: center;
-  padding: 24px;
-  background: #0d0d11e6;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  cursor: zoom-out;
-}
-.lightbox__fig { display: grid; gap: 14px; justify-items: center; }
-.lightbox__img { display: block; max-width: none; border-radius: 14px; box-shadow: 0 40px 90px -30px #000; will-change: transform, clip-path; }
-.lightbox__cap { color: #ffffffcc; font-family: var(--mono); font-size: 14px; text-align: center; }
-.lightbox__close {
-  position: absolute; top: 20px; right: 20px;
-  width: 44px; height: 44px; border-radius: 50%;
-  border: 1px solid #ffffff33; background: #ffffff14; color: #fff;
-  font: 400 24px/1 var(--sans); cursor: pointer;
-}
-.lightbox__close:hover { background: #ffffff26; }
-body.lightbox-open { overflow: hidden; }

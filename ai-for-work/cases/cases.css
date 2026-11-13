@@ -113,3 +113,22 @@
   pointer-events: none;
 }
 @keyframes case-spin { to { transform: rotate(360deg); } }
+
+/* Текст кейса: ровная сетка «метка | текст», одинаковая для всех кейсов */
+.case__text p { display: grid; grid-template-columns: 1fr; gap: 4px; }
+.case__text strong {
+  font-family: 'Victor Mono', ui-monospace, monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  color: #16161a;
+}
+@media (width >= 900px) {
+  /* текст начинается вровень с верхом видео, а не «плавает» по центру */
+  .case { align-items: start; }
+  .case__body { padding-top: 8px; max-width: 640px; gap: 14px; }
+  .case__text { gap: 0; border-top: 1px solid #d9dbe8; }
+  .case__text p {
+    grid-template-columns: 150px minmax(0, 1fr); gap: 24px;
+    padding: 16px 0; border-bottom: 1px solid #d9dbe8;
+  }
+  .case__text strong { padding-top: 4px; }
+}

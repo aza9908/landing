@@ -176,7 +176,7 @@
       c.p.forEach(function (p, k) {
         var para = el('p', k > 1 ? 'case__more' : '');
         var b = el('strong');
-        b.textContent = p[0] + '. ';
+        b.textContent = p[0]; // метка в своей колонке, без точки
         para.appendChild(b);
         para.appendChild(document.createTextNode(p[1]));
         text.appendChild(para);
