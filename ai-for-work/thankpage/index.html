@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Victor+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/ai-for-work/workshop/workshop.css?v=7" />
+    <link rel="stylesheet" href="/ai-for-work/workshop/workshop.css?v=8" />
     <style>
       body { background: #0d0d11; }
       /* фон у самого блока: иначе mix-blend-mode у 3D-звезды не с чем смешиваться и виден чёрный квадрат */
@@ -40,13 +40,12 @@
     src="https://www.facebook.com/tr?id=1677800013871546&ev=PageView&noscript=1"
     /></noscript>
     <!-- End Meta Pixel Code -->
-    <!-- Стеклянные 3D-объекты (звезда, ДНК): scripts/crystal3d.src.js -->
-    <script type="module" src="/crystal3d.js?v=1"></script>
+    <script src="/ai-for-work/workshop/loop.js?v=1" defer></script>
   </head>
   <body>
     <main class="thank">
       <div class="hero__grid" aria-hidden="true"></div>
-      <video class="hero__art" src="/crystal-spin.mp4?v=2" poster="/crystal-spin.webp?v=2" autoplay muted loop playsinline preload="auto" aria-hidden="true" tabindex="-1"></video>
+      <div class="hero__art" data-loop-src="/crystal-loop.mp4?v=3" data-loop-len="12" aria-hidden="true"><video src="/crystal-spin.mp4?v=3" poster="/crystal-poster.webp?v=3" autoplay muted loop playsinline preload="auto" tabindex="-1"></video></div>
       <div class="thank__card lead-done">
         <div class="lead-done__icon" aria-hidden="true">✓</div>
         <h1 id="thank-title">Спасибо! Заявка принята</h1>
