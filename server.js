@@ -195,6 +195,14 @@ function isOnlineHost(req) {
   return ONLINE_HOST_RE.test(host);
 }
 
+// Картинки, видео и шрифты кэширует CDN Firebase. Без Cache-Control каждый
+// кусок видео шёл с контейнера заново (~0,4 с на запрос), и ролики кейсов
+// подвисали. Чтобы заменить файл сразу, меняйте ?v= в ссылке на него.
+const STATIC_CACHE = [{
+  source: '**/*.@(mp4|webm|jpg|jpeg|png|webp|avif|gif|svg|woff|woff2)',
+  headers: [{ key: 'Cache-Control', value: 'public, max-age=86400, s-maxage=604800' }],
+}];
+
 http.createServer(async (req, res) => {
   if (isOnlineHost(req) && ONLINE_PAGE_RE.test(req.url || '/')) req.url = '/online' + (req.url || '/');
   if (LMS_RE.test((req.url || '/').split('?')[0])) return proxyLms(req, res);
@@ -202,5 +210,5 @@ http.createServer(async (req, res) => {
   if (path) return proxyHub(req, res, path);
   if (/^\/hub-app(\/|$)/i.test((req.url || '').split('?')[0])) { res.writeHead(404); return res.end(); }
   await compress(req, res);
-  return handler(req, res, { etag: true });
+  return handler(req, res, { etag: true, headers: STATIC_CACHE });
 }).listen(PORT, () => console.log(`airl.kz landing on :${PORT}`));

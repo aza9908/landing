@@ -25,9 +25,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Victor+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/ai-for-work/cases/cases.css" />
-    <link rel="stylesheet" href="/ai-for-work/workshop/workshop.css?v=1" />
-    <script src="/ai-for-work/cases/cases.js" defer></script>
+    <link rel="stylesheet" href="/ai-for-work/cases/cases.css?v=2" />
+    <link rel="stylesheet" href="/ai-for-work/workshop/workshop.css?v=3" />
+    <script src="/ai-for-work/cases/cases.js?v=2" defer></script>
 
     <!-- Meta Pixel Code -->
     <script>
@@ -47,9 +47,32 @@
     /></noscript>
     <!-- End Meta Pixel Code -->
     <style>
-      .cases-hero .hero__title { font-size: clamp(38px, 8vw, 80px); }
-      .cases-hero .hero__body { padding-bottom: 40px; }
-      @media (width >= 768px) { .cases-hero .hero__body { padding-bottom: 80px; } }
+      .cases-hero .hero__title { font-size: clamp(38px, 5.2vw, 66px); }
+      .cases-hero { display: grid; }
+      .cases-hero .hero__body { padding-bottom: 8px; }
+      /* Веер из кадров участников вместо кристалла */
+      .cases-fan { position: relative; height: 250px; margin: 8px 0 -40px; pointer-events: none; }
+      .cases-fan img {
+        position: absolute; left: 50%; top: 0; width: 132px; aspect-ratio: 9 / 16; height: auto; object-fit: cover;
+        border-radius: 16px; border: 1px solid #ffffff2e; box-shadow: 0 24px 50px -20px #000;
+        translate: -50% 0; transform-origin: 50% 120%;
+      }
+      .cases-fan img:nth-child(1) { rotate: -18deg; filter: brightness(.7); }
+      .cases-fan img:nth-child(2) { rotate: -6deg; filter: brightness(.85); }
+      .cases-fan img:nth-child(3) { rotate: 6deg; }
+      .cases-fan img:nth-child(4) { rotate: 18deg; filter: brightness(.85); }
+      .cases-fan::after { content: ''; position: absolute; inset: 40% -20px -1px; background: linear-gradient(transparent, #0d0d11 85%); }
+      @media (width >= 900px) {
+        .cases-hero { grid-template-columns: 1.25fr 1fr; align-items: center; }
+        .cases-hero .hero__body { padding: 80px 0 80px 56px; }
+        .cases-fan { height: 100%; min-height: 460px; margin: 0; }
+        .cases-fan::after { display: none; }
+        .cases-fan img { top: 50%; width: 190px; translate: -50% -50%; transform-origin: 50% 110%; transition: rotate .6s cubic-bezier(.22,1,.36,1); }
+        .cases-hero:hover .cases-fan img:nth-child(1) { rotate: -24deg; }
+        .cases-hero:hover .cases-fan img:nth-child(2) { rotate: -9deg; }
+        .cases-hero:hover .cases-fan img:nth-child(3) { rotate: 9deg; }
+        .cases-hero:hover .cases-fan img:nth-child(4) { rotate: 24deg; }
+      }
       .final .btn { text-decoration: none; }
       .sticky-cta .btn { text-align: center; line-height: 1.2; padding-top: 8px; padding-bottom: 8px; }
     </style>
@@ -68,7 +91,6 @@
       <section class="container hero-wrap">
         <div class="hero cases-hero">
           <div class="hero__grid" aria-hidden="true"></div>
-          <img class="hero__art" src="/glass.jpg" alt="" width="1200" height="1800" />
           <div class="hero__body">
           <p class="pill">AI Research Labs · кейсы участников</p>
           <h1 class="hero__title">Они не программисты. <span>Но собрали это с ИИ</span></h1>
@@ -76,6 +98,12 @@
             Юрист, системный администратор, эксперт по стратегии, руководители бизнеса. Посмотрите, какие рабочие
             инструменты они сделали на воркшопах AI Research Labs, — и представьте, что можно собрать для вашей задачи.
           </p>
+          </div>
+          <div class="cases-fan" aria-hidden="true">
+            <img src="/ai-for-work/cases/media/aina.jpg?v=2" alt="" width="540" height="960" />
+            <img src="/ai-for-work/cases/media/danil.jpg?v=2" alt="" width="540" height="960" />
+            <img src="/ai-for-work/cases/media/aigerim.jpg?v=2" alt="" width="540" height="960" />
+            <img src="/ai-for-work/cases/media/kairat.jpg?v=2" alt="" width="540" height="960" />
           </div>
         </div>
       </section>
@@ -92,7 +120,7 @@
       <section class="container section" id="final-cta">
         <div class="final">
           <div class="hero__grid" aria-hidden="true"></div>
-          <img class="final__art" src="/glass.jpg" alt="" width="1200" height="1800" loading="lazy" />
+          <img class="final__art" src="/crystal.webp" alt="" width="1000" height="1000" loading="lazy" />
           <div class="final__body">
           <div>
             <h2 class="final__title">Хотите так же?</h2>

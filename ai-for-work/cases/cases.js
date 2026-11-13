@@ -3,6 +3,7 @@
    <div data-cases></div> — сюда рисуется карусель. */
 (function () {
   var MEDIA = '/ai-for-work/cases/media/';
+  var VER = '?v=2'; // звук выровнен до −16 LUFS; меняйте при замене файлов
 
   // p — абзацы статьи; первые два видны сразу, остальные по кнопке «Читать дальше»
   var CASES = [
@@ -111,8 +112,9 @@
 
       var media = el('div', 'case__media');
       var video = el('video', 'case__video');
-      video.src = MEDIA + c.id + '.mp4';
-      video.poster = MEDIA + c.id + '.jpg';
+      // src ставит sync(): одновременно качаются только текущее и соседнее видео
+      video.dataset.src = MEDIA + c.id + '.mp4' + VER;
+      video.poster = MEDIA + c.id + '.jpg' + VER;
       video.preload = i === 0 ? 'metadata' : 'none';
       video.muted = true;
       video.loop = true;
@@ -151,6 +153,11 @@
         if (video.duration) barFill.style.width = (video.currentTime / video.duration) * 100 + '%';
       });
       video.addEventListener('play', function () { media.classList.remove('is-paused'); });
+      // Подгрузка: показываем индикатор, а не «замёрзший» кадр
+      video.addEventListener('waiting', function () { media.classList.add('is-loading'); });
+      ['playing', 'canplay', 'pause', 'emptied'].forEach(function (ev) {
+        video.addEventListener(ev, function () { media.classList.remove('is-loading'); });
+      });
       video.addEventListener('pause', function () { media.classList.add('is-paused'); });
 
       // Нажатие на видео: первый раз включает звук, дальше — пауза / продолжить
@@ -214,6 +221,16 @@
         var active = i === current;
         s.dot.classList.toggle('is-active', active);
         s.dot.setAttribute('aria-current', active ? 'true' : 'false');
+        var near = Math.abs(i - current) <= 1;
+        if (near && !s.video.getAttribute('src')) {
+          s.video.preload = active ? 'auto' : 'metadata';
+          s.video.src = s.video.dataset.src;
+        } else if (!near && s.video.getAttribute('src')) {
+          // дальнее видео больше не качаем — канал остаётся текущему
+          s.video.pause();
+          s.video.removeAttribute('src');
+          s.video.load();
+        }
         if (active && inView && !userPaused) {
           s.video.preload = 'auto';
           s.video.muted = !soundOn;
@@ -224,8 +241,6 @@
         } else if (!s.video.paused) {
           s.video.pause();
         }
-        // следующее видео подгружаем заранее, чтобы листалось без ожидания
-        if (i === current + 1 && s.video.preload === 'none') s.video.preload = 'metadata';
       });
     }
 

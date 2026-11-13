@@ -94,11 +94,22 @@
 
 /* Ноутбук: видео слева, вся статья справа */
 @media (width >= 900px) {
-  .case { grid-template-columns: auto 1fr; gap: 40px; align-items: center; }
-  .case__media { --h: min(76vh, 640px); margin: 0; }
+  /* Колонка видео ровно по ширине ролика: текст стоит рядом, без пустоты */
+  .case { --h: min(76vh, 640px); grid-template-columns: calc(var(--h) * 9 / 16) minmax(0, 1fr); gap: 48px; align-items: center; }
+  .case__media { --h: min(76vh, 640px); width: 100%; margin: 0; }
   .case__body { max-width: 560px; }
   .case__title { font-size: 28px; }
   .case__more { display: block; }
   .case__toggle { display: none; }
   .cases__dots { justify-content: flex-start; }
 }
+
+/* Видео догружается — крутится индикатор поверх кадра */
+.case__media.is-loading::after {
+  content: ''; position: absolute; inset: 0; margin: auto; z-index: 2;
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 3px solid #ffffff40; border-top-color: #fff;
+  animation: case-spin .8s linear infinite;
+  pointer-events: none;
+}
+@keyframes case-spin { to { transform: rotate(360deg); } }

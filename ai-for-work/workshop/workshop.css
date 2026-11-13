@@ -195,20 +195,23 @@ a { color: inherit; }
 .hero__art,
 .final__art {
   position: absolute; z-index: -1; pointer-events: none;
+  /* /crystal.webp — квадрат на чёрном фоне: screen убирает фон,
+     поэтому кристалл можно вращать без видимых краёв картинки */
   mix-blend-mode: screen;
-  object-fit: cover;
-  -webkit-mask-image: radial-gradient(closest-side, #000 55%, transparent 100%);
-  mask-image: radial-gradient(closest-side, #000 55%, transparent 100%);
+  aspect-ratio: 1; height: auto;
+  object-fit: contain;
+  will-change: rotate, translate;
+  animation: crystal-spin 40s linear infinite, crystal-float 9s ease-in-out infinite;
+}
+@keyframes crystal-spin { to { rotate: 360deg; } }
+@keyframes crystal-float {
+  0%, 100% { translate: 0 0; scale: 1; }
+  50% { translate: 0 -14px; scale: 1.03; }
 }
 .hero__art {
-  right: -18%; top: -6%;
-  width: 92%; height: 76%;
-  opacity: .55;
-  animation: float 9s ease-in-out infinite;
-}
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0); }
-  50% { transform: translateY(-14px) rotate(2deg); }
+  right: -34%; top: -8%;
+  width: 115%;
+  opacity: .6;
 }
 
 .hero__body { padding: 32px 20px 0; }
@@ -254,7 +257,7 @@ a { color: inherit; }
 @media (width >= 768px) {
   .hero { border-radius: 32px; }
   .hero__body { padding: 72px 56px 0; }
-  .hero__art { right: -6%; top: -10%; width: 56%; height: 120%; opacity: .7; }
+  .hero__art { right: -4%; top: 50%; width: min(60%, 760px); margin-top: calc(min(60%, 760px) / -2); opacity: .9; }
   .hero__lead { font-size: 18px; }
   .hero__cta { flex-direction: row; align-items: center; gap: 22px; margin-top: 44px; }
   .hero__stats { grid-template-columns: repeat(3, 1fr); margin-top: 64px; }
@@ -444,6 +447,10 @@ a { color: inherit; }
 .trainer__role { color: var(--violet-soft); font-family: var(--mono); font-size: 13px; margin-bottom: 12px; }
 .trainer .checks { color: #ffffffcc; font-size: 13.5px; }
 .trainer .checks li::before { color: #ffffff66; }
+/* Две карточки рядом только на широком экране; на планшете — друг под другом */
+#trainers .grid--2 { grid-template-columns: minmax(0, 1fr); }
+@media (width >= 1100px) { #trainers .grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.trainer { min-width: 0; }
 @media (width >= 560px) and (width < 960px), (width >= 1100px) {
   .trainer { grid-template-columns: 200px 1fr; padding: 10px; align-items: start; }
   .trainer__photo { aspect-ratio: 4 / 5; }
@@ -510,7 +517,7 @@ a { color: inherit; }
 
 /* Финальный призыв */
 .final { padding: 48px 22px 40px; }
-.final__art { right: -30%; top: -10%; width: 90%; height: 120%; opacity: .45; }
+.final__art { right: -40%; top: -12%; width: 100%; opacity: .5; }
 .final__body { position: relative; display: grid; gap: 22px; justify-items: start; }
 .final__title { font-size: clamp(38px, 8vw, 80px); font-weight: 500; line-height: 1; letter-spacing: -.045em; max-width: 760px; }
 .final__text { max-width: 560px; color: #ffffffcc; font-family: var(--mono); font-size: 15px; line-height: 1.6; }
@@ -518,7 +525,7 @@ a { color: inherit; }
 .final__meta { color: #ffffff8c; font-family: var(--mono); font-size: 13px; text-align: center; }
 @media (width >= 768px) {
   .final { padding: 88px 64px; border-radius: 32px; }
-  .final__art { right: -4%; width: 50%; opacity: .65; }
+  .final__art { right: 0; top: 50%; width: min(44%, 560px); margin-top: calc(min(44%, 560px) / -2); opacity: .85; }
   .final__side { flex-direction: row; align-items: center; gap: 22px; width: auto; }
 }
 
@@ -618,3 +625,34 @@ body.modal-open { overflow: hidden; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
   html { scroll-behavior: auto; }
 }
+
+/* ── Фото «Нам доверяют»: просмотр целиком (workshop.js) ── */
+@media (hover: hover) and (min-width: 768px) {
+  .gallery figure { cursor: zoom-in; }
+  .gallery figure:focus-visible { outline: 2px solid var(--violet); outline-offset: 3px; }
+}
+/* Телефон и планшет: фото цветные, без эффектов */
+@media (hover: none), (width <= 767px) {
+  .gallery img { filter: none; }
+  .gallery figure { aspect-ratio: 4 / 3; }
+}
+.lightbox {
+  position: fixed; inset: 0; z-index: 50;
+  display: grid; place-items: center;
+  padding: 24px;
+  background: #0d0d11e6;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  cursor: zoom-out;
+}
+.lightbox__fig { display: grid; gap: 14px; justify-items: center; }
+.lightbox__img { display: block; max-width: none; border-radius: 14px; box-shadow: 0 40px 90px -30px #000; will-change: transform, clip-path; }
+.lightbox__cap { color: #ffffffcc; font-family: var(--mono); font-size: 14px; text-align: center; }
+.lightbox__close {
+  position: absolute; top: 20px; right: 20px;
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid #ffffff33; background: #ffffff14; color: #fff;
+  font: 400 24px/1 var(--sans); cursor: pointer;
+}
+.lightbox__close:hover { background: #ffffff26; }
+body.lightbox-open { overflow: hidden; }
