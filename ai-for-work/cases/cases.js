@@ -138,14 +138,14 @@
         var prev = el('button', 'case__arrow case__arrow--prev', ICON.prev);
         prev.type = 'button';
         prev.setAttribute('aria-label', 'Предыдущий кейс');
-        prev.addEventListener('click', function () { go(i - 1); });
+        prev.addEventListener('click', function () { go(current - 1); });
         media.appendChild(prev);
       }
       if (i < CASES.length - 1) {
         var next = el('button', 'case__arrow case__arrow--next', ICON.next);
         next.type = 'button';
         next.setAttribute('aria-label', 'Следующий кейс');
-        next.addEventListener('click', function () { go(i + 1); });
+        next.addEventListener('click', function () { go(current + 1); });
         media.appendChild(next);
       }
 
@@ -246,14 +246,26 @@
 
     function go(i) {
       i = Math.max(0, Math.min(CASES.length - 1, i));
+      // номер слайда меняем сразу, не дожидаясь конца прокрутки: быстрые нажатия подряд не путаются
+      if (i !== current) { current = i; userPaused = false; sync(); }
+      target = i;
+      clearTimeout(targetTimer);
+      targetTimer = setTimeout(function () { target = null; }, 1500);
       track.scrollTo({ left: slides[i].slide.offsetLeft - track.offsetLeft, behavior: 'smooth' });
     }
 
+    // Слайд, к которому листаем стрелкой или точкой: пока прокрутка до него не дошла, промежуточные слайды не считаем
+    var target = null;
+    var targetTimer;
     var t;
     track.addEventListener('scroll', function () {
       clearTimeout(t);
       t = setTimeout(function () {
         var i = Math.round(track.scrollLeft / (track.clientWidth + 16)); // 16 — отступ между слайдами
+        if (target !== null) {
+          if (i !== target) return;
+          target = null;
+        }
         if (i !== current) { current = i; userPaused = false; sync(); }
       }, 80);
     }, { passive: true });
