@@ -30,7 +30,7 @@ def rep(old, new, count=1):
 
 # 1. конфиг публичной версии: отчёт клиенту не показываем, контакт спрашиваем, чат участников — вписать ссылку
 rep('var CFG = { whatsapp: "77072314955", lead: "https://airl.kz/", askContact: true, showReportToClient: true, communityChat: "" };',
-    'var CFG = { whatsapp: "77072212930", lead: "https://airl.kz/", askContact: true, showReportToClient: false, communityChat: "", collection: "express_diagnostics", storeInFirestore: true };\n'
+    'var CFG = { whatsapp: "77072314955", lead: "https://airl.kz/", askContact: true, showReportToClient: false, communityChat: "", collection: "express_diagnostics", storeInFirestore: true };\n'
     '// storeInFirestore:true — результат пишется в Firestore express_diagnostics (правила разрешают только create), отсюда его читает статистика лидов stats.html.\n'
     '// showReportToClient:false — клиент видит только экран «Спасибо», полный разбор приходит от менеджера. Команда видит всё по адресу #airl-team.\n'
     '// communityChat — ссылка на единый чат участников (Telegram/WhatsApp): появится кнопка на экране «Спасибо».\n'

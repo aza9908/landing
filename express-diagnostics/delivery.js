@@ -23,7 +23,7 @@ window.AIRLDelivery = (function () {
   var PDFMAKE = "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.12/pdfmake.min.js";
   var FONTS = "/express-diagnostics/fonts/";
   var LOGO = "/logo-airl.png";
-  var CONTACTS = { site: "airl.kz", phone: "+77072212930", address: ["Alem.ai, пр. Мангилик Ел, 55/1", "г. Астана"] };
+  var CONTACTS = { site: "airl.kz", phone: "+77072314955", address: ["Alem.ai, пр. Мангилик Ел, 55/1", "г. Астана"] };
   // Фирменные цвета AIRL для документов (тот же набор, что в КП AI for Work).
   var C = { accent: "#5B5BCA", deep: "#3E3E77", ink: "#16161A", ink2: "#292930", muted: "#79798C",
             line: "#D9DBE7", panel: "#F2F2F9", tint: "#EDEDF8" };

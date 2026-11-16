@@ -15,7 +15,7 @@ const replacements = [
   // Hero star mark (slim gradient glyph instead of glass square)
   ['xs=`/star.png`', 'xs=`/star-mark.svg`'],
   // Footer phone number
-  ['+7 777 345 34 56', '+77072212930'],
+  ['+7 777 345 34 56', '+77072314955'],
   // Footer address: Alem.ai in Astana, linked to 2GIS
   [
     'Z(`p`,null,`г. Алматы, Казахстан`)',
