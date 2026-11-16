@@ -21,6 +21,16 @@ const replacements = [
     'Z(`p`,null,`г. Алматы, Казахстан`)',
     'Z(`p`,null,[Z(`a`,{href:`https://2gis.kz/astana/firm/70000001098956499`,target:`_blank`,rel:`noopener`},`Alem.ai, пр. Мангилик Ел, 55/1, г. Астана`)])',
   ],
+  // Footer address: three lines, as in the Meta business profile
+  [
+    'Z(`a`,{href:`https://2gis.kz/astana/firm/70000001098956499`,target:`_blank`,rel:`noopener`},`Alem.ai, пр. Мангилик Ел, 55/1, г. Астана`)',
+    'Z(`a`,{href:`https://2gis.kz/astana/firm/70000001098956499`,target:`_blank`,rel:`noopener`},[ia(`Alem.ai, пр. Мангилик Ел, 55/1, г. Астана`),Z(`br`),ia(`Астана, Астана 010000`),Z(`br`),ia(`Казахстан`)])',
+  ],
+  // Footer: link to the privacy policy page (/privacy) under the copyright
+  [
+    'Z(`p`,{class:`footer-copy`},`Все права защищены (с) 2026`)',
+    'Z(`p`,{class:`footer-copy`},`Все права защищены (с) 2026`),Z(`p`,{class:`footer-privacy`},[Z(`a`,{href:`/privacy`},`Политика конфиденциальности`)])',
+  ],
   // Events: visible dates (city + date column was empty / clipped)
   [
     'let d=[{name:`AI for work`,city:`г. Астана`,date:``,tag:`Скоро`,img:`/2.jpg`},{name:`AI for leaders`,city:`г. Астана`,date:``,tag:`Скоро`,img:`/3.jpg`}]',
@@ -103,7 +113,11 @@ filtered.push([programsOld, programsNew]);
 let changed = 0;
 const failed = [];
 for (const [oldStr, newStr] of filtered) {
-  if (js.includes(oldStr)) {
+  // Already applied: the new text contains the old one (e.g. Lab → Labs),
+  // so a second run would turn «Labs» into «Labss». Skip it.
+  if (newStr.includes(oldStr) && js.includes(newStr)) {
+    failed.push(oldStr.slice(0, 80) + '...');
+  } else if (js.includes(oldStr)) {
     js = js.replace(oldStr, newStr);
     changed++;
   } else {

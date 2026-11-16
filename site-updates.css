@@ -1481,3 +1481,9 @@ body.m-menu-lock { overflow: hidden; }
   .form-input[data-v-9b297995],
   .form-textarea[data-v-9b297995] { font-size: 16px !important; }
 }
+
+/* Подвал: ссылка на политику конфиденциальности под копирайтом —
+   тот же шрифт и прозрачность, что у строки «Все права защищены». */
+.footer-privacy { margin: 0; font-family: 'Victor Mono', monospace; font-size: 12px; font-weight: 600; line-height: 1.5; opacity: .5; }
+.footer-privacy a { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+.footer-privacy a:hover { opacity: .8; }
