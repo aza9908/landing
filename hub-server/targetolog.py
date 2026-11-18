@@ -19,6 +19,9 @@
   targetolog.py            обычный запуск по расписанию
   targetolog.py --dry      разбор без изменений в кабинете, даже в режиме auto
   targetolog.py --undo     отменить действия последнего запуска
+  targetolog.py --demo     проба на синтетических данных: кабинет и заявки выдуманные,
+                           разбор делает настоящий Claude, лимиты проверяются по-настоящему,
+                           в реальном кабинете ничего не меняется (нужен только ANTHROPIC_API_KEY)
 """
 import datetime as dt, glob, gzip, json, os, re, sys, urllib.error, urllib.parse, urllib.request
 from collections import defaultdict
@@ -120,6 +123,48 @@ def meta_apply(c, snap, action):
     graph(action["id"], dict(daily_budget=int(round(action["new_budget"] * snap["unit"]))), c["token"], "POST")
     return dict(budget=e["budget"])
 
+
+
+# ---------------------------------------------------------------- демо: синтетический кабинет
+
+def demo_data():
+    """Выдуманный рекламный кабинет и заявки для пробы без доступа к Meta. Цифры не настоящие."""
+    day = lambda n: (dt.date.today() - dt.timedelta(days=n)).isoformat()
+    ent = {}
+
+    def add(kind, id, name, budget=None, campaign=None, adset=None, age=14, status="ACTIVE", s7=None, s3=None):
+        st = {}
+        for key, v in (("last_7d", s7), ("last_3d", s3)):
+            if v:
+                spend, imp, clicks, leads = v
+                st[key] = dict(spend=spend, impressions=imp, clicks=clicks, ctr=round(clicks / imp * 100, 2),
+                               cpc=round(spend / clicks, 2) if clicks else 0, meta_leads=leads)
+        ent[id] = dict(kind=kind, id=id, name=name, status=status, budget=budget, campaign_id=campaign,
+                       adset_id=adset, created=day(age), stats=st)
+
+    add("campaign", "c1", "Воркшоп Астана | utm_campaign=workshop", s7=(361, 61500, 905, 71), s3=(158, 26400, 372, 27))
+    add("campaign", "c2", "Вебинар онлайн-урок | utm_campaign=online", s7=(118, 30100, 540, 62), s3=(52, 13000, 236, 29))
+    add("adset", "s1", "Воркшоп — предприниматели 28-45, Астана", 25, "c1", s7=(172, 26000, 468, 46), s3=(74, 11100, 205, 19))
+    add("adset", "s2", "Воркшоп — широкая, Казахстан", 20, "c1", s7=(139, 29500, 331, 14), s3=(60, 12600, 138, 5))
+    add("adset", "s3", "Воркшоп — look-alike покупателей", 15, "c1", age=2, s7=(50, 6000, 106, 11), s3=(24, 2700, 29, 3))
+    add("adset", "s4", "Вебинар — интересы ИИ и автоматизация", 18, "c2", s7=(118, 30100, 540, 62), s3=(52, 13000, 236, 29))
+    add("ad", "a1", "Видео: кейс участника | utm_content=case_video", campaign="c1", adset="s1", s7=(96, 13800, 301, 33), s3=(41, 5900, 133, 14))
+    add("ad", "a2", "Карусель: программа воркшопа | utm_content=program", campaign="c1", adset="s1", s7=(76, 12200, 167, 13), s3=(33, 5200, 72, 5))
+    add("ad", "a3", "Статика: скидка до пятницы | utm_content=discount", campaign="c1", adset="s2", s7=(88, 19000, 121, 2), s3=(39, 8300, 44, 0))
+    add("ad", "a4", "Видео: тренер о курсе | utm_content=trainer", campaign="c1", adset="s2", s7=(51, 10500, 210, 12), s3=(21, 4300, 94, 5))
+    add("ad", "a5", "Видео: кейс участника (LAL) | utm_content=case_video_lal", campaign="c1", adset="s3", age=2, s7=(50, 6000, 106, 11), s3=(24, 2700, 29, 3))
+    add("ad", "a6", "Сторис: бесплатный онлайн-урок | utm_content=story", campaign="c2", adset="s4", s7=(70, 19900, 392, 49), s3=(31, 8600, 172, 23))
+    add("ad", "a7", "Статика: 4 урока за 3 недели | utm_content=static4", campaign="c2", adset="s4", s7=(48, 10200, 148, 13), s3=(21, 4400, 64, 6))
+    add("ad", "a8", "Старое видео: анонс | utm_content=old_promo", campaign="c1", adset="s2", status="PAUSED", age=40)
+    crm = [dict(utm_source="ig", utm_campaign="workshop", utm_content="case_video", deals=31, paid=9, lost=3, paid_amount=180000.0),
+           dict(utm_source="fb", utm_campaign="workshop", utm_content="program", deals=12, paid=2, lost=4, paid_amount=40000.0),
+           dict(utm_source="fb", utm_campaign="workshop", utm_content="discount", deals=2, paid=0, lost=2, paid_amount=0.0),
+           dict(utm_source="ig", utm_campaign="workshop", utm_content="trainer", deals=11, paid=3, lost=1, paid_amount=60000.0),
+           dict(utm_source="ig", utm_campaign="workshop", utm_content="case_video_lal", deals=10, paid=1, lost=0, paid_amount=20000.0),
+           dict(utm_source="ig", utm_campaign="online", utm_content="story", deals=47, paid=0, lost=0, paid_amount=0.0),
+           dict(utm_source="fb", utm_campaign="online", utm_content="static4", deals=12, paid=0, lost=1, paid_amount=0.0),
+           dict(utm_source="без_метки", utm_campaign="", utm_content="", deals=19, paid=2, lost=2, paid_amount=40000.0)]
+    return dict(currency="USD", unit=100, account_name="Демо-кабинет (синтетические данные)", entities=ent), crm
 
 # ---------------------------------------------------------------- Bitrix24 (из копии, которую делает sync.py)
 
@@ -305,29 +350,36 @@ def publish(report):
         hist = json.load(open(path, encoding="utf-8"))
     except Exception:  # noqa
         hist = []
-    hist = ([report] + hist)[:30]
+    if report.get("demo"):                      # демо не смешиваем с историей настоящих запусков
+        hist = [report] + [r for r in hist if not r.get("demo")]
+    else:
+        hist = [report] + hist
+    hist = hist[:30]
     save("history.json", hist)
     os.makedirs(WEB_DIR, exist_ok=True)
     tmp = os.path.join(WEB_DIR, "targetolog.json.tmp")
-    json.dump(dict(latest=report, history=[{k: r.get(k) for k in ("at", "mode", "summary", "error")}
+    json.dump(dict(latest=report, history=[{k: r.get(k) for k in ("at", "mode", "summary", "error", "demo")}
                                            | {"applied": len(r.get("applied") or [])} for r in hist]),
               open(tmp, "w", encoding="utf-8"), ensure_ascii=False)
     os.replace(tmp, os.path.join(WEB_DIR, "targetolog.json"))
 
 
-def run(dry=False):
+def run(dry=False, demo=False):
     c = cfg()
     now = dt.datetime.now(TZ).isoformat(timespec="seconds")
     mode = "advise" if dry and c["mode"] == "auto" else c["mode"]
+    if demo:        # показываем, как сработал бы автопилот; реальный кабинет не трогаем
+        mode = "auto"
+        c.update(min_spend=c["min_spend"] or 10, max_budget=c["max_budget"] or 30, max_total=c["max_total"] or 85)
     if mode == "off":
         print("targetolog: выключен"); return
-    report = dict(at=now, mode=mode)
+    report = dict(at=now, mode=mode, demo=demo)
     try:
-        missing = [k for k in ("META_ADS_TOKEN", "META_AD_ACCOUNT", "ANTHROPIC_API_KEY") if not os.environ.get(k, "").strip()]
+        need = ("ANTHROPIC_API_KEY",) if demo else ("META_ADS_TOKEN", "META_AD_ACCOUNT", "ANTHROPIC_API_KEY")
+        missing = [k for k in need if not os.environ.get(k, "").strip()]
         if missing:
             raise RuntimeError("не заданы ключи: " + ", ".join(missing))
-        snap = meta_snapshot(c)
-        crm = crm_summary()
+        snap, crm = demo_data() if demo else (meta_snapshot(c), crm_summary())
         ents = [{k: v for k, v in e.items() if v not in (None, {}, "")} for e in snap["entities"].values()
                 if e["status"] == "ACTIVE" or e["stats"]]
         answer, usage = ask_claude(dict(currency=snap["currency"], ads=ents, crm_by_utm_last_7d=crm,
@@ -337,12 +389,13 @@ def run(dry=False):
         if mode == "auto":
             for a in ok:
                 try:
-                    a["before"] = meta_apply(c, snap, a)
+                    a["before"] = {} if demo else meta_apply(c, snap, a)
                     applied.append(a)
                     print("targetolog: выполнено —", a["type"], a["name"])
                 except Exception as err:  # noqa
                     failed.append(dict(a, rejected=str(err)[:200]))
-            save("last_run.json", dict(at=now, applied=applied))
+            if not demo:
+                save("last_run.json", dict(at=now, applied=applied))
         report.update(currency=snap["currency"], account=snap["account_name"], summary=answer.get("summary", ""),
                       findings=answer.get("findings") or [], ideas=answer.get("ideas") or [],
                       applied=applied, proposed=[] if mode == "auto" else ok, rejected=bad + failed, usage=usage,
@@ -377,4 +430,4 @@ def undo():
 
 
 if __name__ == "__main__":
-    undo() if "--undo" in sys.argv else run(dry="--dry" in sys.argv)
+    undo() if "--undo" in sys.argv else run(dry="--dry" in sys.argv, demo="--demo" in sys.argv)

@@ -4,7 +4,7 @@
 #   airl-hub set ИМЯ ЗНАЧЕНИЕ    сохранить ключ сервиса и сразу обновить данные
 #   airl-hub unset ИМЯ           удалить ключ
 #   airl-hub sync                обновить данные сейчас
-#   airl-hub targetolog status|dry|run|auto|advise|off|undo   ИИ-таргетолог
+#   airl-hub targetolog status|demo|dry|run|auto|advise|off|undo   ИИ-таргетолог
 set -euo pipefail
 ENVF=/etc/airl-1c-hub/env
 KEYS="ODATA_URL ODATA_USER ODATA_PASS BITRIX_WEBHOOK META_ADS_TOKEN META_AD_ACCOUNT YANDEX_METRIKA_TOKEN YANDEX_METRIKA_COUNTER TELEGRAM_BOT_TOKEN TELEGRAM_CHAT ANTHROPIC_API_KEY TARGETOLOG_MODE TARGETOLOG_MAX_DAILY_BUDGET TARGETOLOG_MAX_TOTAL_DAILY TARGETOLOG_MIN_SPEND TARGETOLOG_MAX_STEP TARGETOLOG_MAX_ACTIONS"
@@ -36,10 +36,11 @@ case "${1:-status}" in
       status) echo "Режим: $(grep -E '^TARGETOLOG_MODE=' "$ENVF" | cut -d= -f2 || true)"; systemctl list-timers 'airl-hub-targetolog*' --no-pager 2>/dev/null | head -3
               journalctl -u airl-hub-targetolog -n 6 --no-pager -o cat 2>/dev/null || true ;;
       dry)    as_hub --dry ;;       # разбор без изменений в кабинете
+      demo)   as_hub --demo ;;      # проба на синтетических данных, нужен только ключ Claude
       run)    as_hub ;;             # запуск сейчас в текущем режиме
       undo)   as_hub --undo ;;      # отменить действия последнего запуска
       auto|advise|off) setmode "$2" ;;
-      *) echo "airl-hub targetolog status|dry|run|auto|advise|off|undo" ;;
+      *) echo "airl-hub targetolog status|demo|dry|run|auto|advise|off|undo" ;;
     esac ;;
   *) sed -n '2,7p' "$0" ;;
 esac
