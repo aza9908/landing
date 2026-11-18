@@ -1,6 +1,6 @@
 // Сервер лендинга airl.kz.
 // Раздаёт статические файлы так же, как раньше это делал `serve .`,
-// и дополнительно проксирует внутренний хаб /airl-1c-hub/ на сервер AIRL.
+// и дополнительно проксирует внутренний хаб /airl-hub/ на сервер AIRL.
 // Данные хаба в этом репозитории не хранятся: они лежат на сервере и
 // отдаются только после ввода логина и пароля (проверяет сам сервер).
 // Форма входа — hub-login.html.
@@ -12,9 +12,10 @@ const compress = promisify(require('compression')());
 
 const PORT = process.env.PORT || 8080;
 const HUB_UPSTREAM = new URL(process.env.HUB_UPSTREAM || 'https://server.airl.kz');
-const HUB_PATH = '/airl-1c-hub/';
+const HUB_PATH = '/airl-hub/';
+const UP_PATH = '/airl-1c-hub/';   // путь хаба на сервере AIRL (исторический)
 // латинская c/C и кириллическая с/С в адресе — все варианты ведут в хаб
-const HUB_RE = /^\/airl-1[cCсС]-hub(\/.*)?$/;
+const HUB_RE = /^\/airl-(1[cCсС]-)?hub(\/.*)?$/i;   // и прежний адрес /airl-1c-hub/ — он перенаправляется
 const PASS_HEADERS = ['content-type', 'content-length', 'last-modified', 'etag'];
 
 function hubPath(url) {
@@ -79,7 +80,7 @@ function hubLogin(req, res) {
     const user = (f.get('username') || '').trim(), pass = f.get('password') || '';
     if (!user || !pass || user.includes(':')) return loginPage(res, 401, 'Введите логин и пароль.');
     const token = Buffer.from(`${user}:${pass}`).toString('base64');
-    upstream('HEAD', HUB_PATH, 'Basic ' + token, (err, r) => {
+    upstream('HEAD', UP_PATH, 'Basic ' + token, (err, r) => {
       if (err) return unavailable(res);
       r.resume();
       if (r.statusCode === 200) {
@@ -114,7 +115,7 @@ function proxyHub(req, res, path) {
   if (path === HUB_PATH + 'login') { res.writeHead(303, { ...NO_STORE, Location: HUB_PATH }); return res.end(); }
   const local = HUB_APP[path.slice(HUB_PATH.length)];
   // страницу хаба отдаём сами, но сначала сервер AIRL подтверждает логин и пароль
-  upstream(local ? 'HEAD' : req.method, local ? HUB_PATH + 'data.json' : path, auth, (err, r) => {
+  upstream(local ? 'HEAD' : req.method, UP_PATH + (local ? 'data.json' : path.slice(HUB_PATH.length)), auth, (err, r) => {
     if (err) return unavailable(res);
     if (r.statusCode === 401) {   // пароль сменили или cookie испорчена
       r.resume();
@@ -208,7 +209,7 @@ http.createServer(async (req, res) => {
   if (LMS_RE.test((req.url || '/').split('?')[0])) return proxyLms(req, res);
   const path = hubPath(req.url || '/');
   if (path) return proxyHub(req, res, path);
-  if (/^\/hub-app(\/|$)/i.test((req.url || '').split('?')[0])) { res.writeHead(404); return res.end(); }
+  if (/^\/hub-(app|server)(\/|$)/i.test((req.url || '').split('?')[0])) { res.writeHead(404); return res.end(); }
   await compress(req, res);
   return handler(req, res, { etag: true, headers: STATIC_CACHE });
 }).listen(PORT, () => console.log(`airl.kz landing on :${PORT}`));

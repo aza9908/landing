@@ -163,7 +163,7 @@ footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px
     <a href="/" aria-label="AI Research Labs"><img src="/logo-airl-white.png" alt="AI Research Labs"></a>
     <span class="tag">Hub</span><span class="sp"></span>
     <span class="upd" id="stamp"></span>
-    <a class="pill" href="/airl-1c-hub/logout">Выйти</a>
+    <a class="pill" href="/airl-hub/logout">Выйти</a>
   </div>
   <div id="err"></div>
   <div class="head">
@@ -472,7 +472,7 @@ function render(d){
   document.querySelectorAll('#v-finance .sec.small>span').forEach((e,i)=>e.textContent=String(i+1).padStart(2,'0'));
   route();
 }
-fetch('data.json?'+Date.now(),{credentials:'same-origin'}).then(r=>{if(r.status===401){location.replace('/airl-1c-hub/');throw new Error('нужен вход')}if(!r.ok)throw new Error('код '+r.status);return r.json()})
+fetch('data.json?'+Date.now(),{credentials:'same-origin'}).then(r=>{if(r.status===401){location.replace('/airl-hub/');throw new Error('нужен вход')}if(!r.ok)throw new Error('код '+r.status);return r.json()})
   .then(d=>document.fonts.ready.then(()=>render(d)))
   .catch(e=>{$('err').style.display='block';$('err').textContent='Не удалось загрузить данные: '+e.message;$('lead').textContent=''});
 </script>

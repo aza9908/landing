@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Управление AIRL Hub на сервере.
+#   airl-hub status              какие сервисы подключены и когда было обновление
+#   airl-hub set ИМЯ ЗНАЧЕНИЕ    сохранить ключ сервиса и сразу обновить данные
+#   airl-hub unset ИМЯ           удалить ключ
+#   airl-hub sync                обновить данные сейчас
+set -euo pipefail
+ENVF=/etc/airl-1c-hub/env
+KEYS="ODATA_URL ODATA_USER ODATA_PASS BITRIX_WEBHOOK META_ADS_TOKEN META_AD_ACCOUNT YANDEX_METRIKA_TOKEN YANDEX_METRIKA_COUNTER TELEGRAM_BOT_TOKEN TELEGRAM_CHAT"
+[ "$(id -u)" = 0 ] || { echo "Запустите от root"; exit 1; }
+sync_now() { systemctl start airl-1c-hub-sync && journalctl -u airl-1c-hub-sync -n 12 --no-pager -o cat | tail -8; }
+case "${1:-status}" in
+  status)
+    for k in $KEYS; do
+      if grep -qE "^$k=.+" "$ENVF"; then echo "  [x] $k"; else echo "  [ ] $k"; fi
+    done
+    systemctl list-timers 'airl-1c-hub*' --no-pager 2>/dev/null | head -4 ;;
+  set)
+    k="${2:-}"; v="${3:-}"
+    case " $KEYS " in *" $k "*) ;; *) echo "Неизвестный ключ: $k"; echo "Доступны: $KEYS"; exit 1 ;; esac
+    [ -n "$v" ] || { read -r -s -p "Значение $k: " v; echo; }
+    [ -n "$v" ] || { echo "Пустое значение"; exit 1; }
+    case "$v" in *$'\n'*) echo "Значение должно быть в одну строку"; exit 1 ;; esac
+    tmp=$(mktemp); grep -vE "^$k=" "$ENVF" > "$tmp" || true; printf '%s=%s\n' "$k" "$v" >> "$tmp"
+    cat "$tmp" > "$ENVF"; rm -f "$tmp"
+    echo "$k сохранён. Обновляю данные…"; sync_now ;;
+  unset)
+    k="${2:-}"; sed -i "/^$k=/d" "$ENVF"; echo "$k удалён"; sync_now ;;
+  sync) sync_now ;;
+  *) sed -n '2,6p' "$0" ;;
+esac
