@@ -551,6 +551,7 @@ SERVICES = [
     ("bitrix", "Bitrix24", "Продажи", "Сделки, воронки, менеджеры, источники заявок", ["BITRIX_WEBHOOK"], None),
     ("meta_ads", "Реклама Facebook / Instagram", "Маркетинг", "Расход на рекламу, показы, клики, цена клика", ["META_ADS_TOKEN", "META_AD_ACCOUNT"], svc_meta_ads),
     ("metrika", "Яндекс.Метрика", "Маркетинг", "Посещаемость сайта и источники трафика", ["YANDEX_METRIKA_TOKEN", "YANDEX_METRIKA_COUNTER"], svc_metrika),
+    ("targetolog", "ИИ-таргетолог", "Маркетинг", "Ежедневный разбор рекламы и управление бюджетами по лимитам", ["META_ADS_TOKEN", "META_AD_ACCOUNT", "ANTHROPIC_API_KEY"], None),
     ("telegram", "Telegram-канал", "Маркетинг", "Подписчики канала и их динамика", ["TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT"], svc_telegram),
 ]
 
@@ -566,6 +567,13 @@ def run_services(out, old):
             item.update(status="ok", updated=now)
         elif len(have) < len(keys):
             item.update(status="off", missing=[k for k in keys if k not in have])
+        elif sid == "targetolog":
+            try:
+                last = json.load(open(os.path.join(WEB_DIR, "targetolog.json"), encoding="utf-8"))["latest"]
+            except Exception:  # noqa
+                last = {}
+            item.update(status="error" if last.get("error") else "ok", error=last.get("error"),
+                        updated=last.get("at") or now, mode=os.environ.get("TARGETOLOG_MODE", "advise"))
         elif sid == "bitrix":
             b = out.get("bitrix") or {}
             item.update(status="error" if ("error" in b or b.get("stale")) else "ok",

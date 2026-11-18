@@ -12,11 +12,51 @@ ENVF=/etc/airl-1c-hub/env
 tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
 curl -fsSL "$RAW/sync.py" -o "$tmp/sync.py"
 curl -fsSL "$RAW/airl-hub" -o "$tmp/airl-hub"
-python3 -m py_compile "$tmp/sync.py"            # не ставим скрипт, который не запускается
+curl -fsSL "$RAW/targetolog.py" -o "$tmp/targetolog.py"
+python3 -m py_compile "$tmp/sync.py" "$tmp/targetolog.py"   # не ставим скрипт, который не запускается
 bash -n "$tmp/airl-hub"
 cp -a "$APP/sync.py" "$APP/sync.py.bak" 2>/dev/null || true
 install -m 755 "$tmp/sync.py" "$APP/sync.py"
 install -m 755 "$tmp/airl-hub" /usr/local/bin/airl-hub
+install -m 755 "$tmp/targetolog.py" "$APP/targetolog.py"
+
+# ИИ-таргетолог: библиотека Claude в отдельном окружении и запуск раз в день
+if [ ! -x "$APP/venv/bin/python" ]; then
+  python3 -m venv "$APP/venv" 2>/dev/null || { apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3-venv && python3 -m venv "$APP/venv"; }
+fi
+"$APP/venv/bin/pip" install -q --upgrade anthropic && echo "Библиотека Claude установлена" || echo "!! Не удалось установить библиотеку anthropic — таргетолог не запустится"
+grep -qE '^TARGETOLOG_MODE=' "$ENVF" || echo "TARGETOLOG_MODE=advise" >> "$ENVF"
+cat > /etc/systemd/system/airl-hub-targetolog.service <<UNIT
+[Unit]
+Description=AIRL Hub: ИИ-таргетолог
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=airl-hub
+EnvironmentFile=$ENVF
+ExecStart=$APP/venv/bin/python $APP/targetolog.py
+TimeoutStartSec=900
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/airl-1c-hub $APP/web
+UNIT
+cat > /etc/systemd/system/airl-hub-targetolog.timer <<UNIT
+[Unit]
+Description=AIRL Hub: ИИ-таргетолог (раз в день)
+
+[Timer]
+OnCalendar=*-*-* 09:00:00 Asia/Almaty
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+UNIT
+systemctl daemon-reload
+systemctl enable --now airl-hub-targetolog.timer >/dev/null
 if [ -n "${BITRIX_WEBHOOK:-}" ]; then
   sed -i '/^BITRIX_WEBHOOK=/d' "$ENVF"
   echo "BITRIX_WEBHOOK=$BITRIX_WEBHOOK" >> "$ENVF"

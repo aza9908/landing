@@ -110,6 +110,15 @@ pre.cmd{font:12.5px/1.5 var(--mono);background:var(--ink);color:#e8e8f2;border-r
 .how{padding-left:20px;display:grid;gap:8px;font-size:14.5px}
 .stub{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:14px}
 .stub a{font-weight:500}
+.ai-sum{background:var(--ink);color:#fff;position:relative;overflow:hidden}
+.ai-sum::before{content:'';position:absolute;inset:0;background:radial-gradient(50% 90% at 100% 0%,#8f7bf055 0%,transparent 60%);pointer-events:none}
+.ai-sum>*{position:relative}.ai-sum p{font-size:clamp(17px,1.5vw,20px);line-height:1.45;letter-spacing:-.01em;margin-top:12px;max-width:900px}
+.ai-sum .eyebrow{color:#c7c7d2}
+.lst{display:grid;gap:10px;list-style:none}.lst li{background:var(--soft);border-radius:14px;padding:11px 15px;font-size:14.5px}
+.act{display:grid;gap:10px}
+.act>div{border:1px solid var(--line);border-radius:16px;padding:12px 16px;display:grid;gap:4px}
+.act .h{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;font-weight:500}
+.act .why{font-size:13.5px;color:var(--ink2)}.act .no{font-size:13px;color:var(--bad)}
 .neg{color:var(--bad)}.pos{color:var(--good)}
 /* attention */
 .att{display:grid;gap:10px}
@@ -172,7 +181,7 @@ footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px
   </div>
 
   <nav class="nav" id="nav" aria-label="Разделы хаба">
-    <a href="#overview" data-v="overview">Обзор</a><a href="#finance" data-v="finance">Финансы <small>1С</small></a><a href="#sales" data-v="sales">Продажи <small>Bitrix24</small></a><a href="#marketing" data-v="marketing">Маркетинг</a><a href="#services" data-v="services">Интеграции</a>
+    <a href="#overview" data-v="overview">Обзор</a><a href="#finance" data-v="finance">Финансы <small>1С</small></a><a href="#sales" data-v="sales">Продажи <small>Bitrix24</small></a><a href="#marketing" data-v="marketing">Маркетинг</a><a href="#ai" data-v="ai">ИИ-таргетолог</a><a href="#services" data-v="services">Интеграции</a>
   </nav>
 
   <div class="view" id="v-overview">
@@ -266,6 +275,11 @@ footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px
   <div class="view" id="v-marketing" hidden>
     <div class="sec"><div><h2>Маркетинг</h2><p>Реклама, сайт и соцсети</p></div></div>
     <div id="mkt"></div>
+  </div>
+
+  <div class="view" id="v-ai" hidden>
+    <div class="sec"><div><h2>ИИ-таргетолог</h2><p id="aiLead">Ежедневный разбор рекламы Facebook и Instagram и управление бюджетами</p></div></div>
+    <div id="ai"></div>
   </div>
 
   <div class="view" id="v-services" hidden>
@@ -370,6 +384,7 @@ const HELP={
   bitrix:'<b>BITRIX_WEBHOOK</b> — адрес входящего вебхука: Bitrix24 → Разработчикам → Другое → Входящий вебхук, права CRM и «Пользователи».',
   meta_ads:'<b>META_ADS_TOKEN</b> — токен системного пользователя в Meta Business Manager с правом ads_read. <b>META_AD_ACCOUNT</b> — номер рекламного кабинета (только цифры).',
   metrika:'<b>YANDEX_METRIKA_TOKEN</b> — OAuth-токен Яндекса с доступом к Метрике (metrika:read). <b>YANDEX_METRIKA_COUNTER</b> — номер счётчика сайта.',
+  targetolog:'<b>ANTHROPIC_API_KEY</b> — ключ Claude API (console.anthropic.com). Нужны также ключи рекламы Facebook / Instagram; для автопилота токен Meta должен иметь право ads_management.',
   telegram:'<b>TELEGRAM_BOT_TOKEN</b> — токен бота от @BotFather; бота нужно добавить администратором канала. <b>TELEGRAM_CHAT</b> — имя канала, например @airl_kz.',
   onec:'Доступ к OData 1С задаётся при установке хаба.'};
 const STN={ok:'Подключён',off:'Не подключён',error:'Ошибка'};
@@ -379,8 +394,8 @@ const stub=sv=>sv?`<div class="stub"><div><h3>${esc(sv.name)}</h3><p class="hint
 function renderServices(d){
   const list=d.services||[{id:'onec',name:'1С:Бухгалтерия',group:'Финансы',what:'Деньги, выручка, расходы, долги, счета, команда',keys:[],status:'ok',updated:d.generated_at}];
   SV=Object.fromEntries(list.map(x=>[x.id,x]));
-  const VIEW={Финансы:'finance',Продажи:'sales',Маркетинг:'marketing'};
-  $('svcChips').innerHTML=list.map(x=>`<a class="chip ${x.status}" href="#${x.status==='ok'?VIEW[x.group]:'services'}"><i></i>${esc(x.name)}<span>${STN[x.status].toLowerCase()}</span></a>`).join('');
+  const VIEW={Финансы:'finance',Продажи:'sales',Маркетинг:'marketing'};const VID={targetolog:'ai'};
+  $('svcChips').innerHTML=list.map(x=>`<a class="chip ${x.status}" href="#${x.status==='ok'?(VID[x.id]||VIEW[x.group]):'services'}"><i></i>${esc(x.name)}<span>${STN[x.status].toLowerCase()}</span></a>`).join('');
   $('svc').innerHTML=list.map(x=>`<div class="card s6 svc"><div class="top"><div><div class="grp">${esc(x.group)}</div><h3>${esc(x.name)}</h3></div><span class="badge2 ${x.status}"><i></i>${STN[x.status]}</span></div><p>${esc(x.what)}</p>`+
     (x.status==='ok'?`<p class="small">Обновлено ${new Date(x.updated).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</p>`:
      `${x.error?`<p class="small" style="color:var(--bad)">${esc(x.error)}</p>`:''}<div class="help">${HELP[x.id]||''}</div><pre class="cmd">${esc(cmd(x))}</pre>`)+'</div>').join('');
@@ -403,8 +418,24 @@ function renderMarketing(d){
   if(y){area('cVis',y.days.map(x=>dm(x.date)),y.days.map(x=>x.visits),{label:'Визиты',fmt:cnt});donut('Src',y.sources.map(x=>({n:x.name,v:x.count})),'визитов',cnt,cnt)}
   if(t)area('cTg',t.history.map(x=>dm(x.date)),t.history.map(x=>x.members),{label:'Подписчики',fmt:cnt,tight:true});
 }
+const MODE={auto:'Автопилот',advise:'Советчик',off:'Выключен'};
+function renderAI(t){
+  const sv=SV.targetolog,el=$('ai');
+  if(!t||!t.latest){el.innerHTML='<div class="card">'+(stub(sv)||'<h3>ИИ-таргетолог ещё не установлен</h3><p class="hint" style="margin:6px 0 0">Появится после обновления хаба на сервере и добавления ключей.</p>')+'</div>';return}
+  const r=t.latest,cur=r.currency?' '+r.currency:'',when=new Date(r.at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  const what=a=>a.type==='pause'?'Пауза':a.type==='set_budget'?`Бюджет ${a.old_budget!=null?nf.format(a.old_budget)+' → ':''}${a.new_budget!=null?nf.format(a.new_budget)+cur:''}`:esc(a.type);
+  const acts=(list,cls,label)=>list&&list.length?`<div class="card s12"><h3>${label}</h3><p class="hint">${list.length} шт.</p><div class="act">`+list.map(a=>`<div><div class="h"><span class="st ${cls}">${what(a)}</span><span>${esc(a.name||a.id)}</span>${a.kind?`<span class="small">${{ad:'объявление',adset:'группа',campaign:'кампания'}[a.kind]||''}</span>`:''}</div>${a.reason?`<div class="why">${esc(a.reason)}</div>`:''}${a.rejected?`<div class="no">Не выполнено: ${esc(a.rejected)}</div>`:''}</div>`).join('')+'</div></div>':'';
+  $('aiLead').textContent=(r.account?r.account+' · ':'')+'последний разбор '+when;
+  if(r.error){el.innerHTML=`<div class="card"><div class="stub"><h3>Последний запуск завершился ошибкой</h3><span class="badge2 error"><i></i>Ошибка</span></div><p style="margin-top:10px;color:var(--bad)">${esc(r.error)}</p><p class="hint" style="margin:10px 0 0">Режим: ${MODE[r.mode]||esc(r.mode)}. Кабинет не изменялся.</p></div>`;return}
+  el.innerHTML=`<div class="g"><div class="card s12 ai-sum"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center"><span class="eyebrow">Главный вывод · ${when}</span><span class="badge${r.mode==='auto'?' alert':''}">${MODE[r.mode]||esc(r.mode)}</span></div><p>${esc(r.summary)}</p></div></div>`+
+    `<div class="g">${acts(r.applied,'paid','Выполнено в кабинете')}${acts(r.proposed,'partial','Предлагает сделать')}${acts(r.rejected,'open','Отклонено проверкой лимитов')}</div>`+
+    (!(r.applied||[]).length&&!(r.proposed||[]).length&&!(r.rejected||[]).length?'<div class="g"><div class="card s12"><h3>Действий нет</h3><p class="hint" style="margin:4px 0 0">Сегодня ИИ не нашёл, что стоит менять в кабинете</p></div></div>':'')+
+    `<div class="g"><div class="card s7"><h3>Наблюдения</h3><p class="hint">Что видно в цифрах</p><ul class="lst">${(r.findings||[]).map(x=>`<li>${esc(x)}</li>`).join('')||'<li>—</li>'}</ul></div><div class="card s5"><h3>Идеи для команды</h3><p class="hint">То, что ИИ сам сделать не может</p><ul class="lst">${(r.ideas||[]).map(x=>`<li>${esc(x)}</li>`).join('')||'<li>—</li>'}</ul></div></div>`+
+    `<div class="g"><div class="card s5"><h3>Лимиты автопилота</h3><p class="hint">Проверяет программа, а не ИИ</p><ul class="lst">${(r.limits||'').split('\n').map(x=>`<li>${esc(x.replace(/^- /,''))}</li>`).join('')}</ul></div><div class="card s7"><h3>История запусков</h3><p class="hint">Последние ${t.history.length}</p><div class="tw"><table id="aiHist"></table></div></div></div>`;
+  table('aiHist',[['Дата'],['Режим'],['Итог'],['Действий','num']],t.history.map(h=>[new Date(h.at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}),MODE[h.mode]||esc(h.mode),h.error?`<span class="neg">${esc(h.error)}</span>`:esc((h.summary||'').slice(0,140)),h.applied||0]));
+}
 function route(){
-  const h=(location.hash||'#overview').slice(1),views=['overview','finance','sales','marketing','services'];
+  const h=(location.hash||'#overview').slice(1),views=['overview','finance','sales','marketing','ai','services'];
   const sub=document.getElementById(h),v=views.includes(h)?h:(sub&&sub.closest('.view')?sub.closest('.view').id.slice(2):'overview');
   views.forEach(x=>$('v-'+x).hidden=x!==v);
   document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.v===v));
@@ -469,6 +500,7 @@ function render(d){
   table('ops-t',opHead,opRows.slice(0,N));
   if(opRows.length>N){const b=$('more');b.hidden=false;b.textContent='Показать все '+opRows.length;b.onclick=()=>{table('ops-t',opHead,opRows);b.hidden=true}}
   renderServices(d);renderSales(d.bitrix);renderMarketing(d);
+  fetch('targetolog.json?'+Date.now(),{credentials:'same-origin'}).then(r=>r.ok?r.json():null).catch(()=>null).then(renderAI);
   document.querySelectorAll('#v-finance .sec.small>span').forEach((e,i)=>e.textContent=String(i+1).padStart(2,'0'));
   route();
 }

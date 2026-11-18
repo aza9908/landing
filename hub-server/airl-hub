@@ -4,9 +4,10 @@
 #   airl-hub set ИМЯ ЗНАЧЕНИЕ    сохранить ключ сервиса и сразу обновить данные
 #   airl-hub unset ИМЯ           удалить ключ
 #   airl-hub sync                обновить данные сейчас
+#   airl-hub targetolog status|dry|run|auto|advise|off|undo   ИИ-таргетолог
 set -euo pipefail
 ENVF=/etc/airl-1c-hub/env
-KEYS="ODATA_URL ODATA_USER ODATA_PASS BITRIX_WEBHOOK META_ADS_TOKEN META_AD_ACCOUNT YANDEX_METRIKA_TOKEN YANDEX_METRIKA_COUNTER TELEGRAM_BOT_TOKEN TELEGRAM_CHAT"
+KEYS="ODATA_URL ODATA_USER ODATA_PASS BITRIX_WEBHOOK META_ADS_TOKEN META_AD_ACCOUNT YANDEX_METRIKA_TOKEN YANDEX_METRIKA_COUNTER TELEGRAM_BOT_TOKEN TELEGRAM_CHAT ANTHROPIC_API_KEY TARGETOLOG_MODE TARGETOLOG_MAX_DAILY_BUDGET TARGETOLOG_MAX_TOTAL_DAILY TARGETOLOG_MIN_SPEND TARGETOLOG_MAX_STEP TARGETOLOG_MAX_ACTIONS"
 [ "$(id -u)" = 0 ] || { echo "Запустите от root"; exit 1; }
 sync_now() { systemctl start airl-1c-hub-sync && journalctl -u airl-1c-hub-sync -n 12 --no-pager -o cat | tail -8; }
 case "${1:-status}" in
@@ -27,5 +28,18 @@ case "${1:-status}" in
   unset)
     k="${2:-}"; sed -i "/^$k=/d" "$ENVF"; echo "$k удалён"; sync_now ;;
   sync) sync_now ;;
-  *) sed -n '2,6p' "$0" ;;
+  targetolog)
+    PY=/opt/airl-1c-hub/venv/bin/python; T=/opt/airl-1c-hub/targetolog.py
+    setmode() { sed -i '/^TARGETOLOG_MODE=/d' "$ENVF"; echo "TARGETOLOG_MODE=$1" >> "$ENVF"; echo "Режим таргетолога: $1"; }
+    as_hub() { systemd-run --quiet --wait --pipe -p User=airl-hub -p EnvironmentFile="$ENVF" "$PY" "$T" "$@"; }
+    case "${2:-status}" in
+      status) echo "Режим: $(grep -E '^TARGETOLOG_MODE=' "$ENVF" | cut -d= -f2 || true)"; systemctl list-timers 'airl-hub-targetolog*' --no-pager 2>/dev/null | head -3
+              journalctl -u airl-hub-targetolog -n 6 --no-pager -o cat 2>/dev/null || true ;;
+      dry)    as_hub --dry ;;       # разбор без изменений в кабинете
+      run)    as_hub ;;             # запуск сейчас в текущем режиме
+      undo)   as_hub --undo ;;      # отменить действия последнего запуска
+      auto|advise|off) setmode "$2" ;;
+      *) echo "airl-hub targetolog status|dry|run|auto|advise|off|undo" ;;
+    esac ;;
+  *) sed -n '2,7p' "$0" ;;
 esac
