@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>AIRL · 1С Hub</title>
+<title>AIRL Hub</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -86,6 +86,30 @@ section{scroll-margin-top:84px}
 .fn .r.won span:first-child{color:var(--good);font-weight:500}.fn .r.lost span:first-child{color:var(--muted)}
 .fhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:2px}
 .fhead b{font-size:26px;font-weight:600;letter-spacing:-.035em;font-variant-numeric:tabular-nums}
+.nav a small{font:400 11.5px var(--mono);color:var(--muted);margin-left:4px}
+.nav a.on small{color:#c7c7d2}
+.view[hidden]{display:none}
+.sec.small{margin-top:44px}.sec.small h2{font-size:clamp(22px,2.4vw,27px)}
+.sub{display:flex;flex-wrap:wrap;gap:8px;margin:-4px 0 20px}
+.sub a{text-decoration:none;font-size:13.5px;font-weight:500;color:var(--ink2);background:#fff;border-radius:20px;padding:7px 14px}
+.sub a:hover{background:var(--ink);color:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{display:inline-flex;align-items:center;gap:8px;background:var(--soft);border-radius:99px;padding:8px 14px;font-size:14px;text-decoration:none}
+.chip i,.badge2 i{width:8px;height:8px;border-radius:50%;background:#c9c9d6;flex:none}
+.chip.ok i,.badge2.ok i{background:var(--good)}.chip.error i,.badge2.error i{background:var(--bad)}
+.chip span{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.badge2{display:inline-flex;align-items:center;gap:7px;border-radius:99px;padding:4px 11px;font-size:12.5px;font-weight:500;background:var(--soft);color:var(--ink2);white-space:nowrap}
+.badge2.ok{background:#e3f4ec;color:var(--good)}.badge2.error{background:#fbe6ec;color:var(--bad)}
+.svc{display:flex;flex-direction:column;gap:10px}
+.svc .top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.svc .grp{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.svc p{font-size:14px;color:var(--ink2)}
+.svc .help{font-size:13px;color:var(--ink2);background:var(--soft);border-radius:14px;padding:10px 14px}
+.svc .help b{font-weight:600}
+pre.cmd{font:12.5px/1.5 var(--mono);background:var(--ink);color:#e8e8f2;border-radius:14px;padding:12px 14px;overflow-x:auto;white-space:pre}
+.how{padding-left:20px;display:grid;gap:8px;font-size:14.5px}
+.stub{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:14px}
+.stub a{font-weight:500}
 .neg{color:var(--bad)}.pos{color:var(--good)}
 /* attention */
 .att{display:grid;gap:10px}
@@ -137,22 +161,23 @@ footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px
 <div class="wrap">
   <div class="bar">
     <a href="/" aria-label="AI Research Labs"><img src="/logo-airl-white.png" alt="AI Research Labs"></a>
-    <span class="tag">1С Hub</span><span class="sp"></span>
+    <span class="tag">Hub</span><span class="sp"></span>
     <span class="upd" id="stamp"></span>
     <a class="pill" href="/airl-1c-hub/logout">Выйти</a>
   </div>
   <div id="err"></div>
   <div class="head">
-    <h1>1С<img src="/star-mark.svg" alt="">Hub</h1>
+    <h1>AIRL<img src="/star-mark.svg" alt="">Hub</h1>
     <p class="lead" id="lead">Загрузка данных…</p>
   </div>
 
-  <nav class="nav" id="nav" aria-label="Разделы">
-    <a href="#overview">Обзор</a><a href="#sales" id="navSales">Продажи</a><a href="#pnl">Доходы и расходы</a><a href="#cash">Деньги</a><a href="#clients">Клиенты и счета</a><a href="#debts">Обязательства</a><a href="#team">Команда</a><a href="#ops">Операции</a>
+  <nav class="nav" id="nav" aria-label="Разделы хаба">
+    <a href="#overview" data-v="overview">Обзор</a><a href="#finance" data-v="finance">Финансы <small>1С</small></a><a href="#sales" data-v="sales">Продажи <small>Bitrix24</small></a><a href="#marketing" data-v="marketing">Маркетинг</a><a href="#services" data-v="services">Интеграции</a>
   </nav>
 
+  <div class="view" id="v-overview">
   <section id="overview">
-    <div class="sec"><span>01</span><div><h2>Обзор</h2><p>Главные цифры компании на сегодня</p></div></div>
+    <div class="sec"><div><h2>Обзор</h2><p>Главные цифры компании на сегодня</p></div></div>
     <div class="g">
       <div class="card hero s4">
         <div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><span class="eyebrow">Деньги на счетах</span><span class="badge" id="runway"></span></div>
@@ -162,15 +187,19 @@ footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px
         <div class="spark"><canvas id="cSpark"></canvas></div>
       </div>
       <div class="s8 groups">
-        <div><div class="glabel">Результат за период</div><div class="tiles" id="tilesA"></div></div>
-        <div><div class="glabel">Долги и ожидаемые поступления</div><div class="tiles" id="tilesB"></div></div>
+        <div><div class="glabel">Финансы · 1С</div><div class="tiles" id="tilesA"></div></div>
+        <div><div class="glabel" id="gB">Продажи · Bitrix24</div><div class="tiles" id="tilesB"></div></div>
       </div>
     </div>
     <div class="g" id="attWrap" hidden><div class="card s12"><h3>На что обратить внимание</h3><p class="hint">Автоматическая проверка данных учёта</p><ul class="att" id="att"></ul></div></div>
   </section>
 
-  <section id="sales">
-    <div class="sec"><span>02</span><div><h2>Продажи</h2><p id="salesLead">Сделки и заявки из Bitrix24</p></div></div>
+  <div class="g"><div class="card s12"><h3>Сервисы</h3><p class="hint">Откуда хаб берёт данные</p><div class="chips" id="svcChips"></div></div></div>
+  </div>
+
+  <div class="view" id="v-sales" hidden>
+  <section id="sales-s">
+    <div class="sec"><div><h2>Продажи</h2><p id="salesLead">Сделки и заявки из Bitrix24</p></div></div>
     <div id="salesErr" class="card" hidden></div>
     <div id="salesBody">
       <div class="g"><div class="s12 tiles six" id="tilesS"></div></div>
@@ -186,8 +215,14 @@ footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px
     </div>
   </section>
 
+  </div>
+
+  <div class="view" id="v-finance" hidden>
+    <div class="sec"><div><h2>Финансы</h2><p id="finLead">Данные 1С:Бухгалтерии</p></div></div>
+    <div class="sub" id="sub"><a href="#pnl">Доходы и расходы</a><a href="#money">Деньги</a><a href="#clients">Клиенты и счета</a><a href="#debts">Обязательства</a><a href="#team">Команда</a><a href="#ops">Операции</a></div>
+    <div class="g"><div class="s12 tiles six" id="tilesF"></div></div>
   <section id="pnl">
-    <div class="sec"><span>03</span><div><h2>Доходы и расходы</h2><p>Сколько заработали и на что потратили — по начислению</p></div></div>
+    <div class="sec small"><span></span><div><h2>Доходы и расходы</h2><p>Сколько заработали и на что потратили — по начислению</p></div></div>
     <div class="g">
       <div class="card s7"><h3>Выручка и расходы по месяцам</h3><p class="hint">Наведите на месяц, чтобы увидеть результат</p><div class="chart"><canvas id="cPL"></canvas></div><div class="legend" id="lPL"></div></div>
       <div class="card s5 dc"><h3>Структура расходов</h3><p class="hint">Начисленные расходы за весь период</p><div class="donut"><div class="ring"><canvas id="dExp"></canvas><div class="mid" id="mExp"></div></div><div class="dl" id="lExp"></div></div></div>
@@ -195,8 +230,8 @@ footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px
     <div class="g"><div class="card s12"><h3>Подрядчики и поставщики</h3><p class="hint">Кому и за что начислено — сумма поступлений услуг</p><div class="hb two" id="supp"></div></div></div>
   </section>
 
-  <section id="cash">
-    <div class="sec"><span>04</span><div><h2>Деньги</h2><p>Фактическое движение по кассе и расчётным счетам</p></div></div>
+  <section id="money">
+    <div class="sec small"><span></span><div><h2>Деньги</h2><p>Фактическое движение по кассе и расчётным счетам</p></div></div>
     <div class="g">
       <div class="card s7"><h3>Остаток денег</h3><p class="hint">На конец каждого месяца</p><div class="chart"><canvas id="cCash"></canvas></div></div>
       <div class="card s5 dc"><h3>Откуда пришли деньги</h3><p class="hint">Поступления на счёт за весь период</p><div class="donut"><div class="ring"><canvas id="dIn"></canvas><div class="mid" id="mIn"></div></div><div class="dl" id="lIn"></div></div></div>
@@ -205,7 +240,7 @@ footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px
   </section>
 
   <section id="clients">
-    <div class="sec"><span>05</span><div><h2>Клиенты и счета</h2><p>Кто приносит выручку и какие счета ещё не оплачены</p></div></div>
+    <div class="sec small"><span></span><div><h2>Клиенты и счета</h2><p>Кто приносит выручку и какие счета ещё не оплачены</p></div></div>
     <div class="g">
       <div class="card s5 dc"><h3>Выручка по клиентам</h3><p class="hint">По актам за весь период</p><div class="donut"><div class="ring"><canvas id="dCust"></canvas><div class="mid" id="mCust"></div></div><div class="dl" id="lCust"></div></div></div>
       <div class="card s7"><h3>Счета покупателям</h3><p class="hint" id="invHint">Статус — по платежам, привязанным к счёту в 1С</p><div class="tw"><table id="inv"></table></div></div>
@@ -213,20 +248,34 @@ footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px
   </section>
 
   <section id="debts">
-    <div class="sec"><span>06</span><div><h2>Обязательства</h2><p>Что компания должна: займы, налоги, зарплата</p></div></div>
+    <div class="sec small"><span></span><div><h2>Обязательства</h2><p>Что компания должна: займы, налоги, зарплата</p></div></div>
     <div class="g"><div class="card s12"><div class="tw"><table id="liab"></table></div></div></div>
   </section>
 
   <section id="team">
-    <div class="sec"><span>07</span><div><h2>Команда</h2><p>Сотрудники организации по данным кадрового учёта</p></div></div>
+    <div class="sec small"><span></span><div><h2>Команда</h2><p>Сотрудники организации по данным кадрового учёта</p></div></div>
     <div class="g"><div class="card s12"><div class="tw"><table id="staff"></table></div></div></div>
   </section>
 
   <section id="ops">
-    <div class="sec"><span>08</span><div><h2>Операции по банку</h2><p>Последние платёжные документы</p></div></div>
+    <div class="sec small"><span></span><div><h2>Операции по банку</h2><p>Последние платёжные документы</p></div></div>
     <div class="g"><div class="card s12"><div class="tw"><table id="ops-t"></table></div><button class="more" id="more" hidden></button></div></div>
   </section>
-  <footer><span>Источник: 1С:Бухгалтерия (OData) · обновление каждые 30 минут</span><span>AI Research Labs · только для внутреннего использования</span></footer>
+  </div>
+
+  <div class="view" id="v-marketing" hidden>
+    <div class="sec"><div><h2>Маркетинг</h2><p>Реклама, сайт и соцсети</p></div></div>
+    <div id="mkt"></div>
+  </div>
+
+  <div class="view" id="v-services" hidden>
+    <div class="sec"><div><h2>Интеграции</h2><p>Сервисы, подключённые к хабу. Чтобы включить новый, достаточно добавить его ключи на сервере.</p></div></div>
+    <div class="g" id="svc"></div>
+    <div class="g"><div class="card s12"><h3>Как подключить сервис</h3><p class="hint">Ключи хранятся только на сервере AIRL и в хаб не выводятся</p>
+      <ol class="how"><li>Получите ключи сервиса (подсказка — в его карточке выше).</li><li>Выполните на своём компьютере команду из карточки, подставив значение ключа.</li><li>Хаб сразу обновит данные: сервис станет «Подключён», а его раздел появится в хабе.</li></ol></div></div>
+  </div>
+
+  <footer><span id="foot">Обновление каждые 30 минут</span><span>AI Research Labs · только для внутреннего использования</span></footer>
 </div>
 <script src="chart.umd.js"></script>
 <script>
@@ -262,12 +311,12 @@ function bars(id,labels,sets,stacked,fmt){
 }
 function area(id,labels,data,opt={}){
   const col=opt.color||C[0];
-  return new Chart($(id),{type:'line',data:{labels,datasets:[{label:'Остаток денег',data,borderColor:col,borderWidth:opt.spark?2:2.5,tension:.35,fill:true,
+  return new Chart($(id),{type:'line',data:{labels,datasets:[{label:opt.label||'Остаток денег',data,borderColor:col,borderWidth:opt.spark?2:2.5,tension:.35,fill:true,
     pointRadius:opt.spark?0:5,pointHoverRadius:opt.spark?4:7,pointBackgroundColor:col,pointBorderColor:opt.spark?INK:'#fff',pointBorderWidth:2.5,
     backgroundColor:c=>{const a=c.chart.chartArea;if(!a)return 'transparent';const g=c.chart.ctx.createLinearGradient(0,a.top,0,a.bottom);g.addColorStop(0,col+(opt.spark?'66':'40'));g.addColorStop(1,col+'00');return g}}]},
     options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},layout:opt.spark?{padding:{top:6,bottom:0,left:6,right:6}}:{},
-      plugins:{legend:{display:false},tooltip:{...TIP,displayColors:false,callbacks:{label:c=>tg(c.parsed.y)}}},
-      scales:opt.spark?{x:{display:false},y:{display:false,beginAtZero:true}}:AX}});
+      plugins:{legend:{display:false},tooltip:{...TIP,displayColors:false,callbacks:{label:c=>(opt.fmt||tg)(c.parsed.y)}}},
+      scales:opt.spark?{x:{display:false},y:{display:false,beginAtZero:true}}:{x:AX.x,y:{...AX.y,beginAtZero:!opt.tight,ticks:{...AX.y.ticks,callback:v=>opt.fmt?(Number.isInteger(v)?nf.format(v):''):short(v)}}}}});
 }
 function donut(key,rows,caption,fmt,fmtMid){
   fmt=fmt||tg;fmtMid=fmtMid||(v=>short(v)+' ₸');
@@ -290,7 +339,7 @@ const tile=(l,v,n,cls)=>`<div class="tile"><span class="eyebrow">${l}</span><div
 const pl=(n,a,b,c)=>{const m=n%100,k=n%10;return n+' '+(m>10&&m<20?c:k===1?a:k>1&&k<5?b:c)};
 const CH={fb:'Facebook',ig:'Instagram',wa:'WhatsApp',tg:'Telegram',google:'Google',yandex:'Яндекс'};
 function renderSales(b){
-  if(!b){$('sales').remove();$('navSales').remove();document.querySelectorAll('.sec>span').forEach((e,i)=>e.textContent=String(i+1).padStart(2,'0'));return}
+  if(!b){$('salesBody').remove();const e=$('salesErr');e.hidden=false;e.innerHTML=stub(SV.bitrix)||'<h3>Bitrix24 ещё не подключён</h3><p class="hint" style="margin:6px 0 0">Раздел появится после обновления хаба на сервере и добавления вебхука Bitrix24.</p>';return}
   if(b.error){$('salesBody').remove();const e=$('salesErr');e.hidden=false;e.innerHTML='<h3>Bitrix24 сейчас недоступен</h3><p class="hint" style="margin:6px 0 0">'+esc(b.error)+'</p>';return}
   const k=b.kpi,cnt=v=>nf.format(v);
   $('salesLead').textContent='Сделки и заявки из Bitrix24 · '+b.portal+(b.stale?' · показаны последние загруженные данные':'');
@@ -317,9 +366,54 @@ function renderSales(b){
   table('deals',head,rows.slice(0,N));
   if(rows.length>N){const m=$('moreDeals');m.hidden=false;m.textContent='Показать '+rows.length+' последних';m.onclick=()=>{table('deals',head,rows);m.hidden=true}}
 }
+const HELP={
+  bitrix:'<b>BITRIX_WEBHOOK</b> — адрес входящего вебхука: Bitrix24 → Разработчикам → Другое → Входящий вебхук, права CRM и «Пользователи».',
+  meta_ads:'<b>META_ADS_TOKEN</b> — токен системного пользователя в Meta Business Manager с правом ads_read. <b>META_AD_ACCOUNT</b> — номер рекламного кабинета (только цифры).',
+  metrika:'<b>YANDEX_METRIKA_TOKEN</b> — OAuth-токен Яндекса с доступом к Метрике (metrika:read). <b>YANDEX_METRIKA_COUNTER</b> — номер счётчика сайта.',
+  telegram:'<b>TELEGRAM_BOT_TOKEN</b> — токен бота от @BotFather; бота нужно добавить администратором канала. <b>TELEGRAM_CHAT</b> — имя канала, например @airl_kz.',
+  onec:'Доступ к OData 1С задаётся при установке хаба.'};
+const STN={ok:'Подключён',off:'Не подключён',error:'Ошибка'};
+let SV={};
+const cmd=sv=>(sv.missing||sv.keys).map(k=>`ssh root@server.airl.kz "airl-hub set ${k} 'значение'"`).join('\n');
+const stub=sv=>sv?`<div class="stub"><div><h3>${esc(sv.name)}</h3><p class="hint" style="margin:4px 0 0">${esc(sv.what)} — появится здесь после подключения</p></div><span class="badge2 ${sv.status}"><i></i>${STN[sv.status]}</span></div>${sv.error?`<p class="small" style="margin-top:10px;color:var(--bad)">${esc(sv.error)}</p>`:''}<p style="margin-top:14px;font-size:14px"><a href="#services">Как подключить →</a></p>`:'';
+function renderServices(d){
+  const list=d.services||[{id:'onec',name:'1С:Бухгалтерия',group:'Финансы',what:'Деньги, выручка, расходы, долги, счета, команда',keys:[],status:'ok',updated:d.generated_at}];
+  SV=Object.fromEntries(list.map(x=>[x.id,x]));
+  const VIEW={Финансы:'finance',Продажи:'sales',Маркетинг:'marketing'};
+  $('svcChips').innerHTML=list.map(x=>`<a class="chip ${x.status}" href="#${x.status==='ok'?VIEW[x.group]:'services'}"><i></i>${esc(x.name)}<span>${STN[x.status].toLowerCase()}</span></a>`).join('');
+  $('svc').innerHTML=list.map(x=>`<div class="card s6 svc"><div class="top"><div><div class="grp">${esc(x.group)}</div><h3>${esc(x.name)}</h3></div><span class="badge2 ${x.status}"><i></i>${STN[x.status]}</span></div><p>${esc(x.what)}</p>`+
+    (x.status==='ok'?`<p class="small">Обновлено ${new Date(x.updated).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</p>`:
+     `${x.error?`<p class="small" style="color:var(--bad)">${esc(x.error)}</p>`:''}<div class="help">${HELP[x.id]||''}</div><pre class="cmd">${esc(cmd(x))}</pre>`)+'</div>').join('');
+  const ok=list.filter(x=>x.status==='ok').map(x=>x.name);
+  $('foot').textContent='Источники: '+ok.join(', ')+' · обновление каждые 30 минут';
+}
+function renderMarketing(d){
+  const dm=s=>s.slice(8,10)+'.'+s.slice(5,7),cnt=v=>nf.format(Math.round(v)),h=[];
+  const head=(id,extra)=>`<div class="sec small"><div><h2>${esc(SV[id].name)}</h2><p>${esc(SV[id].what)}${extra||''}</p></div></div>`;
+  const stale=x=>x.stale?' · показаны последние загруженные данные':'';
+  const a=d.meta_ads,y=d.metrika,t=d.telegram;
+  if(a){const cur=a.currency?' '+a.currency:'',mny=v=>nf.format(Math.round(v))+cur;
+    h.push(head('meta_ads',' · за 30 дней'+stale(a))+`<div class="g"><div class="s12 tiles six">${[tile('Расход',mny(a.spend),'за 30 дней'),tile('Клики',cnt(a.clicks),'переходы по рекламе'),tile('Показы',cnt(a.impressions),'сколько раз показана'),tile('Цена клика',a.cpc==null?'—':new Intl.NumberFormat('ru-RU',{maximumFractionDigits:1}).format(a.cpc)+cur,'расход / клики'),tile('CTR',a.ctr==null?'—':(a.ctr*100).toFixed(2).replace('.',',')+'%','клики / показы')].join('')}</div></div><div class="g"><div class="card s12"><h3>Расход на рекламу по дням</h3><p class="hint">Facebook и Instagram</p><div class="chart"><canvas id="cAds"></canvas></div></div></div>`)}
+  if(y)h.push(head('metrika',' · за 30 дней'+stale(y))+`<div class="g"><div class="s12 tiles six">${[tile('Визиты',cnt(y.visits),'за 30 дней'),tile('Посетители',cnt(y.users),'уникальные'),tile('Просмотры',cnt(y.pageviews),'страниц')].join('')}</div></div><div class="g"><div class="card s7"><h3>Визиты по дням</h3><p class="hint">Посещаемость сайта</p><div class="chart"><canvas id="cVis"></canvas></div></div><div class="card s5 dc"><h3>Источники трафика</h3><p class="hint">Откуда приходят на сайт</p><div class="donut"><div class="ring"><canvas id="dSrc"></canvas><div class="mid" id="mSrc"></div></div><div class="dl" id="lSrc"></div></div></div></div>`);
+  if(t)h.push(head('telegram',stale(t))+`<div class="g"><div class="card s4"><span class="eyebrow">${esc(t.title)}${t.username?' · @'+esc(t.username):''}</span><div class="fhead" style="margin-top:14px"><b style="font-size:44px">${cnt(t.members)}</b></div><p class="hint" style="margin:4px 0 0">подписчиков</p></div><div class="card s8"><h3>Подписчики по дням</h3><p class="hint">История копится с момента подключения</p><div class="chart" style="height:220px"><canvas id="cTg"></canvas></div></div></div>`);
+  const off=['meta_ads','metrika','telegram'].filter(id=>!d[id]&&SV[id]);
+  if(off.length)h.push((h.length?'<div class="sec small"><div><h2>Ещё не подключено</h2><p>Добавьте ключи — и раздел появится сам</p></div></div>':'')+'<div class="g">'+off.map(id=>`<div class="card s4">${stub(SV[id])}</div>`).join('')+'</div>');
+  $('mkt').innerHTML=h.join('')||'<div class="card"><p class="hint" style="margin:0">Маркетинговые сервисы появятся после обновления хаба на сервере.</p></div>';
+  if(a)bars('cAds',a.days.map(x=>dm(x.date)),[{label:'Расход',color:C[0],data:a.days.map(x=>x.spend)}],false,v=>nf.format(Math.round(v))+(a.currency?' '+a.currency:''));
+  if(y){area('cVis',y.days.map(x=>dm(x.date)),y.days.map(x=>x.visits),{label:'Визиты',fmt:cnt});donut('Src',y.sources.map(x=>({n:x.name,v:x.count})),'визитов',cnt,cnt)}
+  if(t)area('cTg',t.history.map(x=>dm(x.date)),t.history.map(x=>x.members),{label:'Подписчики',fmt:cnt,tight:true});
+}
+function route(){
+  const h=(location.hash||'#overview').slice(1),views=['overview','finance','sales','marketing','services'];
+  const sub=document.getElementById(h),v=views.includes(h)?h:(sub&&sub.closest('.view')?sub.closest('.view').id.slice(2):'overview');
+  views.forEach(x=>$('v-'+x).hidden=x!==v);
+  document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.v===v));
+  if(sub&&!views.includes(h))sub.scrollIntoView();else scrollTo(0,0);
+}
+addEventListener('hashchange',route);
 function render(d){
   const k=d.kpi,m=d.months,L=m.map(x=>ml(x.ym)),last=m[m.length-1],prev=m[m.length-2];
-  $('lead').textContent=d.orgs.join(', ')+' · '+ml(m[0].ym)+' — '+ml(last.ym)+' · данные 1С по '+dfmt(d.data_through);
+  $('lead').textContent='Финансы, продажи и маркетинг AI Research Labs в одном месте';
   $('stamp').innerHTML='Обновлено<br>'+new Date(d.generated_at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
   $('cash').innerHTML=nf.format(k.cash)+' <small>₸</small>';
   $('cashDate').textContent='на '+dfmt(d.data_through);
@@ -331,14 +425,26 @@ function render(d){
     tile('Выручка',tg(k.revenue),ml(last.ym)+': '+short(last.revenue)+' ₸'),
     tile('Расходы',tg(k.expenses),ml(last.ym)+': '+short(last.expenses)+' ₸'),
     tile('Финансовый результат',(k.profit>0?'+':'−')+tg(Math.abs(k.profit)),'выручка минус расходы',k.profit<0?'neg':'pos'),
-    tile('Сотрудников',k.headcount,'в справочнике '+d.staff.length),
+    tile('Счета не оплачены',tg(k.invoiced_open),'ждём от покупателей'),
   ].join('');
-  $('tilesB').innerHTML=[
+  const bk=d.bitrix&&d.bitrix.kpi;
+  if(bk){$('tilesB').innerHTML=[
+    tile('Сделок всего',nf.format(bk.total),'сегодня +'+bk.today+' · за 7 дней +'+bk.week),
+    tile('В работе',nf.format(bk.open),'открытые сделки'),
+    tile('Оплачено',nf.format(bk.won),'на '+tg(bk.won_amount),'pos'),
+    tile('Конверсия в оплату',bk.conversion==null?'—':(bk.conversion*100).toFixed(1).replace('.',',')+'%','оплачено из всех сделок'),
+  ].join('')}else{$('gB').textContent='Долги · 1С';$('tilesB').innerHTML=[
+    tile('Займы полученные',tg(k.loans),'к возврату'),tile('Налоги и взносы',tg(k.tax_debt),'ИПН, СН, ОПВ, СО, ОСМС'),
+    tile('Зарплата',tg(k.payroll_debt),'начислено, не выплачено'),tile('Сотрудников',k.headcount,'в справочнике '+d.staff.length)].join('')}
+  $('tilesF').innerHTML=[
+    tile('Деньги на счетах',tg(k.cash),'на '+dfmt(d.data_through),k.cash<k.burn?'neg':''),
+    tile('Чистый отток в месяц',tg(k.burn),'среднее за '+k.burn_months+' мес.'),
     tile('Займы полученные',tg(k.loans),'к возврату'),
     tile('Налоги и взносы',tg(k.tax_debt),'ИПН, СН, ОПВ, СО, ОСМС'),
-    tile('Зарплата',tg(k.payroll_debt),'начислено, не выплачено'),
-    tile('Счета не оплачены',tg(k.invoiced_open),'ждём от покупателей',k.invoiced_open>0?'':''),
+    tile('Долг по зарплате',tg(k.payroll_debt),'начислено, не выплачено'),
+    tile('Сотрудников',k.headcount,'в справочнике '+d.staff.length),
   ].join('');
+  $('finLead').textContent='1С:Бухгалтерия · '+d.orgs.join(', ')+' · '+ml(m[0].ym)+' — '+ml(last.ym)+' · проводки по '+dfmt(d.data_through);
   if(d.warnings.length){$('attWrap').hidden=false;$('att').innerHTML=d.warnings.map((w,i)=>`<li><i>${i+1}</i><span>${esc(w)}</span></li>`).join('')}
   bars('cPL',L,[{label:'Выручка',color:C[0],data:m.map(x=>x.revenue)},{label:'Расходы',color:INK,data:m.map(x=>x.expenses)}]);
   legend('lPL',[['Выручка',C[0]],['Расходы',INK]]);
@@ -362,11 +468,9 @@ function render(d){
   const opHead=[['Дата'],['Контрагент'],['Назначение'],['Сумма','num']],N=8;
   table('ops-t',opHead,opRows.slice(0,N));
   if(opRows.length>N){const b=$('more');b.hidden=false;b.textContent='Показать все '+opRows.length;b.onclick=()=>{table('ops-t',opHead,opRows);b.hidden=true}}
-  renderSales(d.bitrix);
-  const links=[...document.querySelectorAll('#nav a')],secs=links.map(a=>document.querySelector(a.getAttribute('href')));
-  const spy=()=>{let cur=0;secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<140)cur=i});links.forEach((a,i)=>a.classList.toggle('on',i===cur));
-    const on=links[cur],nav=$('nav');if(on.offsetLeft<nav.scrollLeft||on.offsetLeft+on.offsetWidth>nav.scrollLeft+nav.clientWidth)nav.scrollLeft=on.offsetLeft-16};
-  addEventListener('scroll',spy,{passive:true});spy();
+  renderServices(d);renderSales(d.bitrix);renderMarketing(d);
+  document.querySelectorAll('#v-finance .sec.small>span').forEach((e,i)=>e.textContent=String(i+1).padStart(2,'0'));
+  route();
 }
 fetch('data.json?'+Date.now(),{credentials:'same-origin'}).then(r=>{if(r.status===401){location.replace('/airl-1c-hub/');throw new Error('нужен вход')}if(!r.ok)throw new Error('код '+r.status);return r.json()})
   .then(d=>document.fonts.ready.then(()=>render(d)))
