@@ -95,6 +95,33 @@ function hubLogin(req, res) {
   });
 }
 
+function hubMe(req, res, auth) {
+  let user = '';
+  try { user = Buffer.from(auth.slice(6), 'base64').toString('utf8').split(':')[0]; } catch (e) { /* пусто */ }
+  const send = (code, body) => { res.writeHead(code, { ...NO_STORE, 'Content-Type': 'application/json; charset=utf-8' }); res.end(JSON.stringify(body)); };
+  upstream('GET', UP_PATH + 'private/roles.json', auth, (err, r) => {
+    if (err) return unavailable(res);
+    let body = '';
+    r.setEncoding('utf8');
+    r.on('data', (c) => { if (body.length < 65536) body += c; });
+    r.on('end', () => {
+      if (r.statusCode === 200) {
+        let roles = {};
+        try { roles = JSON.parse(body); } catch (e) { /* пусто */ }
+        return send(200, { user, role: roles[user] === 'superadmin' ? 'superadmin' : 'admin' });
+      }
+      if (r.statusCode === 404) return send(200, { user, role: 'admin', legacy: true });   // сервер ещё без ролей
+      // 401/403: в списке руководителей его нет. Проверяем, что пароль вообще верный.
+      upstream('HEAD', UP_PATH, auth, (e2, r2) => {
+        if (e2) return unavailable(res);
+        r2.resume();
+        if (r2.statusCode === 401) return send(401, {});
+        return send(200, { user, role: 'user' });
+      });
+    });
+  });
+}
+
 function proxyHub(req, res, path) {
   const clear = { 'Set-Cookie': `${COOKIE}=; Max-Age=0; ${COOKIE_ATTRS}` };
   if (!path.startsWith(HUB_PATH)) {
@@ -113,10 +140,17 @@ function proxyHub(req, res, path) {
     return res.end();
   }
   if (path === HUB_PATH + 'login') { res.writeHead(303, { ...NO_STORE, Location: HUB_PATH }); return res.end(); }
+  if (path === HUB_PATH + 'me') return hubMe(req, res, auth);
   const local = HUB_APP[path.slice(HUB_PATH.length)];
   // страницу хаба отдаём сами, но сначала сервер AIRL подтверждает логин и пароль
-  upstream(local ? 'HEAD' : req.method, UP_PATH + (local ? 'data.json' : path.slice(HUB_PATH.length)), auth, (err, r) => {
+  const rest = path.slice(HUB_PATH.length);
+  upstream(local ? 'HEAD' : req.method, UP_PATH + (local ? '' : rest), auth, (err, r) => {
     if (err) return unavailable(res);
+    if (r.statusCode === 401 && rest.startsWith('private/')) {   // вошёл, но это раздел руководителей
+      r.resume();
+      res.writeHead(403, NO_STORE);
+      return res.end();
+    }
     if (r.statusCode === 401) {   // пароль сменили или cookie испорчена
       r.resume();
       if (isPage) return loginPage(res, 200, '', clear);

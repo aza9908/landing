@@ -592,29 +592,51 @@ def run_services(out, old):
     out["services"] = state
 
 
+def write_json(path, obj):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path + ".tmp", "w", encoding="utf-8") as f:
+        json.dump(obj, f, ensure_ascii=False)
+    os.replace(path + ".tmp", path)
+
+
 def main():
+    """Пишет два файла с разным доступом:
+      web/private/finance.json — данные 1С, сервер отдаёт их только руководителям;
+      web/data.json            — всё остальное (продажи, маркетинг, сервисы), видно всем пользователям хаба.
+    """
     if not (URL and USER and PASS):
         raise SystemExit("Задайте ODATA_URL, ODATA_USER, ODATA_PASS")
-    data, missing = mirror("--full" in sys.argv)
-    if "AccountingRegister_Типовой" not in data or "ChartOfAccounts_Типовой" not in data:
-        raise SystemExit("1С недоступна или нет прав на регистр бухгалтерии; data.json не обновлён")
-    out = build(data)
+    now = dt.datetime.now().astimezone().isoformat(timespec="seconds")
+    onec_error = None
+    try:
+        data, _ = mirror("--full" in sys.argv)
+        if "AccountingRegister_Типовой" not in data or "ChartOfAccounts_Типовой" not in data:
+            raise RuntimeError("1С недоступна или нет прав на регистр бухгалтерии")
+        fin = build(data)
+        write_json(os.path.join(WEB_DIR, "private", "finance.json"), fin)
+        print("finance.json обновлён | проводки по", fin["data_through"])
+    except Exception as e:  # noqa — сбой 1С не должен останавливать остальные сервисы
+        onec_error = str(e)[:200]
+        print("1С: ошибка —", e)
     try:
         old = json.load(open(os.path.join(WEB_DIR, "data.json"), encoding="utf-8"))
     except Exception:  # noqa
         old = {}
+    pub = dict(generated_at=now)
     bx = bitrix_block()
     if bx is not None:
         if "error" in bx and old.get("bitrix") and "error" not in old["bitrix"]:
             bx = dict(old["bitrix"], stale=True)      # Bitrix недоступен — оставляем прошлые данные
-        out["bitrix"] = bx
-    run_services(out, old)
-    os.makedirs(WEB_DIR, exist_ok=True)
-    tmp = os.path.join(WEB_DIR, "data.json.tmp")
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(out, f, ensure_ascii=False)
-    os.replace(tmp, os.path.join(WEB_DIR, "data.json"))
-    print("data.json обновлён:", out["generated_at"], "| данные по", out["data_through"])
+        pub["bitrix"] = bx
+    run_services(pub, old)
+    if onec_error:
+        for svc in pub["services"]:
+            if svc["id"] == "onec":
+                svc.update(status="error", error=onec_error)
+    write_json(os.path.join(WEB_DIR, "data.json"), pub)
+    print("data.json обновлён:", now)
+    if onec_error:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

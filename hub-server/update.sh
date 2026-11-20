@@ -55,18 +55,59 @@ Persistent=true
 [Install]
 WantedBy=timers.target
 UNIT
-systemctl daemon-reload
-systemctl enable --now airl-hub-targetolog.timer >/dev/null
+if [ "${SKIP_SYSTEMD:-0}" != 1 ]; then
+  systemctl daemon-reload
+  systemctl enable --now airl-hub-targetolog.timer >/dev/null
+fi
 if [ -n "${BITRIX_WEBHOOK:-}" ]; then
   sed -i '/^BITRIX_WEBHOOK=/d' "$ENVF"
   echo "BITRIX_WEBHOOK=$BITRIX_WEBHOOK" >> "$ENVF"
   echo "Вебхук Bitrix24 сохранён"
 fi
+# Роли: все прежние пользователи становятся руководителями (admin), чтобы никто не потерял доступ.
+C=/etc/airl-1c-hub
+if [ ! -f "$C/roles" ]; then
+  cut -d: -f1 "$C/htpasswd" | sed 's/$/:admin/' > "$C/roles"
+fi
+airl-hub user rebuild
+# nginx: данные 1С (private/) отдаются только руководителям — по отдельному списку паролей
+SNIP=/etc/nginx/snippets/airl-1c-hub.conf
+cp -a "$SNIP" "$SNIP.bak"
+cat > "$SNIP" <<'NGINX'
+# AIRL Hub — подключается внутрь блока server { } сайта server.airl.kz.
+# Хаб открывается только через https://airl.kz/airl-hub/ (прокси лендинга добавляет
+# служебный заголовок); прямой заход по адресу сервера получает 404.
+location ^~ /airl-1c-hub/private/ {          # данные 1С и список ролей: только superadmin и admin
+    if ($http_x_airl_hub != "landing-proxy") { return 404; }
+    alias /opt/airl-1c-hub/web/private/;
+    auth_basic "AIRL Hub";
+    auth_basic_user_file /etc/airl-1c-hub/htpasswd-admin;
+    add_header X-Robots-Tag "noindex, nofollow" always;
+    add_header Cache-Control "private, no-store" always;
+}
+location ^~ /airl-1c-hub/ {                  # всё остальное: любой пользователь хаба
+    if ($http_x_airl_hub != "landing-proxy") { return 404; }
+    alias /opt/airl-1c-hub/web/;
+    index index.html;
+    auth_basic "AIRL Hub";
+    auth_basic_user_file /etc/airl-1c-hub/htpasswd;
+    add_header X-Robots-Tag "noindex, nofollow" always;
+    add_header Cache-Control "private, no-store" always;
+}
+NGINX
+if nginx -t 2>/dev/null; then [ "${SKIP_SYSTEMD:-0}" = 1 ] || systemctl reload nginx; echo "nginx: доступ к данным 1С разделён по ролям"
+else cp -a "$SNIP.bak" "$SNIP"; echo "!! nginx -t не прошёл, конфигурация возвращена; роли НЕ включены"; exit 1; fi
+# Старый общий файл содержал и данные 1С — убираем его из общего доступа до первой новой выгрузки.
+if grep -q '"kpi"' "$APP/web/data.json" 2>/dev/null; then
+  install -o airl-hub -g airl-hub -m 644 "$APP/web/data.json" "$APP/web/private/finance.json"
+  rm -f "$APP/web/data.json"
+fi
 echo "Обновляю данные…"
+if [ "${SKIP_SYSTEMD:-0}" = 1 ]; then echo "(проверочный запуск без systemd)"; exit 0; fi
 if systemctl start airl-1c-hub-sync; then
   journalctl -u airl-1c-hub-sync -n 8 --no-pager -o cat | tail -6
   echo "Готово: https://airl.kz/airl-hub/"
 else
   journalctl -u airl-1c-hub-sync -n 15 --no-pager -o cat
-  cp -a "$APP/sync.py.bak" "$APP/sync.py"; echo "!! Выгрузка не прошла, возвращён прежний скрипт"; exit 1
+  echo "!! Выгрузка завершилась с ошибкой (см. выше). Прежний скрипт сохранён в $APP/sync.py.bak"; exit 1
 fi

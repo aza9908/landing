@@ -5,6 +5,8 @@
 #   airl-hub unset ИМЯ           удалить ключ
 #   airl-hub sync                обновить данные сейчас
 #   airl-hub targetolog status|demo|dry|run|auto|advise|off|undo   ИИ-таргетолог
+#   airl-hub user list | add ЛОГИН РОЛЬ | role ЛОГИН РОЛЬ | passwd ЛОГИН | del ЛОГИН
+#        роли: superadmin (разработчик), admin (руководитель), user (сотрудник, без данных 1С)
 set -euo pipefail
 ENVF=/etc/airl-1c-hub/env
 KEYS="ODATA_URL ODATA_USER ODATA_PASS BITRIX_WEBHOOK META_ADS_TOKEN META_AD_ACCOUNT YANDEX_METRIKA_TOKEN YANDEX_METRIKA_COUNTER TELEGRAM_BOT_TOKEN TELEGRAM_CHAT ANTHROPIC_API_KEY TARGETOLOG_MODE TARGETOLOG_MAX_DAILY_BUDGET TARGETOLOG_MAX_TOTAL_DAILY TARGETOLOG_MIN_SPEND TARGETOLOG_MAX_STEP TARGETOLOG_MAX_ACTIONS"
@@ -42,5 +44,49 @@ case "${1:-status}" in
       auto|advise|off) setmode "$2" ;;
       *) echo "airl-hub targetolog status|demo|dry|run|auto|advise|off|undo" ;;
     esac ;;
-  *) sed -n '2,7p' "$0" ;;
+  user)
+    C=/etc/airl-1c-hub; ROLES=$C/roles; ALL=$C/htpasswd; ADM=$C/htpasswd-admin; PRIV=/opt/airl-1c-hub/web/private
+    touch "$ROLES" "$ALL"
+    role_ok() { case "$1" in superadmin|admin|user) ;; *) echo "Роль должна быть superadmin, admin или user"; exit 1 ;; esac; }
+    name_ok() { echo "$1" | grep -qE '^[a-z0-9][a-z0-9._-]{1,30}$' || { echo "Логин: латинские буквы, цифры, . _ - (от 2 знаков)"; exit 1; }; }
+    has() { grep -qE "^$1:" "$ALL"; }
+    ask_pass() { local a b; read -r -s -p "Пароль для $1: " a; echo >&2; read -r -s -p "Ещё раз: " b; echo >&2
+                 [ -n "$a" ] && [ "$a" = "$b" ] || { echo "Пароли пустые или не совпали" >&2; exit 1; }
+                 printf '%s' "$a"; }
+    pw_ok() { [ ${#1} -ge 8 ] || { echo "Пароль должен быть не короче 8 знаков"; exit 1; }; }
+    rebuild() {   # htpasswd-admin и roles.json собираются из списка ролей
+      local lu lr sep
+      : > "$ADM.tmp"
+      while IFS=: read -r lu lr; do
+        case "$lr" in superadmin|admin) grep -E "^$lu:" "$ALL" >> "$ADM.tmp" || true ;; esac
+      done < "$ROLES"
+      mv "$ADM.tmp" "$ADM"
+      for f in "$ALL" "$ADM"; do chown root:www-data "$f" 2>/dev/null || chown root:nginx "$f" 2>/dev/null || true; chmod 640 "$f"; done
+      chmod 600 "$ROLES"
+      install -d -o airl-hub -g airl-hub -m 755 "$PRIV"
+      { printf '{'; sep=''; while IFS=: read -r lu lr; do printf '%s"%s":"%s"' "$sep" "$lu" "$lr"; sep=','; done < "$ROLES"; printf '}\n'; } > "$PRIV/roles.json"
+      chown airl-hub: "$PRIV/roles.json"
+    }
+    set_role() { sed -i "/^$1:/d" "$ROLES"; echo "$1:$2" >> "$ROLES"; }
+    admins_left() { grep -cE ':(superadmin|admin)$' "$ROLES" || true; }
+    case "${2:-list}" in
+      list) printf '%-20s %s\n' ЛОГИН РОЛЬ; while IFS=: read -r lu _; do printf '%-20s %s\n' "$lu" "$(grep -E "^$lu:" "$ROLES" | cut -d: -f2 || true)"; done < "$ALL" ;;
+      add)  u="${3:-}"; r="${4:-user}"; name_ok "$u"; role_ok "$r"; has "$u" && { echo "Пользователь $u уже есть (смена роли: airl-hub user role $u РОЛЬ)"; exit 1; }
+            pw="${HUB_NEW_PASSWORD:-}"; [ -n "$pw" ] || pw="$(ask_pass "$u")"; pw_ok "$pw"
+            printf '%s:%s\n' "$u" "$(openssl passwd -apr1 "$pw")" >> "$ALL"; set_role "$u" "$r"; rebuild; echo "Добавлен $u с ролью $r" ;;
+      role) u="${3:-}"; r="${4:-}"; role_ok "$r"; has "$u" || { echo "Нет пользователя $u"; exit 1; }
+            old=$(grep -E "^$u:" "$ROLES" | cut -d: -f2 || true); set_role "$u" "$r"
+            [ "$(admins_left)" -ge 1 ] || { set_role "$u" "$old"; echo "Нельзя: не останется ни одного руководителя"; exit 1; }
+            rebuild; echo "$u теперь $r" ;;
+      passwd) u="${3:-}"; has "$u" || { echo "Нет пользователя $u"; exit 1; }
+            pw="${HUB_NEW_PASSWORD:-}"; [ -n "$pw" ] || pw="$(ask_pass "$u")"; pw_ok "$pw"
+            sed -i "/^$u:/d" "$ALL"; printf '%s:%s\n' "$u" "$(openssl passwd -apr1 "$pw")" >> "$ALL"; rebuild; echo "Пароль $u изменён" ;;
+      del)  u="${3:-}"; has "$u" || { echo "Нет пользователя $u"; exit 1; }
+            cp "$ROLES" "$ROLES.bak"; sed -i "/^$u:/d" "$ROLES"
+            [ "$(admins_left)" -ge 1 ] || { mv "$ROLES.bak" "$ROLES"; echo "Нельзя: не останется ни одного руководителя"; exit 1; }
+            rm -f "$ROLES.bak"; sed -i "/^$u:/d" "$ALL"; rebuild; echo "Удалён $u" ;;
+      rebuild) rebuild ;;
+      *) echo "airl-hub user list | add ЛОГИН РОЛЬ | role ЛОГИН РОЛЬ | passwd ЛОГИН | del ЛОГИН" ;;
+    esac ;;
+  *) sed -n '2,9p' "$0" ;;
 esac

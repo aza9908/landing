@@ -28,6 +28,9 @@ a{color:inherit}
 .bar .tag{font-family:var(--mono);font-size:13px;color:#c7c7d2;border-left:1px solid #ffffff2e;padding-left:14px;white-space:nowrap}
 .bar .sp{flex:1}
 .bar .upd{font-family:var(--mono);font-size:12px;color:#c7c7d2;text-align:right;line-height:1.35}
+.who{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;white-space:nowrap}
+.who small{font:400 11.5px var(--mono);color:#16161a;background:#e8e8f2;border-radius:99px;padding:2px 9px}
+@media (max-width:640px){.who b{display:none}}
 .pill{border:1px solid #ffffff55;border-radius:24px;padding:9px 16px;font-size:14px;font-weight:500;text-decoration:none;white-space:nowrap}
 .pill:hover{background:#ffffff14}
 .head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 32px;margin:44px 0 26px}
@@ -172,6 +175,7 @@ footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px
     <a href="/" aria-label="AI Research Labs"><img src="/logo-airl-white.png" alt="AI Research Labs"></a>
     <span class="tag">Hub</span><span class="sp"></span>
     <span class="upd" id="stamp"></span>
+    <span class="who" id="who" hidden></span>
     <a class="pill" href="/airl-hub/logout">Выйти</a>
   </div>
   <div id="err"></div>
@@ -187,7 +191,7 @@ footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px
   <div class="view" id="v-overview">
   <section id="overview">
     <div class="sec"><div><h2>Обзор</h2><p>Главные цифры компании на сегодня</p></div></div>
-    <div class="g">
+    <div class="g" id="ovFin">
       <div class="card hero s4">
         <div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><span class="eyebrow">Деньги на счетах</span><span class="badge" id="runway"></span></div>
         <div class="big" id="cash"></div>
@@ -200,6 +204,7 @@ footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px
         <div><div class="glabel" id="gB">Продажи · Bitrix24</div><div class="tiles" id="tilesB"></div></div>
       </div>
     </div>
+    <div class="g" id="ovSales" hidden><div class="s12"><div class="glabel">Продажи · Bitrix24</div><div class="tiles six" id="tilesO"></div></div></div>
     <div class="g" id="attWrap" hidden><div class="card s12"><h3>На что обратить внимание</h3><p class="hint">Автоматическая проверка данных учёта</p><ul class="att" id="att"></ul></div></div>
   </section>
 
@@ -390,12 +395,13 @@ const HELP={
 const STN={ok:'Подключён',off:'Не подключён',error:'Ошибка'};
 let SV={};
 const cmd=sv=>(sv.missing||sv.keys).map(k=>`ssh root@server.airl.kz "airl-hub set ${k} 'значение'"`).join('\n');
-const stub=sv=>sv?`<div class="stub"><div><h3>${esc(sv.name)}</h3><p class="hint" style="margin:4px 0 0">${esc(sv.what)} — появится здесь после подключения</p></div><span class="badge2 ${sv.status}"><i></i>${STN[sv.status]}</span></div>${sv.error?`<p class="small" style="margin-top:10px;color:var(--bad)">${esc(sv.error)}</p>`:''}<p style="margin-top:14px;font-size:14px"><a href="#services">Как подключить →</a></p>`:'';
+const stub=sv=>sv?`<div class="stub"><div><h3>${esc(sv.name)}</h3><p class="hint" style="margin:4px 0 0">${esc(sv.what)} — появится здесь после подключения</p></div><span class="badge2 ${sv.status}"><i></i>${STN[sv.status]}</span></div>${sv.error?`<p class="small" style="margin-top:10px;color:var(--bad)">${esc(sv.error)}</p>`:''}<p style="margin-top:14px;font-size:14px">${CAN_SVC?'<a href="#services">Как подключить →</a>':'<span class="small">Подключает администратор хаба</span>'}</p>`:'';
 function renderServices(d){
   const list=d.services||[{id:'onec',name:'1С:Бухгалтерия',group:'Финансы',what:'Деньги, выручка, расходы, долги, счета, команда',keys:[],status:'ok',updated:d.generated_at}];
   SV=Object.fromEntries(list.map(x=>[x.id,x]));
+  const shown=CAN_FIN?list:list.filter(x=>x.group!=='Финансы');
   const VIEW={Финансы:'finance',Продажи:'sales',Маркетинг:'marketing'};const VID={targetolog:'ai'};
-  $('svcChips').innerHTML=list.map(x=>`<a class="chip ${x.status}" href="#${x.status==='ok'?(VID[x.id]||VIEW[x.group]):'services'}"><i></i>${esc(x.name)}<span>${STN[x.status].toLowerCase()}</span></a>`).join('');
+  $('svcChips').innerHTML=shown.map(x=>`<a class="chip ${x.status}" href="#${x.status==='ok'?(VID[x.id]||VIEW[x.group]):(CAN_SVC?'services':'overview')}"><i></i>${esc(x.name)}<span>${STN[x.status].toLowerCase()}</span></a>`).join('');
   $('svc').innerHTML=list.map(x=>`<div class="card s6 svc"><div class="top"><div><div class="grp">${esc(x.group)}</div><h3>${esc(x.name)}</h3></div><span class="badge2 ${x.status}"><i></i>${STN[x.status]}</span></div><p>${esc(x.what)}</p>`+
     (x.status==='ok'?`<p class="small">Обновлено ${new Date(x.updated).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</p>`:
      `${x.error?`<p class="small" style="color:var(--bad)">${esc(x.error)}</p>`:''}<div class="help">${HELP[x.id]||''}</div><pre class="cmd">${esc(cmd(x))}</pre>`)+'</div>').join('');
@@ -435,18 +441,17 @@ function renderAI(t){
     `<div class="g"><div class="card s5"><h3>Лимиты автопилота</h3><p class="hint">Проверяет программа, а не ИИ</p><ul class="lst">${(r.limits||'').split('\n').map(x=>`<li>${esc(x.replace(/^- /,''))}</li>`).join('')}</ul></div><div class="card s7"><h3>История запусков</h3><p class="hint">Последние ${t.history.length}</p><div class="tw"><table id="aiHist"></table></div></div></div>`;
   table('aiHist',[['Дата'],['Режим'],['Итог'],['Действий','num']],t.history.map(h=>[new Date(h.at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}),(h.demo?'Демо · ':'')+(MODE[h.mode]||esc(h.mode)),h.error?`<span class="neg">${esc(h.error)}</span>`:esc((h.summary||'').slice(0,140)),h.applied||0]));
 }
+let VIEWS=['overview','finance','sales','marketing','ai','services'],CAN_SVC=false,CAN_FIN=false;
 function route(){
-  const h=(location.hash||'#overview').slice(1),views=['overview','finance','sales','marketing','ai','services'];
-  const sub=document.getElementById(h),v=views.includes(h)?h:(sub&&sub.closest('.view')?sub.closest('.view').id.slice(2):'overview');
+  const h=(location.hash||'#overview').slice(1),views=VIEWS;
+  const sub=document.getElementById(h);let v=views.includes(h)?h:(sub&&sub.closest('.view')?sub.closest('.view').id.slice(2):'overview');if(!views.includes(v))v='overview';
   views.forEach(x=>$('v-'+x).hidden=x!==v);
   document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.v===v));
   if(sub&&!views.includes(h))sub.scrollIntoView();else scrollTo(0,0);
 }
 addEventListener('hashchange',route);
-function render(d){
+function renderFinance(d,pub){
   const k=d.kpi,m=d.months,L=m.map(x=>ml(x.ym)),last=m[m.length-1],prev=m[m.length-2];
-  $('lead').textContent='Финансы, продажи и маркетинг AI Research Labs в одном месте';
-  $('stamp').innerHTML='Обновлено<br>'+new Date(d.generated_at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
   $('cash').innerHTML=nf.format(k.cash)+' <small>₸</small>';
   $('cashDate').textContent='на '+dfmt(d.data_through);
   $('burn').textContent=tg(k.burn);
@@ -459,7 +464,7 @@ function render(d){
     tile('Финансовый результат',(k.profit>0?'+':'−')+tg(Math.abs(k.profit)),'выручка минус расходы',k.profit<0?'neg':'pos'),
     tile('Счета не оплачены',tg(k.invoiced_open),'ждём от покупателей'),
   ].join('');
-  const bk=d.bitrix&&d.bitrix.kpi;
+  const bk=pub.bitrix&&pub.bitrix.kpi;
   if(bk){$('tilesB').innerHTML=[
     tile('Сделок всего',nf.format(bk.total),'сегодня +'+bk.today+' · за 7 дней +'+bk.week),
     tile('В работе',nf.format(bk.open),'открытые сделки'),
@@ -500,13 +505,49 @@ function render(d){
   const opHead=[['Дата'],['Контрагент'],['Назначение'],['Сумма','num']],N=8;
   table('ops-t',opHead,opRows.slice(0,N));
   if(opRows.length>N){const b=$('more');b.hidden=false;b.textContent='Показать все '+opRows.length;b.onclick=()=>{table('ops-t',opHead,opRows);b.hidden=true}}
-  renderServices(d);renderSales(d.bitrix);renderMarketing(d);
-  fetch('targetolog.json?'+Date.now(),{credentials:'same-origin'}).then(r=>r.ok?r.json():null).catch(()=>null).then(renderAI);
   document.querySelectorAll('#v-finance .sec.small>span').forEach((e,i)=>e.textContent=String(i+1).padStart(2,'0'));
+}
+const ROLE={superadmin:'суперадмин',admin:'руководитель',user:'сотрудник'};
+function start(me,pub,fin){
+  const stampAt=pub.generated_at||(fin&&fin.generated_at);
+  $('stamp').innerHTML='Обновлено<br>'+new Date(stampAt).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  const w=$('who');w.hidden=false;w.innerHTML=`<b>${esc(me.user)}</b><small>${ROLE[me.role]||esc(me.role)}</small>`;
+  CAN_SVC=me.role==='superadmin';
+  const drop=v=>{VIEWS=VIEWS.filter(x=>x!==v);$('v-'+v).hidden=true;const a=document.querySelector(`#nav a[data-v="${v}"]`);if(a)a.remove()};
+  CAN_FIN=!!fin;
+  if(!CAN_SVC)drop('services');
+  renderServices(pub);
+  if(fin){
+    $('lead').textContent='Финансы, продажи и маркетинг AI Research Labs в одном месте';
+    renderFinance(fin,pub);
+  }else{   // сотрудник: данных 1С у него нет — сервер их не отдаёт
+    $('lead').textContent='Продажи и маркетинг AI Research Labs в одном месте';
+    drop('finance');$('ovFin').remove();$('attWrap').remove();
+    const bk=pub.bitrix&&pub.bitrix.kpi;
+    if(bk){$('ovSales').hidden=false;$('tilesO').innerHTML=[
+      tile('Сделок всего',nf.format(bk.total),'сегодня +'+bk.today+' · за 7 дней +'+bk.week),
+      tile('В работе',nf.format(bk.open),'открытые сделки'),
+      tile('Оплачено',nf.format(bk.won),'на '+tg(bk.won_amount),'pos'),
+      tile('Конверсия в оплату',bk.conversion==null?'—':(bk.conversion*100).toFixed(1).replace('.',',')+'%','оплачено из всех сделок'),
+      tile('Отказы',nf.format(bk.lost),'закрыто без оплаты'),
+      tile('Дела менеджеров',nf.format(bk.activities_open),bk.activities_overdue?'просрочено: '+bk.activities_overdue:'просроченных нет',bk.activities_overdue?'neg':''),
+    ].join('')}
+  }
+  renderSales(pub.bitrix);renderMarketing(pub);
+  fetch('targetolog.json?'+Date.now(),{credentials:'same-origin'}).then(r=>r.ok?r.json():null).catch(()=>null).then(renderAI);
   route();
 }
-fetch('data.json?'+Date.now(),{credentials:'same-origin'}).then(r=>{if(r.status===401){location.replace('/airl-hub/');throw new Error('нужен вход')}if(!r.ok)throw new Error('код '+r.status);return r.json()})
-  .then(d=>document.fonts.ready.then(()=>render(d)))
+const getJSON=(u,soft)=>fetch(u+'?'+Date.now(),{credentials:'same-origin'}).then(r=>{
+  if(r.status===401){location.replace('/airl-hub/');throw new Error('нужен вход')}
+  if(!r.ok){if(soft)return null;throw new Error('код '+r.status)}return r.json()});
+Promise.all([getJSON('me'),getJSON('data.json',true)]).then(([me,pub])=>{
+  pub=pub||{};
+  if(pub.kpi)return [me,pub,pub];                       // сервер ещё не обновлён: всё в одном файле
+  if(me.role==='user')return [me,pub,null];
+  return getJSON('private/finance.json',true).then(fin=>[me,pub,fin]);
+}).then(([me,pub,fin])=>{
+  if(!pub.generated_at&&!fin)throw new Error('данные ещё не выгружены');
+  return document.fonts.ready.then(()=>start(me,pub,fin))})
   .catch(e=>{$('err').style.display='block';$('err').textContent='Не удалось загрузить данные: '+e.message;$('lead').textContent=''});
 </script>
 </body>
