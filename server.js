@@ -202,6 +202,15 @@ function proxyLms(req, res) {
     if (typeof out.location === 'string' && out.location.startsWith(LMS_UPSTREAM.origin)) {
       out.location = out.location.slice(LMS_UPSTREAM.origin.length) || '/lms';
     }
+    // Pages and data must never sit in the CDN in front of airl.kz: a cached
+    // page keeps showing an old LMS after a deploy. Only content-addressed
+    // build files and lesson media (their URLs change when they change) may be
+    // cached; everything else is sent with no-store.
+    const p = (req.url || '').split('?')[0];
+    if (!/^\/lms\/(_next\/static|workbook)\//.test(p)) {
+      out['cache-control'] = 'private, no-cache, no-store, max-age=0, must-revalidate';
+      delete out['expires'];
+    }
     // Cookies scoped to the upstream domain would be rejected by the browser.
     if (out['set-cookie']) {
       out['set-cookie'] = [].concat(out['set-cookie']).map((c) => c.replace(/;\s*domain=[^;]*/i, ''));
