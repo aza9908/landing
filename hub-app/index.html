@@ -122,6 +122,53 @@ pre.cmd{font:12.5px/1.5 var(--mono);background:var(--ink);color:#e8e8f2;border-r
 .act>div{border:1px solid var(--line);border-radius:16px;padding:12px 16px;display:grid;gap:4px}
 .act .h{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;font-weight:500}
 .act .why{font-size:13.5px;color:var(--ink2)}.act .no{font-size:13px;color:var(--bad)}
+.dotn{display:inline-block;width:7px;height:7px;border-radius:50%;background:#e0862b;margin-left:6px;vertical-align:middle}
+.chat{display:flex;flex-direction:column;position:sticky;top:78px;align-self:start;max-height:calc(100vh - 96px);min-height:460px}
+@media (max-width:980px){.chat{position:static;max-height:560px}}
+.msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px 2px 12px;min-height:200px}
+.msg{max-width:92%;border-radius:18px;padding:10px 14px;font-size:14.5px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.a{background:var(--soft);align-self:flex-start;border-bottom-left-radius:6px}
+.msg.u{background:var(--ink);color:#fff;align-self:flex-end;border-bottom-right-radius:6px}
+.msg .by{display:block;font:500 11.5px var(--mono);color:var(--muted);margin-bottom:3px}
+.msg.ld{box-shadow:inset 0 0 0 1px #8f7bf066}
+.msg.wait{color:var(--muted);font-style:italic}
+.pick{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.pick button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:5px 12px;font:500 12.5px var(--sans);color:var(--ink2);cursor:pointer}
+.pick button[aria-checked="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+#chatForm{display:flex;gap:8px;align-items:flex-end}
+#chatText{flex:1;resize:none;border:1px solid var(--line);border-radius:18px;padding:11px 14px;font:15px/1.4 var(--sans);color:var(--ink);outline:none;background:#fff}
+#chatText:focus{border-color:var(--c1);box-shadow:0 0 0 3px #7663ea26}
+#chatSend{flex:none;width:44px;height:44px;border-radius:50%;border:0;background:var(--ink);color:#fff;cursor:pointer;display:grid;place-items:center}
+#chatSend svg{width:18px;height:18px}#chatSend:disabled{opacity:.4;cursor:default}
+.rep{margin-bottom:16px}.rep .who2{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:8px}
+.rep .lede{font-size:15.5px;line-height:1.5;margin-bottom:12px}
+.script{border:1px solid var(--line);border-radius:16px;padding:12px 16px;margin-top:10px}
+.script summary{cursor:pointer;font-weight:500;list-style:none;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.script summary::-webkit-details-marker{display:none}
+.script pre{white-space:pre-wrap;font:14px/1.5 var(--sans);margin-top:10px;color:var(--ink2)}
+.script .cp{margin-top:10px;border:1px solid var(--line);background:#fff;border-radius:99px;padding:5px 12px;font:500 12.5px var(--sans);cursor:pointer}
+.rec{border-left:3px solid var(--c1);padding:2px 0 2px 14px;margin-top:12px}.rec b{font-weight:600}.rec p{font-size:14px;color:var(--ink2);margin-top:3px}
+.tr3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}@media (max-width:980px){.tr3{grid-template-columns:1fr}}
+.tr3 h4{font:500 12.5px var(--mono);color:var(--muted);margin-bottom:8px}
+.tr3 .it{background:var(--soft);border-radius:14px;padding:10px 13px;margin-bottom:8px;font-size:13.5px}.tr3 .it b{display:block;font-weight:600;margin-bottom:3px;font-size:14px}
+.tr3 .it a{font-size:12px;color:var(--c1)}
+.podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:end}
+@media (max-width:760px){.podium{grid-template-columns:1fr}}
+.pl{border-radius:24px;padding:20px 22px;background:#fff;position:relative;overflow:hidden}
+.pl.first{background:var(--ink);color:#fff;padding-top:30px;padding-bottom:30px}
+.pl.first::before{content:'';position:absolute;inset:0;background:radial-gradient(70% 80% at 90% 0%,#8f7bf066 0%,transparent 60%),radial-gradient(60% 70% at 0% 100%,#b7e08733 0%,transparent 60%);pointer-events:none}
+.pl>*{position:relative}
+.pl .place{font:500 12.5px var(--mono);color:var(--muted)}.pl.first .place{color:#c7c7d2}
+.pl .nm{font-size:22px;font-weight:600;letter-spacing:-.03em;margin:8px 0 2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pl .pts{font-size:40px;font-weight:600;letter-spacing:-.045em;font-variant-numeric:tabular-nums;line-height:1.1}
+.pl .pts small{font-size:.4em;font-weight:500;letter-spacing:0;color:var(--muted)}.pl.first .pts small{color:#c7c7d2}
+.lvl{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:13px}
+.lvl .bar{flex:1;height:8px;border-radius:99px;background:var(--grid);overflow:hidden;min-width:60px}.pl.first .lvl .bar{background:#ffffff26}
+.lvl .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#b7e087,#8fd0c9,#8f7bf0,#e08bd4)}
+.bdg{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.bdg span{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:4px 10px;font-size:12.5px;font-weight:500;background:var(--soft);color:var(--ink)}
+.pl.first .bdg span{background:#ffffff1f;color:#fff}
+.bdg span::before{content:'✦';color:#8f7bf0}.pl.first .bdg span::before{color:#b7e087}
 .neg{color:var(--bad)}.pos{color:var(--good)}
 /* attention */
 .att{display:grid;gap:10px}
@@ -185,7 +232,7 @@ footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px
   </div>
 
   <nav class="nav" id="nav" aria-label="Разделы хаба">
-    <a href="#overview" data-v="overview">Обзор</a><a href="#finance" data-v="finance">Финансы <small>1С</small></a><a href="#sales" data-v="sales">Продажи <small>Bitrix24</small></a><a href="#marketing" data-v="marketing">Маркетинг</a><a href="#ai" data-v="ai">ИИ-таргетолог</a><a href="#services" data-v="services">Интеграции</a>
+    <a href="#overview" data-v="overview">Обзор</a><a href="#finance" data-v="finance">Финансы <small>1С</small></a><a href="#sales" data-v="sales">Продажи <small>Bitrix24</small></a><a href="#marketing" data-v="marketing">Маркетинг</a><a href="#game" data-v="game">Бонусы</a><a href="#team" data-v="team">ИИ-команда<i class="dotn" id="teamDot" hidden></i></a><a href="#ai" data-v="ai">ИИ-таргетолог</a><a href="#services" data-v="services">Интеграции</a>
   </nav>
 
   <div class="view" id="v-overview">
@@ -280,6 +327,24 @@ footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px
   <div class="view" id="v-marketing" hidden>
     <div class="sec"><div><h2>Маркетинг</h2><p>Реклама, сайт и соцсети</p></div></div>
     <div id="mkt"></div>
+  </div>
+
+  <div class="view" id="v-game" hidden>
+    <div class="sec"><div><h2>Бонусы</h2><p id="gameLead">Очки за результат — считаются автоматически по данным Bitrix24</p></div></div>
+    <div id="game"></div>
+  </div>
+
+  <div class="view" id="v-team" hidden>
+    <div class="sec"><div><h2>ИИ-команда</h2><p id="teamLead">Пять агентов, которые каждый день разбирают данные компании и рынок</p></div></div>
+    <div class="g">
+      <div class="card s5 chat">
+        <h3>Чат с агентами</h3><p class="hint">Спросите про продажи, попросите скрипт или идею</p>
+        <div class="msgs" id="msgs" aria-live="polite"></div>
+        <div class="pick" id="pick" role="radiogroup" aria-label="Кому вопрос"></div>
+        <form id="chatForm"><textarea id="chatText" rows="2" maxlength="4000" placeholder="Напишите вопрос…" aria-label="Сообщение"></textarea><button type="submit" id="chatSend" aria-label="Отправить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></button></form>
+      </div>
+      <div class="s7" id="teamRep"></div>
+    </div>
   </div>
 
   <div class="view" id="v-ai" hidden>
@@ -389,6 +454,7 @@ const HELP={
   bitrix:'<b>BITRIX_WEBHOOK</b> — адрес входящего вебхука: Bitrix24 → Разработчикам → Другое → Входящий вебхук, права CRM и «Пользователи».',
   meta_ads:'<b>META_ADS_TOKEN</b> — токен системного пользователя в Meta Business Manager с правом ads_read. <b>META_AD_ACCOUNT</b> — номер рекламного кабинета (только цифры).',
   metrika:'<b>YANDEX_METRIKA_TOKEN</b> — OAuth-токен Яндекса с доступом к Метрике (metrika:read). <b>YANDEX_METRIKA_COUNTER</b> — номер счётчика сайта.',
+  agents:'<b>ANTHROPIC_API_KEY</b> — ключ Claude API (console.anthropic.com). Запустить цепочку сразу: airl-hub agents run.',
   targetolog:'<b>ANTHROPIC_API_KEY</b> — ключ Claude API (console.anthropic.com). Нужны также ключи рекламы Facebook / Instagram; для автопилота токен Meta должен иметь право ads_management.',
   telegram:'<b>TELEGRAM_BOT_TOKEN</b> — токен бота от @BotFather; бота нужно добавить администратором канала. <b>TELEGRAM_CHAT</b> — имя канала, например @airl_kz.',
   onec:'Доступ к OData 1С задаётся при установке хаба.'};
@@ -400,7 +466,7 @@ function renderServices(d){
   const list=d.services||[{id:'onec',name:'1С:Бухгалтерия',group:'Финансы',what:'Деньги, выручка, расходы, долги, счета, команда',keys:[],status:'ok',updated:d.generated_at}];
   SV=Object.fromEntries(list.map(x=>[x.id,x]));
   const shown=CAN_FIN?list:list.filter(x=>x.group!=='Финансы');
-  const VIEW={Финансы:'finance',Продажи:'sales',Маркетинг:'marketing'};const VID={targetolog:'ai'};
+  const VIEW={Финансы:'finance',Продажи:'sales',Маркетинг:'marketing',ИИ:'team'};const VID={targetolog:'ai'};
   $('svcChips').innerHTML=shown.map(x=>`<a class="chip ${x.status}" href="#${x.status==='ok'?(VID[x.id]||VIEW[x.group]):(CAN_SVC?'services':'overview')}"><i></i>${esc(x.name)}<span>${STN[x.status].toLowerCase()}</span></a>`).join('');
   $('svc').innerHTML=list.map(x=>`<div class="card s6 svc"><div class="top"><div><div class="grp">${esc(x.group)}</div><h3>${esc(x.name)}</h3></div><span class="badge2 ${x.status}"><i></i>${STN[x.status]}</span></div><p>${esc(x.what)}</p>`+
     (x.status==='ok'?`<p class="small">Обновлено ${new Date(x.updated).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</p>`:
@@ -441,13 +507,93 @@ function renderAI(t){
     `<div class="g"><div class="card s5"><h3>Лимиты автопилота</h3><p class="hint">Проверяет программа, а не ИИ</p><ul class="lst">${(r.limits||'').split('\n').map(x=>`<li>${esc(x.replace(/^- /,''))}</li>`).join('')}</ul></div><div class="card s7"><h3>История запусков</h3><p class="hint">Последние ${t.history.length}</p><div class="tw"><table id="aiHist"></table></div></div></div>`;
   table('aiHist',[['Дата'],['Режим'],['Итог'],['Действий','num']],t.history.map(h=>[new Date(h.at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}),(h.demo?'Демо · ':'')+(MODE[h.mode]||esc(h.mode)),h.error?`<span class="neg">${esc(h.error)}</span>`:esc((h.summary||'').slice(0,140)),h.applied||0]));
 }
-let VIEWS=['overview','finance','sales','marketing','ai','services'],CAN_SVC=false,CAN_FIN=false;
+function renderGame(g){
+  const el=$('game');
+  if(!g||!g.players||!g.players.length){el.innerHTML='<div class="card"><h3>Рейтинг пока пуст</h3><p class="hint" style="margin:6px 0 0">Очки появятся после обновления сервера, когда в Bitrix24 будут оплаченные сделки и закрытые дела.</p></div>';return}
+  const P=g.players,cnt=v=>nf.format(v),ws=g.week_start;
+  $('gameLead').textContent='Неделя с '+ws.slice(8,10)+'.'+ws.slice(5,7)+' · очки считаются автоматически по данным Bitrix24';
+  const lvl=p=>`<div class="lvl"><b>Ур. ${p.level}</b><span>${esc(p.level_name)}</span><div class="bar" title="${p.next_xp?cnt(p.xp)+' из '+cnt(p.next_xp)+' очков до следующего уровня':'Максимальный уровень'}"><i style="width:${Math.max(p.progress*100,3)}%"></i></div></div>`;
+  const bd=p=>p.badges.length?`<div class="bdg">${p.badges.map(b=>`<span title="${esc(b.what)}">${esc(b.name)}</span>`).join('')}</div>`:'';
+  const card=(p,i)=>`<div class="pl${i?'':' first'}"><span class="place">${['1 место · лидер недели','2 место','3 место'][i]}</span><div class="nm" title="${esc(p.name)}">${esc(p.name)}</div><div class="pts">${p.week>0?'+':''}${cnt(p.week)} <small>очков за неделю</small></div>${lvl(p)}${bd(p)}</div>`;
+  const top=P.slice(0,3),order=top.length===3?[1,0,2]:top.map((_,i)=>i);
+  el.innerHTML=`<div class="g"><div class="s12 podium">${order.map(i=>card(top[i],i)).join('')}</div></div>`+
+    `<div class="g"><div class="card s8"><h3>Рейтинг команды</h3><p class="hint">Всего очков, уровень и из чего они сложились</p><div class="tw"><table id="gameT"></table></div></div>`+
+    `<div class="card s4"><h3>Как начисляются очки</h3><p class="hint">Правила одинаковы для всех</p><div class="dl">${g.rules.map(r=>`<div style="grid-template-columns:1fr auto"><span class="nm">${esc(r.what)}</span><span class="am ${r.points.startsWith('−')?'neg':'pos'}">${esc(r.points)}</span></div>`).join('')}</div>`+
+    `<h3 style="margin-top:20px;font-size:16px">Уровни</h3><div class="dl">${g.levels.map(l=>`<div style="grid-template-columns:auto 1fr auto"><span class="small" style="font-size:13px">Ур. ${l.level}</span><span class="nm">${esc(l.name)}</span><span class="am">${cnt(l.xp)}</span></div>`).join('')}</div></div></div>`;
+  table('gameT',[['#'],['Сотрудник'],['Уровень'],['Неделя','num'],['Всего','num'],['Оплат','num'],['Дел закрыто','num'],['Просрочено','num']],
+    P.map((p,i)=>[i+1,esc(p.name)+(p.badges.length?`<div class="small">${p.badges.map(b=>esc(b.name)).join(' · ')}</div>`:''),`Ур. ${p.level} · ${esc(p.level_name)}`,(p.week>0?'+':'')+cnt(p.week),cnt(p.xp),cnt(p.won),cnt(p.done),p.overdue?`<span class="neg">${cnt(p.overdue)}</span>`:'0']));
+}
+// ---- ИИ-команда: отчёты агентов и чат
+let TEAM={agent:'advisor',busy:false,seenSent:false,today:null,me:null};
+const fmtT=s=>new Date(s).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+const safeUrl=u=>/^https:\/\//.test(u||'')?u:'';
+function renderTeam(pub,lead,status){
+  TEAM.today=pub;const el=$('teamRep');
+  if(!pub||pub.error||!pub.agents||!Object.keys(pub.agents).length){
+    el.innerHTML='<div class="card">'+(pub&&pub.error?`<h3>Агенты пока не работают</h3><p class="hint" style="margin:6px 0 0">${esc(pub.error)}</p>`:(stub(SV.agents)||'<h3>Агенты ещё не запускались</h3><p class="hint" style="margin:6px 0 0">Первый отчёт появится после обновления сервера и утреннего запуска.</p>'))+'</div>';return}
+  const A=pub.agents,meta=pub.meta||{},h=[];
+  $('teamLead').textContent='Отчёт за '+pub.date.slice(8,10)+'.'+pub.date.slice(5,7)+' · обновлён '+fmtT(pub.at);
+  const head=(id,extra)=>`<div class="who2"><div><h3>${esc((meta[id]||{}).name||id)}</h3><p class="hint" style="margin:0">${esc((meta[id]||{}).what||'')}</p></div>${extra||''}</div>`;
+  const bad=(id,a)=>`<div class="card rep">${head(id,'<span class="badge2 error"><i></i>Ошибка</span>')}<p class="small" style="color:var(--bad)">${esc(a.error||'')}</p></div>`;
+  const lst=x=>(x&&x.length)?`<ul class="lst">${x.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>`:'';
+  const recs=d=>(d.recommendations||[]).map(r=>`<div class="rec"><b>${esc(r.title)}</b> <span class="st ${r.priority==='высокий'?'open':r.priority==='средний'?'partial':'off'}">${esc(r.priority)}</span><p>${esc(r.why)}</p><p><b>Как:</b> ${esc(r.how)}</p></div>`).join('');
+  const sec={
+    reminder:d=>`<p class="lede" style="white-space:pre-wrap">${esc(d.message)}</p>${lst(d.items)}`,
+    advisor:d=>`<p class="lede">${esc(d.summary)}</p>${recs(d)}${(d.ideas||[]).length?'<h3 style="margin-top:18px;font-size:16px">Идеи</h3>'+lst(d.ideas):''}`,
+    sales:d=>`<p class="lede">${esc(d.summary)}</p>${lst(d.findings)}${(d.risks||[]).length?'<h3 style="margin-top:16px;font-size:16px">Риски на неделю</h3>'+lst(d.risks):''}${(d.managers||[]).length?'<h3 style="margin-top:16px;font-size:16px">По менеджерам</h3>'+d.managers.map(m=>`<div class="rec"><b>${esc(m.name)}</b><p>${esc(m.note)}</p></div>`).join(''):''}`,
+    marketer:d=>`<p class="lede">${esc(d.summary)}</p>`+(d.scripts||[]).map((x,i)=>`<details class="script"${i?'':' open'}><summary><span class="st off">${esc(x.channel)}</span>${esc(x.title)}</summary><p class="small" style="margin-top:8px">Для кого: ${esc(x.audience)}</p><pre>${esc(x.text)}</pre><button class="cp" type="button" data-copy="${i}">Скопировать</button></details>`).join(''),
+    trends:d=>`<p class="lede">${esc(d.summary)}</p><div class="tr3">`+[['kz','Казахстан'],['cis','Центральная Азия и СНГ'],['world','Мир']].map(([k,t])=>`<div><h4>${t}</h4>${(d[k]||[]).map(x=>`<div class="it"><b>${esc(x.title)}</b>${esc(x.what)}<div style="margin-top:5px"><i>Для нас:</i> ${esc(x.why)}</div>${safeUrl(x.url)?`<a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">Источник ↗</a>`:''}</div>`).join('')||'<div class="small">Ничего значимого</div>'}</div>`).join('')+'</div>',
+  };
+  const LA=(lead&&lead.agents)||{};
+  if(LA.advisor&&LA.advisor.ok)h.push(`<div class="card rep" style="box-shadow:inset 0 0 0 1.5px #8f7bf0">${head('advisor','<span class="badge2">Только руководителям · с данными 1С</span>')}${sec.advisor(LA.advisor.data)}</div>`);
+  for(const id of ['reminder','advisor','sales','marketer','trends']){const a=A[id];if(!a)continue;h.push(a.ok?`<div class="card rep">${head(id)}${sec[id](a.data)}</div>`:bad(id,a))}
+  if(status&&status.users)h.push(`<div class="card rep"><h3>Кто открыл сегодняшний отчёт</h3><p class="hint">Видно только руководителям</p><div class="tw"><table id="readT"></table></div></div>`);
+  el.innerHTML=h.join('');
+  if(status&&status.users)table('readT',[['Сотрудник'],['Роль'],['Открыл']],status.users.map(u=>[esc(u.user),ROLE[u.role]||esc(u.role),u.seen_at?`<span class="st paid">${fmtT(u.seen_at)}</span>`:'<span class="st open">не открывал</span>']));
+  el.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>{const t=A.marketer.data.scripts[+b.dataset.copy].text;(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>{b.textContent='Скопировано'},()=>{b.textContent='Не удалось'});setTimeout(()=>b.textContent='Скопировать',1600)});
+}
+function drawChat(d){
+  const box=$('msgs'),names=d.agents||{};
+  box.innerHTML=(d.messages||[]).map(m=>m.role==='user'?`<div class="msg u">${esc(m.text)}</div>`:`<div class="msg a${m.leadership?' ld':''}"><span class="by">${esc((names[m.agent]||{}).name||'Агент')}${m.leadership?' · руководителям':''} · ${fmtT(m.at)}</span>${esc(m.text)}</div>`).join('')||'<div class="small">Сообщений пока нет. Утром здесь появится сводка, а вопрос можно задать уже сейчас.</div>';
+  box.scrollTop=box.scrollHeight;
+  $('pick').innerHTML=Object.entries(names).map(([k,v])=>`<button type="button" role="radio" aria-checked="${k===TEAM.agent}" data-a="${k}" title="${esc(v.what)}">${esc(v.name)}</button>`).join('');
+  $('pick').querySelectorAll('button').forEach(b=>b.onclick=()=>{TEAM.agent=b.dataset.a;$('pick').querySelectorAll('button').forEach(x=>x.setAttribute('aria-checked',x===b))});
+}
+const api=(path,body)=>fetch('api/'+path,{method:body?'POST':'GET',credentials:'same-origin',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});
+function loadChat(){return api('chat').then(r=>r.ok?r.json():null).then(d=>{if(d){TEAM.chat=d;drawChat(d)}else $('msgs').innerHTML='<div class="small">Чат появится после обновления сервера.</div>'}).catch(()=>{})}
+function teamOpened(){   // вкладку открыли: отчёт считается просмотренным
+  $('teamDot').hidden=true;
+  if(TEAM.seenSent||!TEAM.today||TEAM.today.error)return;TEAM.seenSent=true;api('seen',{}).catch(()=>{});
+}
+function initTeam(me){
+  TEAM.me=me;
+  const lead=me.role==='user'?Promise.resolve([null,null]):Promise.all([getJSON('private/agents/today.json',true).catch(()=>null),getJSON('private/agents/read_status.json',true).catch(()=>null)]);
+  Promise.all([getJSON('agents/today.json',true).catch(()=>null),lead]).then(([pub,[l,st]])=>{
+    renderTeam(pub,l,st);
+    const mine=st&&st.users&&st.users.find(u=>u.user===me.user);
+    if(pub&&!pub.error&&pub.date===new Date().toLocaleDateString('sv')&&!(mine&&mine.seen_at)&&$('v-team').hidden)$('teamDot').hidden=false;
+    if(!$('v-team').hidden)teamOpened();
+  });
+  loadChat();
+  $('chatForm').onsubmit=e=>{e.preventDefault();const ta=$('chatText'),text=ta.value.trim();if(!text||TEAM.busy)return;
+    TEAM.busy=true;$('chatSend').disabled=true;ta.value='';
+    const box=$('msgs');box.insertAdjacentHTML('beforeend',`<div class="msg u">${esc(text)}</div><div class="msg a wait" id="wait">Агент думает…</div>`);box.scrollTop=box.scrollHeight;
+    api('chat',{text,agent:TEAM.agent}).then(r=>r.json().then(j=>({ok:r.ok,j}))).then(({ok,j})=>{
+      const w=$('wait');if(w)w.remove();
+      if(ok)return loadChat();
+      box.insertAdjacentHTML('beforeend',`<div class="msg a" style="color:var(--bad)">${esc(j.error||'Не удалось получить ответ')}</div>`);box.scrollTop=box.scrollHeight;
+    }).catch(()=>{const w=$('wait');if(w)w.textContent='Нет связи с сервером. Попробуйте ещё раз.'}).finally(()=>{TEAM.busy=false;$('chatSend').disabled=false;ta.focus()});
+  };
+  $('chatText').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('chatForm').requestSubmit()}});
+}
+let VIEWS=['overview','finance','sales','marketing','game','team','ai','services'],CAN_SVC=false,CAN_FIN=false;
 function route(){
   const h=(location.hash||'#overview').slice(1),views=VIEWS;
   const sub=document.getElementById(h);let v=views.includes(h)?h:(sub&&sub.closest('.view')?sub.closest('.view').id.slice(2):'overview');if(!views.includes(v))v='overview';
   views.forEach(x=>$('v-'+x).hidden=x!==v);
   document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.v===v));
   if(sub&&!views.includes(h))sub.scrollIntoView();else scrollTo(0,0);
+  if(v==='team')teamOpened();
 }
 addEventListener('hashchange',route);
 function renderFinance(d,pub){
@@ -533,7 +679,7 @@ function start(me,pub,fin){
       tile('Дела менеджеров',nf.format(bk.activities_open),bk.activities_overdue?'просрочено: '+bk.activities_overdue:'просроченных нет',bk.activities_overdue?'neg':''),
     ].join('')}
   }
-  renderSales(pub.bitrix);renderMarketing(pub);
+  renderSales(pub.bitrix);renderMarketing(pub);renderGame(pub.bitrix&&pub.bitrix.game);initTeam(me);
   fetch('targetolog.json?'+Date.now(),{credentials:'same-origin'}).then(r=>r.ok?r.json():null).catch(()=>null).then(renderAI);
   route();
 }

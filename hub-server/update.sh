@@ -13,12 +13,14 @@ tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
 curl -fsSL "$RAW/sync.py" -o "$tmp/sync.py"
 curl -fsSL "$RAW/airl-hub" -o "$tmp/airl-hub"
 curl -fsSL "$RAW/targetolog.py" -o "$tmp/targetolog.py"
-python3 -m py_compile "$tmp/sync.py" "$tmp/targetolog.py"   # не ставим скрипт, который не запускается
+curl -fsSL "$RAW/agents.py" -o "$tmp/agents.py"
+python3 -m py_compile "$tmp/sync.py" "$tmp/targetolog.py" "$tmp/agents.py"   # не ставим скрипт, который не запускается
 bash -n "$tmp/airl-hub"
 cp -a "$APP/sync.py" "$APP/sync.py.bak" 2>/dev/null || true
 install -m 755 "$tmp/sync.py" "$APP/sync.py"
 install -m 755 "$tmp/airl-hub" /usr/local/bin/airl-hub
 install -m 755 "$tmp/targetolog.py" "$APP/targetolog.py"
+install -m 755 "$tmp/agents.py" "$APP/agents.py"
 
 # ИИ-таргетолог: библиотека Claude в отдельном окружении и запуск раз в день
 if [ ! -x "$APP/venv/bin/python" ]; then
@@ -55,9 +57,54 @@ Persistent=true
 [Install]
 WantedBy=timers.target
 UNIT
+
+# Команда ИИ-агентов: ежедневная цепочка, почасовые напоминания и постоянно работающий чат
+unit() {   # имя, описание, тип запуска, аргумент agents.py
+  cat > /etc/systemd/system/airl-hub-agents-$1.service <<UNIT
+[Unit]
+Description=AIRL Hub: $2
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+$3
+User=airl-hub
+EnvironmentFile=$ENVF
+ExecStart=$APP/venv/bin/python $APP/agents.py $4
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/airl-1c-hub $APP/web
+UNIT
+}
+timer() {  # имя, расписание
+  cat > /etc/systemd/system/airl-hub-agents-$1.timer <<UNIT
+[Unit]
+Description=AIRL Hub: расписание агентов ($1)
+
+[Timer]
+OnCalendar=$2
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+UNIT
+}
+unit daily "ИИ-агенты, ежедневная цепочка" "Type=oneshot
+TimeoutStartSec=2400" daily
+unit tick "ИИ-агенты, напоминания" "Type=oneshot" tick
+unit api "ИИ-агенты, чат хаба" "Restart=always
+RestartSec=5" serve
+timer daily "*-*-* 08:00:00 Asia/Almaty"
+timer tick "*-*-* *:05:00"
+printf '\n[Install]\nWantedBy=multi-user.target\n' >> /etc/systemd/system/airl-hub-agents-api.service
+install -d -o airl-hub -g airl-hub -m 755 "$APP/web/agents"
 if [ "${SKIP_SYSTEMD:-0}" != 1 ]; then
   systemctl daemon-reload
-  systemctl enable --now airl-hub-targetolog.timer >/dev/null
+  systemctl enable --now airl-hub-targetolog.timer airl-hub-agents-daily.timer airl-hub-agents-tick.timer >/dev/null
+  systemctl enable airl-hub-agents-api.service >/dev/null 2>&1
+  systemctl restart airl-hub-agents-api.service
 fi
 if [ -n "${BITRIX_WEBHOOK:-}" ]; then
   sed -i '/^BITRIX_WEBHOOK=/d' "$ENVF"
@@ -85,6 +132,17 @@ location ^~ /airl-1c-hub/private/ {          # данные 1С и список 
     add_header X-Robots-Tag "noindex, nofollow" always;
     add_header Cache-Control "private, no-store" always;
 }
+location ^~ /airl-1c-hub/api/ {              # чат с агентами: любой пользователь хаба, имя передаётся службе
+    if ($http_x_airl_hub != "landing-proxy") { return 404; }
+    auth_basic "AIRL Hub";
+    auth_basic_user_file /etc/airl-1c-hub/htpasswd;
+    proxy_pass http://127.0.0.1:8787/;
+    proxy_set_header X-Hub-User $remote_user;
+    proxy_set_header Authorization "";
+    proxy_read_timeout 180s;
+    client_max_body_size 32k;
+    add_header Cache-Control "private, no-store" always;
+}
 location ^~ /airl-1c-hub/ {                  # всё остальное: любой пользователь хаба
     if ($http_x_airl_hub != "landing-proxy") { return 404; }
     alias /opt/airl-1c-hub/web/;
@@ -98,7 +156,7 @@ NGINX
 if nginx -t 2>/dev/null; then [ "${SKIP_SYSTEMD:-0}" = 1 ] || systemctl reload nginx; echo "nginx: доступ к данным 1С разделён по ролям"
 else cp -a "$SNIP.bak" "$SNIP"; echo "!! nginx -t не прошёл, конфигурация возвращена; роли НЕ включены"; exit 1; fi
 # Старый общий файл содержал и данные 1С — убираем его из общего доступа до первой новой выгрузки.
-if grep -q '"kpi"' "$APP/web/data.json" 2>/dev/null; then
+if python3 -c "import json,sys; d=json.load(open(sys.argv[1])); sys.exit(0 if 'months' in d and 'liabilities' in d else 1)" "$APP/web/data.json" 2>/dev/null; then
   install -o airl-hub -g airl-hub -m 644 "$APP/web/data.json" "$APP/web/private/finance.json"
   rm -f "$APP/web/data.json"
 fi

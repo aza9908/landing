@@ -53,17 +53,36 @@ function loginPage(res, status, error, extra) {
   res.end(html);
 }
 
-function upstream(method, path, auth, cb) {
+function upstream(method, path, auth, cb, body) {
   const headers = { host: HUB_UPSTREAM.host, accept: '*/*', 'x-airl-hub': 'landing-proxy' };
   if (auth) headers.authorization = auth;
+  if (body) { headers['content-type'] = 'application/json'; headers['content-length'] = Buffer.byteLength(body); }
   const lib = HUB_UPSTREAM.protocol === 'http:' ? http : https;
   const up = lib.request({
     protocol: HUB_UPSTREAM.protocol, hostname: HUB_UPSTREAM.hostname, port: HUB_UPSTREAM.port || undefined,
-    method, path: encodeURI(path), headers, timeout: 20000,
+    method, path: encodeURI(path), headers, timeout: body ? 200000 : 20000,   // ответ агента в чате идёт дольше
   }, (r) => cb(null, r));
   up.on('timeout', () => up.destroy(new Error('timeout')));
   up.on('error', (e) => cb(e));
-  up.end();
+  up.end(body || undefined);
+}
+
+// Чат с агентами: единственное место, где хаб принимает данные от пользователя.
+// Только JSON и только с этой страницы (cookie SameSite=Strict + проверка типа содержимого).
+function hubApiPost(req, res, path, auth) {
+  if (!/^application\/json\b/i.test(req.headers['content-type'] || '')) { res.writeHead(415, NO_STORE); return res.end(); }
+  let body = '', big = false;
+  req.on('data', (c) => { body += c; if (body.length > 20000) { big = true; req.destroy(); } });
+  req.on('end', () => {
+    if (big) return;
+    upstream('POST', UP_PATH + path.slice(HUB_PATH.length), auth, (err, r) => {
+      if (err) return unavailable(res);
+      const out = { ...NO_STORE };
+      for (const h of PASS_HEADERS) if (r.headers[h]) out[h] = r.headers[h];
+      res.writeHead(r.statusCode === 401 ? 403 : r.statusCode, out);
+      r.pipe(res);
+    }, body || '{}');
+  });
 }
 
 function unavailable(res) {
@@ -131,6 +150,11 @@ function proxyHub(req, res, path) {
   if (path.includes('..')) { res.writeHead(400, NO_STORE); return res.end(); }
   if (path === HUB_PATH + 'login' && req.method === 'POST') return hubLogin(req, res);
   if (path === HUB_PATH + 'logout') { res.writeHead(303, { ...NO_STORE, ...clear, Location: HUB_PATH }); return res.end(); }
+  if (req.method === 'POST' && path.startsWith(HUB_PATH + 'api/')) {
+    const a = hubAuth(req);
+    if (!a) { res.writeHead(401, NO_STORE); return res.end(); }
+    return hubApiPost(req, res, path, a);
+  }
   if (req.method !== 'GET' && req.method !== 'HEAD') { res.writeHead(405, NO_STORE); return res.end(); }
   const isPage = path === HUB_PATH || path === HUB_PATH + 'login';
   const auth = hubAuth(req);

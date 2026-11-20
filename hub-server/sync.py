@@ -376,6 +376,81 @@ def bx_time(s):
     return dt.datetime.fromisoformat(s).astimezone(TZ) if s else None
 
 
+# Геймификация: очки начисляются по фактам из Bitrix24, без ручного ввода.
+GAME_RULES = [
+    ("Оплаченная сделка", "+100"),
+    ("Каждые 10 000 ₸ оплат", "+10"),
+    ("Закрытое дело (звонок, задача, напоминание)", "+5"),
+    ("Просроченное открытое дело", "−10"),
+]
+GAME_LEVELS = [(0, "Новичок"), (300, "Игрок"), (1000, "Профи"), (2500, "Мастер"), (6000, "Легенда")]
+
+
+def bx_game(raw, users, now):
+    week_start = (now - dt.timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+    P = defaultdict(lambda: dict(xp=0, week=0, won=0, won_week=0, amount=0.0, done=0, overdue=0))
+
+    def when(x):
+        for f in ("CLOSEDATE", "DATE_MODIFY", "DATE_CREATE"):
+            try:
+                return bx_time(x.get(f))
+            except Exception:  # noqa
+                continue
+        return None
+
+    for d in raw["deals"]:
+        if d.get("STAGE_SEMANTIC_ID") != "S":
+            continue
+        p = P[str(d.get("ASSIGNED_BY_ID"))]
+        amount = float(d.get("OPPORTUNITY") or 0)
+        pts = 100 + int(amount // 10000) * 10
+        p["xp"] += pts; p["won"] += 1; p["amount"] += amount
+        t = bx_time(d.get("DATE_MODIFY")) if d.get("DATE_MODIFY") else when(d)   # момент перевода в «оплачено»
+        if t and t >= week_start:
+            p["week"] += pts; p["won_week"] += 1
+    for a in raw["activities"]:
+        p = P[str(a.get("RESPONSIBLE_ID"))]
+        if a.get("COMPLETED") == "Y":
+            p["xp"] += 5; p["done"] += 1
+            try:
+                if bx_time(a.get("END_TIME") or a.get("LAST_UPDATED")) >= week_start:
+                    p["week"] += 5
+            except Exception:  # noqa
+                pass
+        elif a.get("DEADLINE") and not a["DEADLINE"].startswith("9999"):
+            try:
+                if bx_time(a["DEADLINE"]) < now:
+                    p["xp"] -= 10; p["week"] -= 10; p["overdue"] += 1
+            except Exception:  # noqa
+                pass
+    players = []
+    for uid, p in P.items():
+        if uid not in users:
+            continue
+        xp = max(p["xp"], 0)
+        lvl = max(i for i, (need, _) in enumerate(GAME_LEVELS) if xp >= need)
+        nxt = GAME_LEVELS[lvl + 1][0] if lvl + 1 < len(GAME_LEVELS) else None
+        base = GAME_LEVELS[lvl][0]
+        badges = []
+        if p["won"] >= 1: badges.append(("Первая оплата", "Закрыл первую оплаченную сделку"))
+        if p["won"] >= 10: badges.append(("Десятка", "10 оплаченных сделок"))
+        if p["won"] >= 50: badges.append(("Полсотни", "50 оплаченных сделок"))
+        if p["amount"] >= 1_000_000: badges.append(("Миллионер", "Оплат на 1 000 000 ₸ и больше"))
+        if p["done"] >= 10 and p["overdue"] == 0: badges.append(("Чистый стол", "Нет просроченных дел"))
+        players.append(dict(name=users[uid], xp=xp, week=p["week"], won=p["won"], won_week=p["won_week"],
+                            amount=round(p["amount"]), done=p["done"], overdue=p["overdue"],
+                            level=lvl + 1, level_name=GAME_LEVELS[lvl][1], next_xp=nxt,
+                            progress=round((xp - base) / (nxt - base), 3) if nxt else 1,
+                            badges=[dict(name=n, what=w) for n, w in badges]))
+    players.sort(key=lambda p: (-p["week"], -p["xp"]))
+    if players and players[0]["week"] > 0:
+        players[0]["badges"].insert(0, dict(name="Лидер недели", what="Больше всех очков за текущую неделю"))
+    return dict(week_start=week_start.date().isoformat(), players=players,
+                rules=[dict(what=w, points=pt) for w, pt in GAME_RULES],
+                levels=[dict(level=i + 1, name=n, xp=x) for i, (x, n) in enumerate(GAME_LEVELS)])
+
+
+
 def bx_build(raw):
     deals = raw["deals"]
     cats = {str(c["id"]): c["name"] for c in raw["categories"]} or {"0": "Сделки"}
@@ -450,6 +525,7 @@ def bx_build(raw):
                  activities_open=len(open_acts), activities_overdue=overdue,
                  conversion=(len(won) / len(deals)) if deals else None),
         funnels=funnels,
+        game=bx_game(raw, users, now),
         managers=sorted(({"name": n, **{k: round(v) for k, v in m.items()}} for n, m in mgr.items()), key=lambda m: -m["total"]),
         channels=[dict(name=n, count=c) for n, c in sorted(chan.items(), key=lambda kv: -kv[1])],
         sources=[dict(name=n, count=c) for n, c in sorted(src.items(), key=lambda kv: -kv[1])],
@@ -552,6 +628,7 @@ SERVICES = [
     ("meta_ads", "Реклама Facebook / Instagram", "Маркетинг", "Расход на рекламу, показы, клики, цена клика", ["META_ADS_TOKEN", "META_AD_ACCOUNT"], svc_meta_ads),
     ("metrika", "Яндекс.Метрика", "Маркетинг", "Посещаемость сайта и источники трафика", ["YANDEX_METRIKA_TOKEN", "YANDEX_METRIKA_COUNTER"], svc_metrika),
     ("targetolog", "ИИ-таргетолог", "Маркетинг", "Ежедневный разбор рекламы и управление бюджетами по лимитам", ["META_ADS_TOKEN", "META_AD_ACCOUNT", "ANTHROPIC_API_KEY"], None),
+    ("agents", "Команда ИИ-агентов", "ИИ", "Тренды, разбор продаж, скрипты, рекомендации, напоминания и чат", ["ANTHROPIC_API_KEY"], None),
     ("telegram", "Telegram-канал", "Маркетинг", "Подписчики канала и их динамика", ["TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT"], svc_telegram),
 ]
 
@@ -574,6 +651,14 @@ def run_services(out, old):
                 last = {}
             item.update(status="error" if last.get("error") else "ok", error=last.get("error"),
                         updated=last.get("at") or now, mode=os.environ.get("TARGETOLOG_MODE", "advise"))
+        elif sid == "agents":
+            try:
+                last = json.load(open(os.path.join(WEB_DIR, "agents", "today.json"), encoding="utf-8"))
+            except Exception:  # noqa
+                last = {}
+            failed = [k for k, v in (last.get("agents") or {}).items() if not v.get("ok")]
+            item.update(status="error" if (last.get("error") or failed) else "ok", updated=last.get("at") or now,
+                        error=last.get("error") or ("не отработали: " + ", ".join(failed) if failed else None))
         elif sid == "bitrix":
             b = out.get("bitrix") or {}
             item.update(status="error" if ("error" in b or b.get("stale")) else "ok",
