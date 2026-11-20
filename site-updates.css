@@ -1475,6 +1475,27 @@ body.m-menu-lock { overflow: hidden; }
   .events-upcoming-preview { display: none; }
   .events-section.events-upcoming { padding: 24px 16px 64px; }
 }
+/* Картинка мероприятия в строке — только там, где нет наведения курсором. */
+.events-upcoming .event-thumb { display: none; }
+@media (hover: none), (max-width: 768px) {
+  .events-upcoming .event-row[data-v-e48cf165] {
+    display: grid !important;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "name thumb" "info thumb";
+    align-items: center;
+    column-gap: 16px;
+    row-gap: 12px;
+    padding: 20px 0 !important;
+  }
+  .events-upcoming .event-name[data-v-e48cf165] { grid-area: name; width: auto !important; }
+  .events-upcoming .event-info[data-v-e48cf165] { grid-area: info; gap: 16px !important; }
+  .events-upcoming .event-city[data-v-e48cf165] { width: auto !important; }
+  .events-upcoming .event-thumb {
+    display: block; grid-area: thumb;
+    width: 96px; height: 110px; object-fit: cover; border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, .15);
+  }
+}
 
 /* iOS увеличивает страницу при фокусе на поле со шрифтом меньше 16px */
 @media (max-width: 768px) {

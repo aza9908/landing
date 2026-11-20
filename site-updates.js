@@ -543,6 +543,20 @@
     preview.setAttribute('aria-hidden', 'true');
     section.appendChild(preview);
     const rows = [...top.querySelectorAll('.event-row')];
+    const IMGS = ['/2.jpg', '/3.jpg'];
+    // На телефоне наведения нет, и превью не появлялось: справа от строки
+    // оставалась пустота. Показываем картинку прямо в строке (видна только
+    // на сенсорных/узких экранах, см. .event-thumb в site-updates.css).
+    rows.forEach((row, i) => {
+      if (row.querySelector('.event-thumb')) return;
+      const thumb = document.createElement('img');
+      thumb.className = 'event-thumb';
+      thumb.src = IMGS[i] || IMGS[0];
+      thumb.alt = '';
+      thumb.loading = 'lazy';
+      thumb.setAttribute('aria-hidden', 'true');
+      row.appendChild(thumb);
+    });
     rows.forEach((row, i) => {
       row.addEventListener('mouseenter', () => {
         preview.src = ['/2.jpg', '/3.jpg'][i] || '/2.jpg';
