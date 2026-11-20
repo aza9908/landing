@@ -169,21 +169,20 @@ pre.cmd{font:12.5px/1.5 var(--mono);background:var(--ink);color:#e8e8f2;border-r
 .bdg span{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:4px 10px;font-size:12.5px;font-weight:500;background:var(--soft);color:var(--ink)}
 .pl.first .bdg span{background:#ffffff1f;color:#fff}
 .bdg span::before{content:'✦';color:#8f7bf0}.pl.first .bdg span::before{color:#b7e087}
-.ico{flex:none;width:46px;height:46px;border-radius:15px;background:var(--ink);display:grid;place-items:center;position:relative;overflow:hidden}
-.ico::before{content:'';position:absolute;inset:0;background:radial-gradient(80% 80% at 100% 0%,#8f7bf055 0%,transparent 65%)}
-.ico svg{position:relative;width:23px;height:23px;fill:none;stroke:url(#ig);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-.ico.sm{width:30px;height:30px;border-radius:10px}.ico.sm svg{width:16px;height:16px}
+.ico{flex:none;width:44px;height:44px;border-radius:50%;background:var(--ink);display:flex;align-items:center;justify-content:center;line-height:0}
+.ico svg{display:block;width:21px;height:21px;fill:none;stroke:#fff;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.ico.sm{width:28px;height:28px}.ico.sm svg{width:14px;height:14px;stroke-width:1.8}
 .roster{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:16px}
 @media (max-width:1100px){.roster{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}}
-.ag{background:#fff;border-radius:20px;padding:14px 16px;display:flex;gap:12px;align-items:center;min-width:0}
+.ag{background:#fff;border-radius:24px;padding:14px 18px 14px 14px;display:flex;gap:12px;align-items:center;min-width:0}
 .ag b{display:block;font-weight:600;font-size:15px;letter-spacing:-.01em;line-height:1.2;margin-bottom:3px}
-.ag span{display:flex;align-items:center;gap:6px;font:400 11.5px var(--mono);color:var(--muted)}
-.ag span i{width:7px;height:7px;border-radius:50%;background:#c9c9d6;flex:none}
-.ag.ok span i{background:var(--good)}.ag.err span i{background:var(--bad)}.ag.wait span i{background:#e0862b}
-.who2 .l{display:flex;gap:12px;align-items:center;min-width:0}
-.mrow{display:flex;gap:8px;align-items:flex-end;max-width:94%}.mrow .msg{max-width:none}
+.ag .stt{display:flex;align-items:center;gap:6px;font:400 11.5px var(--mono);color:var(--muted)}
+.ag .stt i{width:7px;height:7px;border-radius:50%;background:#c9c9d6;flex:none}
+.ag.ok .stt i{background:var(--good)}.ag.err .stt i{background:var(--bad)}.ag.wait .stt i{background:#e0862b}
+.who2 .l{display:flex;gap:14px;align-items:center;min-width:0}.who2 .l h3{margin:0 0 1px}
+.mrow{display:flex;gap:8px;align-items:flex-start;max-width:94%}.mrow .ico{margin-top:2px}.mrow .msg{max-width:none}
 .notice{display:flex;gap:16px;align-items:flex-start}
-.notice .ico{background:#fbe6ec}.notice .ico::before{display:none}.notice .ico svg{stroke:var(--bad)}
+.notice .ico{background:#fbe6ec}.notice .ico svg{stroke:var(--bad)}
 .notice h3{margin-bottom:4px}.notice p{font-size:14.5px;color:var(--ink2);max-width:760px}
 .pick button{display:inline-flex;align-items:center;gap:6px}
 .pick button svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -547,8 +546,8 @@ function renderGame(g){
 const IC={
   reminder:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
   advisor:'<path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/>',
-  sales:'<path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>',
-  marketer:'<path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>',
+  sales:'<path d="M6 20V11"/><path d="M12 20V4"/><path d="M18 20v-6"/>',
+  marketer:'<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
   trends:'<circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
   targetolog:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
   alert:'<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
@@ -559,7 +558,7 @@ const AG_META={reminder:{name:'Секретарь',what:'Утренняя сво
 function roster(pub){
   const A=(pub&&pub.agents)||{},fatal=pub&&pub.error;
   return '<div class="roster">'+AG_ORDER.map(id=>{const a=A[id],st=fatal?'err':!a?'wait':a.ok?'ok':'err';
-    return `<div class="ag ${st}">${ico(id)}<div style="min-width:0"><b>${AG_META[id].name}</b><span><i></i>${{ok:'отчёт готов',err:'не отработал',wait:'ждёт запуска'}[st]}</span></div></div>`}).join('')+'</div>';
+    return `<div class="ag ${st}">${ico(id)}<div style="min-width:0"><b>${AG_META[id].name}</b><span class="stt"><i></i>${{ok:'отчёт готов',err:'не отработал',wait:'ждёт запуска'}[st]}</span></div></div>`}).join('')+'</div>';
 }
 // ---- ИИ-команда: отчёты агентов и чат
 let TEAM={agent:'advisor',busy:false,seenSent:false,today:null,me:null};

@@ -5,12 +5,12 @@
 #   airl-hub unset ИМЯ           удалить ключ
 #   airl-hub sync                обновить данные сейчас
 #   airl-hub targetolog status|demo|dry|run|auto|advise|off|undo   ИИ-таргетолог
-#   airl-hub agents status|run     команда ИИ-агентов: состояние / запустить ежедневную цепочку сейчас
+#   airl-hub agents status|run|pause|resume   ИИ-агенты: состояние / запустить сейчас / остановить и включить автозапуск
 #   airl-hub user list | add ЛОГИН РОЛЬ | role ЛОГИН РОЛЬ | passwd ЛОГИН | del ЛОГИН
 #        роли: superadmin (разработчик), admin (руководитель), user (сотрудник, без данных 1С)
 set -euo pipefail
 ENVF=/etc/airl-1c-hub/env
-KEYS="ODATA_URL ODATA_USER ODATA_PASS BITRIX_WEBHOOK META_ADS_TOKEN META_AD_ACCOUNT YANDEX_METRIKA_TOKEN YANDEX_METRIKA_COUNTER TELEGRAM_BOT_TOKEN TELEGRAM_CHAT ANTHROPIC_API_KEY TARGETOLOG_MODE TARGETOLOG_MAX_DAILY_BUDGET TARGETOLOG_MAX_TOTAL_DAILY TARGETOLOG_MIN_SPEND TARGETOLOG_MAX_STEP TARGETOLOG_MAX_ACTIONS AGENTS_CHAT_PER_HOUR AGENTS_MODEL AGENTS_TREND_SEARCHES"
+KEYS="ODATA_URL ODATA_USER ODATA_PASS BITRIX_WEBHOOK META_ADS_TOKEN META_AD_ACCOUNT YANDEX_METRIKA_TOKEN YANDEX_METRIKA_COUNTER TELEGRAM_BOT_TOKEN TELEGRAM_CHAT ANTHROPIC_API_KEY TARGETOLOG_MODE TARGETOLOG_MAX_DAILY_BUDGET TARGETOLOG_MAX_TOTAL_DAILY TARGETOLOG_MIN_SPEND TARGETOLOG_MAX_STEP TARGETOLOG_MAX_ACTIONS AGENTS_CHAT_PER_HOUR AGENTS_MODEL AGENTS_TREND_SEARCHES AGENTS_RUN_BUDGET_USD AGENTS_TRENDS"
 [ "$(id -u)" = 0 ] || { echo "Запустите от root"; exit 1; }
 sync_now() { systemctl start airl-1c-hub-sync && journalctl -u airl-1c-hub-sync -n 12 --no-pager -o cat | tail -8; }
 case "${1:-status}" in
@@ -50,7 +50,9 @@ case "${1:-status}" in
       run)    systemctl start airl-hub-agents-daily; journalctl -u airl-hub-agents-daily -n 12 --no-pager -o cat | tail -10 ;;
       status) systemctl is-active airl-hub-agents-api | sed 's/^/Чат: /'; systemctl list-timers 'airl-hub-agents*' --no-pager 2>/dev/null | head -4
               journalctl -u airl-hub-agents-daily -n 8 --no-pager -o cat 2>/dev/null || true ;;
-      *) echo "airl-hub agents status|run" ;;
+      pause)  systemctl disable --now airl-hub-agents-daily.timer >/dev/null 2>&1; echo "Ежедневный автозапуск агентов остановлен. Деньги тратятся только на чат и ручной запуск (airl-hub agents run)." ;;
+      resume) systemctl enable --now airl-hub-agents-daily.timer >/dev/null 2>&1; echo "Ежедневный автозапуск агентов включён (08:00 по Астане)." ;;
+      *) echo "airl-hub agents status|run|pause|resume" ;;
     esac ;;
   user)
     C=/etc/airl-1c-hub; ROLES=$C/roles; ALL=$C/htpasswd; ADM=$C/htpasswd-admin; PRIV=/opt/airl-1c-hub/web/private

@@ -29,8 +29,14 @@ STATE = os.path.join(DATA_DIR, "agents")              # чаты и отметк
 TZ = dt.timezone(dt.timedelta(hours=5))
 MODEL = os.environ.get("AGENTS_MODEL", "").strip() or "claude-opus-5-5"   # дешевле: claude-sonnet-5-5
 PRICE = {"claude-opus-5-5": (4, 20), "claude-sonnet-5-5": (2, 10)}        # $ за 1 млн токенов: запрос, ответ
-SEARCHES = int(os.environ.get("AGENTS_TREND_SEARCHES", "10"))             # сколько поисков в интернете может сделать разведчик
+SEARCHES = int(os.environ.get("AGENTS_TREND_SEARCHES", "4"))             # сколько поисков в интернете может сделать разведчик
+BUDGET = float(os.environ.get("AGENTS_RUN_BUDGET_USD", "0.8"))            # потолок расхода на один ежедневный запуск
 USAGE = dict(input=0, output=0, searches=0, calls=0)
+
+
+def spent():
+    pin, pout = PRICE.get(MODEL, PRICE["claude-opus-5-5"])
+    return USAGE["input"] / 1e6 * pin + USAGE["output"] / 1e6 * pout + USAGE["searches"] * 0.01
 CHAT_PER_HOUR = int(os.environ.get("AGENTS_CHAT_PER_HOUR", "30"))
 
 AGENTS = {
@@ -94,7 +100,7 @@ def targetolog_context():
 
 # ---------------------------------------------------------------- обращение к Claude
 
-def llm(system, user, schema=None, web=False, effort="high", max_tokens=16000):
+def llm(system, user, schema=None, web=False, effort="medium", max_tokens=8000):
     """Один запрос к Claude. schema — ответ строго по JSON-схеме; web — с поиском в интернете."""
     fake = os.environ.get("HUB_FAKE_LLM")
     if fake:                                           # только для проверки без ключа
@@ -167,12 +173,12 @@ def run_trends(ctx):
     system = f"""Ты — разведчик трендов компании. {COMPANY}
 
 Найди в интернете свежее (последние недели), что важно для этого бизнеса, в трёх кругах: Казахстан; Центральная Азия и СНГ; мир. Интересуют: спрос на обучение ИИ и его внедрение в бизнесе, государственные программы и регулирование ИИ и образования, действия конкурентов и крупных игроков, изменения в рекламных площадках и поведении аудитории, новые инструменты ИИ, которые стоит включить в программы обучения.
-Ищи сначала по Казахстану, потом шире. Бери только то, что подтверждается источником, и давай ссылку на него. Новость без практического вывода для компании не включай. По 3–5 пунктов на круг; если по кругу ничего стоящего нет — оставь список пустым.
+Ищи сначала по Казахстану, потом шире. Бери только то, что подтверждается источником, и давай ссылку на него. Новость без практического вывода для компании не включай. По 2–3 пункта на круг; если по кругу ничего стоящего нет — оставь список пустым.
 {RULES}
 
 Ответ дай одним JSON-объектом без пояснений вокруг:
 {{"summary": "главное в двух предложениях", "kz": [{{"title": "", "what": "что произошло", "why": "что это значит для AIRL", "url": ""}}], "cis": [...], "world": [...]}}"""
-    out = llm(system, f"Сегодня {now():%d.%m.%Y}. Собери обзор.", web=True, max_tokens=20000)
+    out = llm(system, f"Сегодня {now():%d.%m.%Y}. Собери обзор.", web=True, max_tokens=8000)
     clean = lambda lst: [dict(title=str(x.get("title", ""))[:200], what=str(x.get("what", ""))[:600], why=str(x.get("why", ""))[:600],
                               url=x["url"] if str(x.get("url", "")).startswith("https://") else "")
                          for x in (lst or []) if isinstance(x, dict)][:6]
@@ -249,6 +255,10 @@ def daily():
     def step(name, fn, target, **kw):
         if report.get("error"):
             return
+        if spent() >= BUDGET:                          # потолок расхода: остальные агенты сегодня не запускаются
+            target["agents"][name] = dict(ok=False, error=f"Не запускался: достигнут лимит расхода на запуск (${BUDGET:.2f}). Лимит меняется командой airl-hub set AGENTS_RUN_BUDGET_USD.")
+            print(f"agents: {name} — пропущен, лимит расхода ${BUDGET:.2f}")
+            return
         t0 = time.time()
         try:
             res = fn(ctx, **kw)
@@ -268,7 +278,8 @@ def daily():
         report["error"] = lead["error"] = "не задан ключ ANTHROPIC_API_KEY"
         print("agents:", report["error"])
     else:
-        step("trends", run_trends, report)
+        if os.environ.get("AGENTS_TRENDS", "on").lower() != "off":
+            step("trends", run_trends, report)
         step("sales", run_sales, report)
         step("marketer", run_marketer, report)
         step("advisor", run_advisor, report)
@@ -276,8 +287,7 @@ def daily():
         if ctx["finance"]:
             step("advisor", run_advisor, lead, leadership=True)
             step("reminder", run_reminder, lead, leadership=True)
-    pin, pout = PRICE.get(MODEL, PRICE["claude-opus-5-5"])
-    cost = USAGE["input"] / 1e6 * pin + USAGE["output"] / 1e6 * pout + USAGE["searches"] * 0.01
+    cost = spent()
     lead["usage"] = dict(USAGE, model=MODEL, cost_usd=round(cost, 3))       # расход запуска — видно руководителям
     print(f"agents: расход запуска ≈ ${cost:.2f} ({USAGE['calls']} запросов, {USAGE['input']} + {USAGE['output']} токенов, поисков {USAGE['searches']})")
     report["meta"] = {k: dict(name=v[0], what=v[1]) for k, v in AGENTS.items()}
