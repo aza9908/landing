@@ -532,7 +532,7 @@ function renderTeam(pub,lead,status){
   if(!pub||pub.error||!pub.agents||!Object.keys(pub.agents).length){
     el.innerHTML='<div class="card">'+(pub&&pub.error?`<h3>Агенты пока не работают</h3><p class="hint" style="margin:6px 0 0">${esc(pub.error)}</p>`:(stub(SV.agents)||'<h3>Агенты ещё не запускались</h3><p class="hint" style="margin:6px 0 0">Первый отчёт появится после обновления сервера и утреннего запуска.</p>'))+'</div>';return}
   const A=pub.agents,meta=pub.meta||{},h=[];
-  $('teamLead').textContent='Отчёт за '+pub.date.slice(8,10)+'.'+pub.date.slice(5,7)+' · обновлён '+fmtT(pub.at);
+  $('teamLead').textContent='Отчёт за '+pub.date.slice(8,10)+'.'+pub.date.slice(5,7)+' · обновлён '+fmtT(pub.at)+(lead&&lead.usage&&lead.usage.calls?' · расход запуска ≈ $'+lead.usage.cost_usd.toFixed(2):'');
   const head=(id,extra)=>`<div class="who2"><div><h3>${esc((meta[id]||{}).name||id)}</h3><p class="hint" style="margin:0">${esc((meta[id]||{}).what||'')}</p></div>${extra||''}</div>`;
   const bad=(id,a)=>`<div class="card rep">${head(id,'<span class="badge2 error"><i></i>Ошибка</span>')}<p class="small" style="color:var(--bad)">${esc(a.error||'')}</p></div>`;
   const lst=x=>(x&&x.length)?`<ul class="lst">${x.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>`:'';

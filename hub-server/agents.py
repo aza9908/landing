@@ -27,7 +27,10 @@ PUB = os.path.join(WEB_DIR, "agents")                 # видно всем по
 PRIV = os.path.join(WEB_DIR, "private", "agents")     # только руководителям
 STATE = os.path.join(DATA_DIR, "agents")              # чаты и отметки о прочтении; наружу не отдаётся
 TZ = dt.timezone(dt.timedelta(hours=5))
-MODEL = "claude-opus-5-5"
+MODEL = os.environ.get("AGENTS_MODEL", "").strip() or "claude-opus-5-5"   # дешевле: claude-sonnet-5-5
+PRICE = {"claude-opus-5-5": (4, 20), "claude-sonnet-5-5": (2, 10)}        # $ за 1 млн токенов: запрос, ответ
+SEARCHES = int(os.environ.get("AGENTS_TREND_SEARCHES", "10"))             # сколько поисков в интернете может сделать разведчик
+USAGE = dict(input=0, output=0, searches=0, calls=0)
 CHAT_PER_HOUR = int(os.environ.get("AGENTS_CHAT_PER_HOUR", "30"))
 
 AGENTS = {
@@ -103,12 +106,17 @@ def llm(system, user, schema=None, web=False, effort="high", max_tokens=16000):
     if schema:
         kw["output_config"]["format"] = {"type": "json_schema", "schema": schema}
     if web:
-        kw["tools"] = [{"type": "web_search_20260209", "name": "web_search", "max_uses": 10}]
+        kw["tools"] = [{"type": "web_search_20260209", "name": "web_search", "max_uses": SEARCHES}]
     for _ in range(4):
         try:   # при отказе модели API само повторит запрос на запасной модели
             resp = client.beta.messages.create(betas=["server-side-fallback-2026-07-01"], fallbacks="default", **kw)
         except anthropic.BadRequestError:
             resp = client.messages.create(**kw)
+        u = resp.usage
+        USAGE["calls"] += 1
+        USAGE["input"] += (u.input_tokens or 0) + (getattr(u, "cache_creation_input_tokens", 0) or 0) + (getattr(u, "cache_read_input_tokens", 0) or 0)
+        USAGE["output"] += u.output_tokens or 0
+        USAGE["searches"] += getattr(getattr(u, "server_tool_use", None), "web_search_requests", 0) or 0
         if resp.stop_reason != "pause_turn":           # поиск ещё идёт — продолжаем тот же ход
             break
         kw["messages"] = kw["messages"] + [{"role": "assistant", "content": resp.content}]
@@ -240,6 +248,10 @@ def daily():
         if ctx["finance"]:
             step("advisor", run_advisor, lead, leadership=True)
             step("reminder", run_reminder, lead, leadership=True)
+    pin, pout = PRICE.get(MODEL, PRICE["claude-opus-5-5"])
+    cost = USAGE["input"] / 1e6 * pin + USAGE["output"] / 1e6 * pout + USAGE["searches"] * 0.01
+    lead["usage"] = dict(USAGE, model=MODEL, cost_usd=round(cost, 3))       # расход запуска — видно руководителям
+    print(f"agents: расход запуска ≈ ${cost:.2f} ({USAGE['calls']} запросов, {USAGE['input']} + {USAGE['output']} токенов, поисков {USAGE['searches']})")
     report["meta"] = {k: dict(name=v[0], what=v[1]) for k, v in AGENTS.items()}
     write_json(os.path.join(PUB, "today.json"), report)
     write_json(os.path.join(PRIV, "today.json"), lead)
