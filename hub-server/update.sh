@@ -95,7 +95,9 @@ unit daily "ИИ-агенты, ежедневная цепочка" "Type=onesho
 TimeoutStartSec=2400" daily
 unit tick "ИИ-агенты, напоминания" "Type=oneshot" tick
 unit api "ИИ-агенты, чат хаба" "Restart=always
-RestartSec=5" serve
+RestartSec=5
+RuntimeDirectory=airl-hub
+RuntimeDirectoryMode=0755" serve
 timer daily "*-*-* 08:00:00 Asia/Almaty"
 timer tick "*-*-* *:05:00"
 printf '\n[Install]\nWantedBy=multi-user.target\n' >> /etc/systemd/system/airl-hub-agents-api.service
@@ -105,6 +107,8 @@ if [ "${SKIP_SYSTEMD:-0}" != 1 ]; then
   systemctl enable --now airl-hub-targetolog.timer airl-hub-agents-daily.timer airl-hub-agents-tick.timer >/dev/null
   systemctl enable airl-hub-agents-api.service >/dev/null 2>&1
   systemctl restart airl-hub-agents-api.service
+  sleep 2
+  systemctl is-active --quiet airl-hub-agents-api.service && echo "Чат агентов запущен" || { echo "!! Чат агентов не запустился:"; journalctl -u airl-hub-agents-api -n 8 --no-pager -o cat; }
 fi
 if [ -n "${BITRIX_WEBHOOK:-}" ]; then
   sed -i '/^BITRIX_WEBHOOK=/d' "$ENVF"
@@ -136,7 +140,7 @@ location ^~ /airl-1c-hub/api/ {              # чат с агентами: лю�
     if ($http_x_airl_hub != "landing-proxy") { return 404; }
     auth_basic "AIRL Hub";
     auth_basic_user_file /etc/airl-1c-hub/htpasswd;
-    proxy_pass http://127.0.0.1:8787/;
+    proxy_pass http://unix:/run/airl-hub/agents.sock:/;
     proxy_set_header X-Hub-User $remote_user;
     proxy_set_header Authorization "";
     proxy_read_timeout 180s;

@@ -169,6 +169,24 @@ pre.cmd{font:12.5px/1.5 var(--mono);background:var(--ink);color:#e8e8f2;border-r
 .bdg span{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:4px 10px;font-size:12.5px;font-weight:500;background:var(--soft);color:var(--ink)}
 .pl.first .bdg span{background:#ffffff1f;color:#fff}
 .bdg span::before{content:'✦';color:#8f7bf0}.pl.first .bdg span::before{color:#b7e087}
+.ico{flex:none;width:46px;height:46px;border-radius:15px;background:var(--ink);display:grid;place-items:center;position:relative;overflow:hidden}
+.ico::before{content:'';position:absolute;inset:0;background:radial-gradient(80% 80% at 100% 0%,#8f7bf055 0%,transparent 65%)}
+.ico svg{position:relative;width:23px;height:23px;fill:none;stroke:url(#ig);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ico.sm{width:30px;height:30px;border-radius:10px}.ico.sm svg{width:16px;height:16px}
+.roster{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:16px}
+@media (max-width:1100px){.roster{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}}
+.ag{background:#fff;border-radius:20px;padding:14px 16px;display:flex;gap:12px;align-items:center;min-width:0}
+.ag b{display:block;font-weight:600;font-size:15px;letter-spacing:-.01em;line-height:1.2;margin-bottom:3px}
+.ag span{display:flex;align-items:center;gap:6px;font:400 11.5px var(--mono);color:var(--muted)}
+.ag span i{width:7px;height:7px;border-radius:50%;background:#c9c9d6;flex:none}
+.ag.ok span i{background:var(--good)}.ag.err span i{background:var(--bad)}.ag.wait span i{background:#e0862b}
+.who2 .l{display:flex;gap:12px;align-items:center;min-width:0}
+.mrow{display:flex;gap:8px;align-items:flex-end;max-width:94%}.mrow .msg{max-width:none}
+.notice{display:flex;gap:16px;align-items:flex-start}
+.notice .ico{background:#fbe6ec}.notice .ico::before{display:none}.notice .ico svg{stroke:var(--bad)}
+.notice h3{margin-bottom:4px}.notice p{font-size:14.5px;color:var(--ink2);max-width:760px}
+.pick button{display:inline-flex;align-items:center;gap:6px}
+.pick button svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .neg{color:var(--bad)}.pos{color:var(--good)}
 /* attention */
 .att{display:grid;gap:10px}
@@ -217,6 +235,7 @@ footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="ig" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#b7e087"/><stop offset=".4" stop-color="#8fd0c9"/><stop offset=".75" stop-color="#a99bf5"/><stop offset="1" stop-color="#e08bd4"/></linearGradient></defs></svg>
 <div class="wrap">
   <div class="bar">
     <a href="/" aria-label="AI Research Labs"><img src="/logo-airl-white.png" alt="AI Research Labs"></a>
@@ -336,6 +355,7 @@ footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px
 
   <div class="view" id="v-team" hidden>
     <div class="sec"><div><h2>ИИ-команда</h2><p id="teamLead">Пять агентов, которые каждый день разбирают данные компании и рынок</p></div></div>
+    <div id="teamRoster"></div>
     <div class="g">
       <div class="card s5 chat">
         <h3>Чат с агентами</h3><p class="hint">Спросите про продажи, попросите скрипт или идею</p>
@@ -523,6 +543,24 @@ function renderGame(g){
   table('gameT',[['#'],['Сотрудник'],['Уровень'],['Неделя','num'],['Всего','num'],['Оплат','num'],['Дел закрыто','num'],['Просрочено','num']],
     P.map((p,i)=>[i+1,esc(p.name)+(p.badges.length?`<div class="small">${p.badges.map(b=>esc(b.name)).join(' · ')}</div>`:''),`Ур. ${p.level} · ${esc(p.level_name)}`,(p.week>0?'+':'')+cnt(p.week),cnt(p.xp),cnt(p.won),cnt(p.done),p.overdue?`<span class="neg">${cnt(p.overdue)}</span>`:'0']));
 }
+// Иконки агентов (контурные, в одном стиле)
+const IC={
+  reminder:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  advisor:'<path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/>',
+  sales:'<path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>',
+  marketer:'<path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>',
+  trends:'<circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+  targetolog:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+  alert:'<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+};
+const ico=(id,cls)=>`<span class="ico ${cls||''}"><svg viewBox="0 0 24 24" aria-hidden="true">${IC[id]||IC.advisor}</svg></span>`;
+const AG_ORDER=['reminder','advisor','sales','marketer','trends'];
+const AG_META={reminder:{name:'Секретарь',what:'Утренняя сводка и напоминания'},advisor:{name:'Советник',what:'Рекомендации и идеи для роста'},sales:{name:'Аналитик продаж',what:'Воронки, конверсия и работа менеджеров по данным Bitrix24'},marketer:{name:'Маркетолог',what:'Скрипты для звонков, WhatsApp и рекламы'},trends:{name:'Разведчик трендов',what:'Тренды бизнеса и ИИ: Казахстан, Центральная Азия и СНГ, мир'}};
+function roster(pub){
+  const A=(pub&&pub.agents)||{},fatal=pub&&pub.error;
+  return '<div class="roster">'+AG_ORDER.map(id=>{const a=A[id],st=fatal?'err':!a?'wait':a.ok?'ok':'err';
+    return `<div class="ag ${st}">${ico(id)}<div style="min-width:0"><b>${AG_META[id].name}</b><span><i></i>${{ok:'отчёт готов',err:'не отработал',wait:'ждёт запуска'}[st]}</span></div></div>`}).join('')+'</div>';
+}
 // ---- ИИ-команда: отчёты агентов и чат
 let TEAM={agent:'advisor',busy:false,seenSent:false,today:null,me:null};
 const fmtT=s=>new Date(s).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
@@ -530,11 +568,13 @@ const safeUrl=u=>/^https:\/\//.test(u||'')?u:'';
 function renderTeam(pub,lead,status){
   TEAM.today=pub;const el=$('teamRep');
   if(!pub||pub.error||!pub.agents||!Object.keys(pub.agents).length){
-    el.innerHTML='<div class="card">'+(pub&&pub.error?`<h3>Агенты пока не работают</h3><p class="hint" style="margin:6px 0 0">${esc(pub.error)}</p>`:(stub(SV.agents)||'<h3>Агенты ещё не запускались</h3><p class="hint" style="margin:6px 0 0">Первый отчёт появится после обновления сервера и утреннего запуска.</p>'))+'</div>';return}
-  const A=pub.agents,meta=pub.meta||{},h=[];
+    const body=pub&&pub.error?`<div class="notice">${ico('alert')}<div><h3>Агенты не смогли отработать</h3><p>${esc(pub.error)}</p></div></div>`
+      :`<div class="notice">${ico('alert')}<div><h3>Агенты ещё не запускались</h3><p>Первый отчёт появится после обновления сервера и утреннего запуска в 08:00.</p></div></div>`;
+    $('teamRoster').innerHTML=roster(pub);el.innerHTML='<div class="card">'+body+'</div>';return}
+  const A=pub.agents,meta=AG_META,h=[];$('teamRoster').innerHTML=roster(pub);
   $('teamLead').textContent='Отчёт за '+pub.date.slice(8,10)+'.'+pub.date.slice(5,7)+' · обновлён '+fmtT(pub.at)+(lead&&lead.usage&&lead.usage.calls?' · расход запуска ≈ $'+lead.usage.cost_usd.toFixed(2):'');
-  const head=(id,extra)=>`<div class="who2"><div><h3>${esc((meta[id]||{}).name||id)}</h3><p class="hint" style="margin:0">${esc((meta[id]||{}).what||'')}</p></div>${extra||''}</div>`;
-  const bad=(id,a)=>`<div class="card rep">${head(id,'<span class="badge2 error"><i></i>Ошибка</span>')}<p class="small" style="color:var(--bad)">${esc(a.error||'')}</p></div>`;
+  const head=(id,extra)=>`<div class="who2"><div class="l">${ico(id)}<div><h3>${esc((meta[id]||{}).name||id)}</h3><p class="hint" style="margin:0">${esc((meta[id]||{}).what||'')}</p></div></div>${extra||''}</div>`;
+  const bad=(id,a)=>`<div class="card rep">${head(id,'<span class="badge2 error"><i></i>Не отработал</span>')}<p style="font-size:14px;color:var(--ink2)">${esc(a.error||'')}</p></div>`;
   const lst=x=>(x&&x.length)?`<ul class="lst">${x.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>`:'';
   const recs=d=>(d.recommendations||[]).map(r=>`<div class="rec"><b>${esc(r.title)}</b> <span class="st ${r.priority==='высокий'?'open':r.priority==='средний'?'partial':'off'}">${esc(r.priority)}</span><p>${esc(r.why)}</p><p><b>Как:</b> ${esc(r.how)}</p></div>`).join('');
   const sec={
@@ -553,14 +593,14 @@ function renderTeam(pub,lead,status){
   el.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>{const t=A.marketer.data.scripts[+b.dataset.copy].text;(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>{b.textContent='Скопировано'},()=>{b.textContent='Не удалось'});setTimeout(()=>b.textContent='Скопировать',1600)});
 }
 function drawChat(d){
-  const box=$('msgs'),names=d.agents||{};
-  box.innerHTML=(d.messages||[]).map(m=>m.role==='user'?`<div class="msg u">${esc(m.text)}</div>`:`<div class="msg a${m.leadership?' ld':''}"><span class="by">${esc((names[m.agent]||{}).name||'Агент')}${m.leadership?' · руководителям':''} · ${fmtT(m.at)}</span>${esc(m.text)}</div>`).join('')||'<div class="small">Сообщений пока нет. Утром здесь появится сводка, а вопрос можно задать уже сейчас.</div>';
+  const box=$('msgs'),names=Object.fromEntries(AG_ORDER.filter(k=>(d.agents||{})[k]).map(k=>[k,d.agents[k]]));
+  box.innerHTML=(d.messages||[]).map(m=>m.role==='user'?`<div class="msg u">${esc(m.text)}</div>`:`<div class="mrow">${ico(m.agent,'sm')}<div class="msg a${m.leadership?' ld':''}"><span class="by">${esc((names[m.agent]||{}).name||'Агент')}${m.leadership?' · руководителям':''} · ${fmtT(m.at)}</span>${esc(m.text)}</div></div>`).join('')||'<div class="small">Сообщений пока нет. Утром здесь появится сводка, а вопрос можно задать уже сейчас.</div>';
   box.scrollTop=box.scrollHeight;
-  $('pick').innerHTML=Object.entries(names).map(([k,v])=>`<button type="button" role="radio" aria-checked="${k===TEAM.agent}" data-a="${k}" title="${esc(v.what)}">${esc(v.name)}</button>`).join('');
+  $('pick').innerHTML=Object.entries(names).map(([k,v])=>`<button type="button" role="radio" aria-checked="${k===TEAM.agent}" data-a="${k}" title="${esc(v.what)}"><svg viewBox="0 0 24 24" aria-hidden="true">${IC[k]||''}</svg>${esc(v.name)}</button>`).join('');
   $('pick').querySelectorAll('button').forEach(b=>b.onclick=()=>{TEAM.agent=b.dataset.a;$('pick').querySelectorAll('button').forEach(x=>x.setAttribute('aria-checked',x===b))});
 }
 const api=(path,body)=>fetch('api/'+path,{method:body?'POST':'GET',credentials:'same-origin',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});
-function loadChat(){return api('chat').then(r=>r.ok?r.json():null).then(d=>{if(d){TEAM.chat=d;drawChat(d)}else $('msgs').innerHTML='<div class="small">Чат появится после обновления сервера.</div>'}).catch(()=>{})}
+function loadChat(){return api('chat').then(r=>r.ok?r.json():null).then(d=>{if(d){TEAM.chat=d;drawChat(d)}else{TEAM.chatOff=true;$('msgs').innerHTML='<div class="small">Чат сейчас недоступен: служба агентов на сервере не отвечает. Нужно обновить сервер.</div>';$('chatSend').disabled=true;$('chatText').disabled=true}}).catch(()=>{})}
 function teamOpened(){   // вкладку открыли: отчёт считается просмотренным
   $('teamDot').hidden=true;
   if(TEAM.seenSent||!TEAM.today||TEAM.today.error)return;TEAM.seenSent=true;api('seen',{}).catch(()=>{});
@@ -578,7 +618,8 @@ function initTeam(me){
   $('chatForm').onsubmit=e=>{e.preventDefault();const ta=$('chatText'),text=ta.value.trim();if(!text||TEAM.busy)return;
     TEAM.busy=true;$('chatSend').disabled=true;ta.value='';
     const box=$('msgs');box.insertAdjacentHTML('beforeend',`<div class="msg u">${esc(text)}</div><div class="msg a wait" id="wait">Агент думает…</div>`);box.scrollTop=box.scrollHeight;
-    api('chat',{text,agent:TEAM.agent}).then(r=>r.json().then(j=>({ok:r.ok,j}))).then(({ok,j})=>{
+    api('chat',{text,agent:TEAM.agent}).then(r=>r.json().catch(()=>({})).then(j=>({ok:r.ok,st:r.status,j}))).then(({ok,st,j})=>{
+      if(st===404||st===502&&!j.error)j={error:'Чат сейчас недоступен: служба агентов на сервере не отвечает.'};
       const w=$('wait');if(w)w.remove();
       if(ok)return loadChat();
       box.insertAdjacentHTML('beforeend',`<div class="msg a" style="color:var(--bad)">${esc(j.error||'Не удалось получить ответ')}</div>`);box.scrollTop=box.scrollHeight;

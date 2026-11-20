@@ -98,6 +98,8 @@ def llm(system, user, schema=None, web=False, effort="high", max_tokens=16000):
     """Один запрос к Claude. schema — ответ строго по JSON-схеме; web — с поиском в интернете."""
     fake = os.environ.get("HUB_FAKE_LLM")
     if fake:                                           # только для проверки без ключа
+        if fake.startswith("ERR:"):
+            raise RuntimeError(fake[4:])
         return json.loads(fake) if (schema or web) else "Проверочный ответ."
     import anthropic
     client = anthropic.Anthropic()
@@ -131,6 +133,25 @@ def llm(system, user, schema=None, web=False, effort="high", max_tokens=16000):
         m = re.search(r"\{.*\}", text, re.S)
         return json.loads(m.group(0)) if m else {"raw": text}
     return text
+
+
+class Fatal(RuntimeError):
+    """Причина, по которой нет смысла вызывать остальных агентов (нет денег, неверный ключ)."""
+
+
+def explain(e):
+    t = str(e)
+    if "credit balance is too low" in t:
+        return Fatal("На счёте Claude API нет средств. Пополните баланс: console.anthropic.com → Plans & Billing. После оплаты запустите агентов заново.")
+    if "authentication_error" in t or "invalid x-api-key" in t:
+        return Fatal("Ключ Claude API не принят. Проверьте его и задайте заново: airl-hub set ANTHROPIC_API_KEY.")
+    if "permission_error" in t:
+        return Fatal("У ключа Claude API нет доступа к этой модели.")
+    if "rate_limit" in t or "429" in t:
+        return RuntimeError("Claude API временно ограничил число запросов. Агент отработает при следующем запуске.")
+    if "overloaded" in t or "529" in t:
+        return RuntimeError("Claude API сейчас перегружен. Агент отработает при следующем запуске.")
+    return RuntimeError(t[:300])
 
 
 def obj(props, required=None):
@@ -226,6 +247,8 @@ def daily():
     lead = dict(date=day, at=report["at"], agents={})
 
     def step(name, fn, target, **kw):
+        if report.get("error"):
+            return
         t0 = time.time()
         try:
             res = fn(ctx, **kw)
@@ -233,8 +256,13 @@ def daily():
             (ctx["out_lead"] if kw.get("leadership") else ctx["out"])[name] = res
             print(f"agents: {name}{' (руководители)' if kw.get('leadership') else ''} — готово за {time.time()-t0:.0f} с")
         except Exception as e:  # noqa — сбой одного агента не останавливает остальных
-            target["agents"][name] = dict(ok=False, error=str(e)[:300])
+            err = explain(e)
             print(f"agents: {name} — ошибка: {e}")
+            if isinstance(err, Fatal):                 # дальше идти бессмысленно — не тратим запросы
+                report["error"] = lead["error"] = str(err)
+                report["agents"].clear(); lead["agents"].clear()
+                return
+            target["agents"][name] = dict(ok=False, error=str(err))
 
     if not os.environ.get("ANTHROPIC_API_KEY", "").strip() and not os.environ.get("HUB_FAKE_LLM"):
         report["error"] = lead["error"] = "не задан ключ ANTHROPIC_API_KEY"
@@ -419,7 +447,7 @@ class Api(BaseHTTPRequestHandler):
             answer = chat_reply(user, role, agent, text)
         except Exception as e:  # noqa
             print("agents: чат — ошибка:", e, flush=True)
-            return self.send(502, dict(error="Агент сейчас не может ответить: " + str(e)[:160]))
+            return self.send(502, dict(error=str(explain(e))))
         msg = dict(id=f"a-{time.time_ns()}", at=now().isoformat(timespec="seconds"), role="assistant", agent=agent, text=answer)
         with LOCK:
             chat = read_json(cpath, [])
@@ -428,10 +456,26 @@ class Api(BaseHTTPRequestHandler):
         self.send(200, dict(message=msg))
 
 
+class UnixServer(ThreadingHTTPServer):
+    address_family = __import__("socket").AF_UNIX
+
+    def server_bind(self):
+        try:
+            os.unlink(self.server_address)
+        except OSError:
+            pass
+        self.socket.bind(self.server_address)
+        os.chmod(self.server_address, 0o666)           # nginx подключается от своего пользователя; пароль проверяет он
+
+    def get_request(self):
+        req, _ = self.socket.accept()
+        return req, ("local", 0)
+
+
 def serve():
-    port = int(os.environ.get("AGENTS_PORT", "8787"))
-    print(f"agents: чат слушает 127.0.0.1:{port}", flush=True)
-    ThreadingHTTPServer(("127.0.0.1", port), Api).serve_forever()
+    sock = os.environ.get("AGENTS_SOCKET", "/run/airl-hub/agents.sock")
+    print(f"agents: чат слушает {sock}", flush=True)
+    UnixServer(sock, Api).serve_forever()
 
 
 if __name__ == "__main__":
