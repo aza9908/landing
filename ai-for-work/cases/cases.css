@@ -82,7 +82,7 @@
 .case__text { display: grid; gap: 10px; color: var(--muted); }
 .case__text strong { color: var(--text); font-weight: 800; }
 .case__more { display: none; }
-.case.is-open .case__more { display: block; }
+.case.is-open .case__more { display: grid; }
 .case__toggle { justify-self: start; min-height: 40px; padding: 0; }
 
 .cases__dots { display: flex; justify-content: center; gap: 8px; margin-top: 16px; }
@@ -99,7 +99,7 @@
   .case__media { --h: min(76vh, 640px); width: 100%; margin: 0; }
   .case__body { max-width: 560px; }
   .case__title { font-size: 28px; }
-  .case__more { display: block; }
+  .case__more { display: grid; }
   .case__toggle { display: none; }
   .cases__dots { justify-content: flex-start; }
 }

@@ -246,6 +246,8 @@
 
     function go(i) {
       i = Math.max(0, Math.min(CASES.length - 1, i));
+      // Точку и видео переключаем сразу, не дожидаясь конца плавной прокрутки
+      if (i !== current) { current = i; userPaused = false; sync(); }
       track.scrollTo({ left: slides[i].slide.offsetLeft - track.offsetLeft, behavior: 'smooth' });
     }
 
