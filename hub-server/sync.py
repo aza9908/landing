@@ -506,6 +506,25 @@ def bx_build(raw):
         chan[(x.get("UTM_SOURCE") or "").strip() or "без метки"] += 1
         src[sources.get(x.get("SOURCE_ID"), "") or "Не указан"] += 1
 
+    # Разрезы по меткам: одна строка на сочетание воронки, происхождения и utm-меток.
+    ORIGIN = {"airl-online": "Сайт: онлайн-урок", "airl-workshop": "Сайт: воркшоп", "airl-lidgen": "Лид-форма рекламы"}
+
+    def origin(x):
+        o = (x.get("ORIGINATOR_ID") or "").strip()
+        if o:
+            return ORIGIN.get(o, "Сайт: " + o[:30])
+        if str(x.get("SOURCE_ID") or "").startswith("WZ"):
+            return "WhatsApp"
+        return "Отдел продаж (вручную)"
+
+    cut = defaultdict(lambda: [0, 0])
+    for x in deals:
+        key = (cats.get(str(x.get("CATEGORY_ID") or "0"), ""), origin(x)) + tuple(
+            (x.get(f) or "").strip()[:60] for f in ("UTM_SOURCE", "UTM_MEDIUM", "UTM_CAMPAIGN", "UTM_CONTENT", "UTM_TERM"))
+        cut[key][0] += 1
+        cut[key][1] += sem(x) == "won"
+    utm = [list(k) + v for k, v in sorted(cut.items(), key=lambda kv: -kv[1][0])]
+
     acts = raw["activities"]
     open_acts = [a for a in acts if a.get("COMPLETED") != "Y"]
     overdue = sum(1 for a in open_acts if a.get("DEADLINE") and bx_time(a["DEADLINE"]) < now
@@ -526,6 +545,7 @@ def bx_build(raw):
                  conversion=(len(won) / len(deals)) if deals else None),
         funnels=funnels,
         game=bx_game(raw, users, now),
+        utm=dict(fields=["funnel", "origin", "source", "medium", "campaign", "content", "term", "count", "won"], rows=utm),
         managers=sorted(({"name": n, **{k: round(v) for k, v in m.items()}} for n, m in mgr.items()), key=lambda m: -m["total"]),
         channels=[dict(name=n, count=c) for n, c in sorted(chan.items(), key=lambda kv: -kv[1])],
         sources=[dict(name=n, count=c) for n, c in sorted(src.items(), key=lambda kv: -kv[1])],

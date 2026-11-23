@@ -186,6 +186,13 @@ pre.cmd{font:12.5px/1.5 var(--mono);background:var(--ink);color:#e8e8f2;border-r
 .notice h3{margin-bottom:4px}.notice p{font-size:14.5px;color:var(--ink2);max-width:760px}
 .pick button{display:inline-flex;align-items:center;gap:6px}
 .pick button svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.flt{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}.flt:empty{display:none}
+.flt button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:5px 12px;font:500 12.5px var(--sans);color:var(--ink2);cursor:pointer}
+.flt button[aria-checked="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.flt button:focus-visible{outline:2px solid var(--c1);outline-offset:2px}
+#fFun{margin-bottom:16px}#fFun button{border-style:dashed}#fFun button[aria-checked="true"]{border-style:solid}
+#lChan{max-height:330px;overflow-y:auto;padding-right:4px}
+.dl .sub2{display:block;font:400 11.5px var(--mono);color:var(--muted)}
 .neg{color:var(--bad)}.pos{color:var(--good)}
 /* attention */
 .att{display:grid;gap:10px}
@@ -284,7 +291,7 @@ footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px
       <div class="g"><div class="s12 tiles six" id="tilesS"></div></div>
       <div class="g">
         <div class="card s7"><h3>Новые заявки по дням</h3><p class="hint">Созданные сделки по воронкам</p><div class="chart"><canvas id="cDeals"></canvas></div><div class="legend" id="lDeals"></div></div>
-        <div class="card s5 dc"><h3>Откуда приходят заявки</h3><p class="hint">По рекламной метке (utm_source) сделки</p><div class="donut"><div class="ring"><canvas id="dChan"></canvas><div class="mid" id="mChan"></div></div><div class="dl" id="lChan"></div></div></div>
+        <div class="card s5 dc"><h3>Откуда приходят заявки</h3><p class="hint" id="chanHint">По рекламной метке (utm_source) сделки</p><div class="flt" id="fDim" role="radiogroup" aria-label="Разрез"></div><div class="flt" id="fFun" role="radiogroup" aria-label="Воронка"></div><div class="donut"><div class="ring"><canvas id="dChan"></canvas><div class="mid" id="mChan"></div></div><div class="dl" id="lChan"></div></div></div>
       </div>
       <div class="g" id="funnels"></div>
       <div class="g">
@@ -427,6 +434,7 @@ function donut(key,rows,caption,fmt,fmtMid){
   let shown=rows.slice(0,5);if(rows.length>6){shown.push({n:'Прочее',v:rows.slice(5).reduce((a,r)=>a+r.v,0)})}else shown=rows.slice(0,6);
   $('m'+key).innerHTML=`<b>${fmtMid(total)}</b><span>${caption}</span>`;
   $('l'+key).innerHTML=shown.map((r,i)=>`<div><i class="dot" style="background:${C[i]}"></i><span class="nm" title="${esc(r.n)}">${esc(r.n)}</span><span class="r"><span class="am">${fmt(r.v)}</span><span class="pc">${(r.v/total*100).toFixed(0)}%</span></span></div>`.replace('>0%<','>&lt;1%<')).join('')||'<span class="small">Нет данных</span>';
+  const prev=Chart.getChart($('d'+key));if(prev)prev.destroy();
   if(!shown.length)return;
   new Chart($('d'+key),{type:'doughnut',data:{labels:shown.map(r=>r.n),datasets:[{data:shown.map(r=>r.v),backgroundColor:C,borderColor:'#fff',borderWidth:3,borderRadius:8,hoverOffset:6,minBarLength:3}]},
     options:{responsive:true,maintainAspectRatio:true,cutout:'70%',layout:{padding:6},plugins:{legend:{display:false},
@@ -441,6 +449,29 @@ const tile=(l,v,n,cls)=>`<div class="tile"><span class="eyebrow">${l}</span><div
 
 const pl=(n,a,b,c)=>{const m=n%100,k=n%10;return n+' '+(m>10&&m<20?c:k===1?a:k>1&&k<5?b:c)};
 const CH={fb:'Facebook',ig:'Instagram',wa:'WhatsApp',tg:'Telegram',google:'Google',yandex:'Яндекс'};
+// Разрезы заявок по меткам: выбор измерения и воронки
+const DIMS=[['origin','Откуда пришла','Как сделка попала в CRM'],['source','Источник','utm_source'],['medium','Тип трафика','utm_medium'],['campaign','Кампания','utm_campaign'],['content','Объявление','utm_content'],['term','Креатив','utm_term']];
+let CUT={dim:'origin',fun:''};
+function renderCut(b){
+  const u=b.utm;if(!u||!u.rows){donut('Chan',b.channels.map(c=>({n:CH[c.name]||c.name,v:c.count})),'сделок',v=>nf.format(v),v=>nf.format(v));return}
+  const F=Object.fromEntries(u.fields.map((f,i)=>[f,i])),cnt=v=>nf.format(v);
+  const funs=[...new Set(u.rows.map(r=>r[F.funnel]))];
+  const chips=(el,items,cur,set)=>{$(el).innerHTML=items.map(([k,t,tip])=>`<button type="button" role="radio" aria-checked="${k===cur}" data-k="${esc(k)}" title="${esc(tip||'')}">${esc(t)}</button>`).join('');
+    $(el).querySelectorAll('button').forEach(x=>x.onclick=()=>{set(x.dataset.k);draw()})};
+  function draw(){
+    chips('fDim',DIMS,CUT.dim,k=>CUT.dim=k);
+    chips('fFun',[['','Все воронки']].concat(funs.map(f=>[f,f])),CUT.fun,k=>CUT.fun=k);
+    const agg={};
+    for(const r of u.rows){if(CUT.fun&&r[F.funnel]!==CUT.fun)continue;const k=r[F[CUT.dim]]||'';(agg[k]=agg[k]||[0,0]);agg[k][0]+=r[F.count];agg[k][1]+=r[F.won]}
+    const rows=Object.entries(agg).map(([k,[c,w]])=>({n:k?(CUT.dim==='source'?(CH[k]||k):k):'без метки',v:c,w})).sort((a,b)=>b.v-a.v);
+    const total=rows.reduce((a,r)=>a+r.v,0),d=DIMS.find(x=>x[0]===CUT.dim);
+    $('chanHint').textContent=d[2]+(CUT.fun?' · воронка «'+CUT.fun+'»':' · все воронки');
+    donut('Chan',rows.map(r=>({n:r.n,v:r.v})),'сделок',cnt,cnt);
+    // полный список значений с оплатами (на диаграмме мелкие значения собраны в «Прочее»)
+    $('lChan').innerHTML=rows.map((r,i)=>`<div><i class="dot" style="background:${i<5||rows.length<=6?C[Math.min(i,5)]:'#c9c9d6'}"></i><span class="nm" title="${esc(r.n)}">${esc(r.n)}<span class="sub2">оплат: ${cnt(r.w)}${r.v?' · '+(r.w/r.v*100).toFixed(0)+'%':''}</span></span><span class="r"><span class="am">${cnt(r.v)}</span><span class="pc">${total?(r.v/total*100).toFixed(0):0}%</span></span></div>`).join('')||'<span class="small">Нет сделок</span>';
+  }
+  draw();
+}
 function renderSales(b){
   if(!b){$('salesBody').remove();const e=$('salesErr');e.hidden=false;e.innerHTML=stub(SV.bitrix)||'<h3>Bitrix24 ещё не подключён</h3><p class="hint" style="margin:6px 0 0">Раздел появится после обновления хаба на сервере и добавления вебхука Bitrix24.</p>';return}
   if(b.error){$('salesBody').remove();const e=$('salesErr');e.hidden=false;e.innerHTML='<h3>Bitrix24 сейчас недоступен</h3><p class="hint" style="margin:6px 0 0">'+esc(b.error)+'</p>';return}
@@ -457,7 +488,7 @@ function renderSales(b){
   const L=b.days.map(d=>d.slice(8,10)+'.'+d.slice(5,7));
   bars('cDeals',L,b.funnels.map((f,i)=>({label:f.name,color:C[i%6],data:f.daily})),true,v=>pl(v,'сделка','сделки','сделок'));
   legend('lDeals',b.funnels.map((f,i)=>[f.name+' · '+f.total,C[i%6]]));
-  donut('Chan',b.channels.map(c=>({n:CH[c.name]||c.name,v:c.count})),'сделок',cnt,cnt);
+  renderCut(b);
   $('funnels').innerHTML=b.funnels.map(f=>{const st=f.stages.filter(x=>x.count>0||x.kind==='won'),mx=Math.max(...st.map(x=>x.count),1);
     return `<div class="card s4"><div class="fhead"><h3>${esc(f.name)}</h3><b>${cnt(f.total)}</b></div><p class="hint">в работе ${f.open} · оплачено ${f.won}${f.lost?' · отказ '+f.lost:''}</p><div class="fn">`+
       st.map(x=>`<div class="r ${x.kind==='open'?'':x.kind}"><span>${esc(x.name)}</span><b>${cnt(x.count)}</b><div class="t"><i style="width:${x.count?Math.max(x.count/mx*100,2):0}%"></i></div></div>`).join('')+'</div></div>'}).join('');
