@@ -50,8 +50,8 @@ case "${1:-status}" in
       run)    systemctl start airl-hub-agents-daily; journalctl -u airl-hub-agents-daily -n 12 --no-pager -o cat | tail -10 ;;
       status) systemctl is-active airl-hub-agents-api | sed 's/^/Чат: /'; systemctl list-timers 'airl-hub-agents*' --no-pager 2>/dev/null | head -4
               journalctl -u airl-hub-agents-daily -n 8 --no-pager -o cat 2>/dev/null || true ;;
-      pause)  systemctl disable --now airl-hub-agents-daily.timer >/dev/null 2>&1; echo "Ежедневный автозапуск агентов остановлен. Деньги тратятся только на чат и ручной запуск (airl-hub agents run)." ;;
-      resume) systemctl enable --now airl-hub-agents-daily.timer >/dev/null 2>&1; echo "Ежедневный автозапуск агентов включён (08:00 по Астане)." ;;
+      pause)  touch /etc/airl-1c-hub/agents-paused; systemctl disable --now airl-hub-agents-daily.timer >/dev/null 2>&1; echo "Ежедневный автозапуск агентов остановлен. Деньги тратятся только на чат и ручной запуск (airl-hub agents run)." ;;
+      resume) rm -f /etc/airl-1c-hub/agents-paused; systemctl enable --now airl-hub-agents-daily.timer >/dev/null 2>&1; echo "Ежедневный автозапуск агентов включён (08:00 по Астане)." ;;
       *) echo "airl-hub agents status|run|pause|resume" ;;
     esac ;;
   user)

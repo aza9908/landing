@@ -4,6 +4,7 @@
 # они хранятся только на сервере в /etc/airl-1c-hub/env.
 #   BITRIX_WEBHOOK='https://<портал>/rest/1/<ключ>' bash update.sh   — заодно подключить Bitrix24
 set -euo pipefail
+trap 'echo "!! Обновление прервалось на строке $LINENO — пришлите этот вывод"' ERR
 RAW="${HUB_RAW:-https://raw.githubusercontent.com/aza9908/landing/main/hub-server}"
 APP=/opt/airl-1c-hub
 ENVF=/etc/airl-1c-hub/env
@@ -104,7 +105,9 @@ printf '\n[Install]\nWantedBy=multi-user.target\n' >> /etc/systemd/system/airl-h
 install -d -o airl-hub -g airl-hub -m 755 "$APP/web/agents"
 if [ "${SKIP_SYSTEMD:-0}" != 1 ]; then
   systemctl daemon-reload
-  systemctl enable --now airl-hub-targetolog.timer airl-hub-agents-daily.timer airl-hub-agents-tick.timer >/dev/null
+  systemctl enable --now airl-hub-targetolog.timer airl-hub-agents-tick.timer >/dev/null
+  if [ -f /etc/airl-1c-hub/agents-paused ]; then echo "Автозапуск агентов остаётся на паузе (включить: airl-hub agents resume)"
+  else systemctl enable --now airl-hub-agents-daily.timer >/dev/null; fi
   systemctl enable airl-hub-agents-api.service >/dev/null 2>&1
   systemctl restart airl-hub-agents-api.service
   sleep 2
@@ -169,6 +172,8 @@ echo "Обновляю данные…"
 if [ "${SKIP_SYSTEMD:-0}" = 1 ]; then echo "(проверочный запуск без systemd)"; exit 0; fi
 if systemctl start airl-1c-hub-sync; then
   journalctl -u airl-1c-hub-sync -n 8 --no-pager -o cat | tail -6
+  grep -q "client_max_body_size 16m" /etc/nginx/snippets/airl-1c-hub.conf && echo "Агент КП: приём файлов до 10 МБ включён" || echo "!! Агент КП: настройка nginx не обновилась"
+  systemctl is-active --quiet airl-hub-agents-api.service && echo "Служба агентов работает" || echo "!! Служба агентов не работает"
   echo "Готово: https://airl.kz/airl-hub/"
 else
   journalctl -u airl-1c-hub-sync -n 15 --no-pager -o cat

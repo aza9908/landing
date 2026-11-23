@@ -734,7 +734,7 @@ function initKP(){
     rd.onload=()=>{const b64=String(rd.result).split(',')[1]||'';
       api('kp',{file_name:f.name,file_b64:b64,client:$('kpClient').value,pain:$('kpPain').value,budget:$('kpBudget').value,questions:$('kpQ').value,deep:$('kpDeep').checked})
         .then(r=>r.json().catch(()=>({})).then(j=>({ok:r.ok,st:r.status,j})))
-        .then(({ok,st,j})=>{if(ok&&j.report){msg.textContent='';kpShow(j.report)}else msg.textContent=j.error||(st===413?'Файл слишком большой.':st===404?'Агент КП ещё не установлен на сервере.':'Не удалось разобрать ТЗ (код '+st+').')})
+        .then(({ok,st,j})=>{if(ok&&j.report){msg.textContent='';kpShow(j.report)}else msg.textContent=j.error||(st===413||st===404?'Агент КП ещё не установлен на сервере: нужно выполнить команду обновления сервера. С файлом всё в порядке.':st===403?'Раздел доступен только руководителям.':'Не удалось разобрать ТЗ (код '+st+'). Попробуйте ещё раз.')})
         .catch(()=>{msg.textContent='Нет связи с сервером или разбор занял слишком много времени.'})
         .finally(()=>{go.disabled=false;go.textContent='Разобрать ТЗ'})};
     rd.readAsDataURL(f)};
