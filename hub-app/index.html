@@ -771,7 +771,7 @@ function dgHistory(){
   return getJSON('api/diag',true).catch(()=>null).then(d=>{
     const idx=d&&d.index;
     $('dgOut').innerHTML='<div class="card"><h3>История диагностик</h3><p class="hint">'+(CAN_FIN?'Все отчёты команды':'Ваши отчёты')+'</p><div class="tw"><table id="dgHist"></table></div></div>';
-    if(!d){$('dgOut').innerHTML='<div class="card"><h3>Диагностика ещё не установлена</h3><p class="hint" style="margin:6px 0 0">Раздел заработает после обновления сервера.</p></div>';return}
+    if(!d){$('dgOut').innerHTML='<div class="card"><h3>Служба агентов на сервере не отвечает</h3><p class="hint" style="margin:6px 0 0">Диагностика, чат и агент КП заработают после обновления сервера.</p></div>';return}
     table('dgHist',[['Дата'],['Компания'],['Направления'],['','']],(idx||[]).map(r=>[fmtT(r.at),esc(r.company)+`<div class="small">${esc(r.who||'')}${r.by?' · '+esc(r.by):''}</div>`,esc((r.areas||[]).join(', ')),`<span class="btns" style="margin:0"><button type="button" data-open="${esc(r.id)}">Открыть</button><button type="button" data-pdf="${esc(r.id)}" data-c="${esc(r.company)}">PDF</button></span>`]));
     $('dgHist').querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>getJSON('api/diag/'+b.dataset.open,true).then(r=>r&&dgShow(r)));
     $('dgHist').querySelectorAll('[data-pdf]').forEach(b=>b.onclick=()=>dgPdf(b.dataset.pdf,b.dataset.c).catch(()=>{b.textContent='Не удалось'}));
@@ -799,7 +799,7 @@ function initDiag(){
     go.disabled=true;go.textContent='Составляю отчёт…';msg.textContent='Обычно меньше минуты.';
     api('diag',{company:$('dgCompany').value,department:$('dgDept').value,position:$('dgPos').value,areas:[...DG.areas],pain:$('dgPain').value})
       .then(r=>r.json().catch(()=>({})).then(j=>({ok:r.ok,st:r.status,j})))
-      .then(({ok,st,j})=>{if(ok&&j.report){msg.textContent='';dgShow(j.report)}else msg.textContent=j.error||(st===404?'Диагностика ещё не установлена на сервере: нужно обновить сервер.':'Не удалось составить отчёт (код '+st+'). Попробуйте ещё раз.')})
+      .then(({ok,st,j})=>{if(ok&&j.report){msg.textContent='';dgShow(j.report)}else msg.textContent=j.error||(st===404?'Диагностика ещё не установлена на сервере: нужно обновить сервер.':st===502?'Служба агентов на сервере не запущена. Нужно обновить сервер.':'Не удалось составить отчёт (код '+st+'). Попробуйте ещё раз.')})
       .catch(()=>{msg.textContent='Нет связи с сервером. Попробуйте ещё раз.'})
       .finally(()=>{go.disabled=false;go.textContent='Составить отчёт'})};
 }

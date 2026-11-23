@@ -323,18 +323,24 @@ def kp_allowed(user, role):
 
 
 def kp_migrate():
-    """Разборы прежней версии лежали в private/ и были видны всем руководителям — переносим под список доступа."""
+    """Разборы прежней версии лежали в private/ и были видны всем руководителям — переносим под список доступа.
+    Папки могут быть на разных дисках, поэтому копируем и удаляем, а не переименовываем.
+    Сбой переноса не должен мешать запуску службы."""
+    import shutil
     old = os.path.join(PRIV, "kp")
-    if os.path.isdir(old):
+    if not os.path.isdir(old):
+        return
+    try:
         os.makedirs(KP_DIR, exist_ok=True)
         for f in os.listdir(old):
-            if not os.path.exists(os.path.join(KP_DIR, f)):
-                os.replace(os.path.join(old, f), os.path.join(KP_DIR, f))
-            else:
-                os.remove(os.path.join(old, f))
+            src, dst = os.path.join(old, f), os.path.join(KP_DIR, f)
+            if not os.path.exists(dst):
+                shutil.copyfile(src, dst)
+            os.remove(src)
         os.rmdir(old)
-KP_MAX_FILE = 10 * 1024 * 1024
-KP_MAX_CHARS = 150_000
+        print("agents: история разборов КП перенесена под список доступа", flush=True)
+    except Exception as e:  # noqa
+        print("agents: не удалось перенести историю КП —", e, flush=True)
 
 KP_TEAM_DEFAULT = """Команда AI Research Labs: 4–6 человек. Сильные стороны: обучение ИИ (воркшопы, курсы, корпоративные программы), внедрение ИИ-ассистентов и чат-ботов, автоматизация на базе больших языковых моделей (Claude и др.), вайб-кодинг: быстрая сборка веб-сервисов, дашбордов и интеграций (Bitrix24, 1С через OData, Telegram, WhatsApp).
 Чего своими силами не делаем: мобильные приложения под iOS/Android, сложное «железо», обучение собственных моделей с нуля, круглосуточная поддержка с SLA — это через партнёров.
