@@ -65,12 +65,14 @@ if docker inspect lms-api-1 >/dev/null 2>&1; then
   echo "  live lessons right now: $(docker exec lms-db-1 psql -U lms -d lms -tAc "select count(*) from live_sessions where status = 'live'" 2>/dev/null)"
 fi
 echo "== timers: deploy $(systemctl is-active airl-landing-update.timer) · backup $(systemctl is-active airl-landing-backup.timer) · cert-watch $(systemctl is-active airl-landing-cert.timer 2>/dev/null) · certbot renew $(systemctl is-active certbot.timer 2>/dev/null)"
+printf '  %-28s %s\n' "online form, bot field set" "$(curl -s $VIA --max-time 25 -w ' [%{http_code}]' -X POST -H 'Content-Type: application/json' -d '{"name":"status check","phone":"+7 700 000 00 00","website":"status-check"}' "$BASE/api/online-registrations" | cut -c1-120) (nothing stored or sent)"
 printf '  %-28s %s\n' "POST /api/leads {} (no lead)" "$(curl -s $VIA --max-time 25 -w ' [%{http_code}]' -X POST -H 'Content-Type: application/json' -d '{}' "$BASE/api/leads" | cut -c1-120)"
 echo "== production path checks (nothing is sent or created):"
 docker exec airl-landing node -e "
 const s=require('/app/api/store').open(process.env.AIRL_DATA_DIR);
 s.doc('config/selftest').set({at:new Date().toISOString()}).then(()=>console.log('  database: writable by the site')).catch(e=>console.log('  database: NOT writable: '+e.message))
- .then(()=>fetch('https://api.telegram.org/',{signal:AbortSignal.timeout(10000)})).then(r=>console.log('  telegram: reachable from the site (HTTP '+r.status+')')).catch(e=>console.log('  telegram: NOT reachable from the site: '+e.message))" 2>&1 | grep -v Warning
+ .then(()=>fetch('https://api.telegram.org/',{signal:AbortSignal.timeout(10000)})).then(r=>console.log('  telegram: reachable from the site (HTTP '+r.status+')')).catch(e=>console.log('  telegram: NOT reachable from the site: '+e.message))
+ .then(()=>fetch('https://script.google.com/',{redirect:'manual',signal:AbortSignal.timeout(15000)})).then(r=>console.log('  google apps script (copy of online registrations): reachable from the site (HTTP '+r.status+')')).catch(e=>console.log('  google apps script: NOT reachable from the site: '+e.message))" 2>&1 | grep -v Warning
 docker exec airl-landing node -e "
 const t=async(n,u)=>{const a=Date.now();try{const r=await fetch(u,{signal:AbortSignal.timeout(20000)});console.log('  old backend from the site: '+n+' → HTTP '+r.status+' in '+(Date.now()-a)+'ms')}catch(e){const c=e.cause||{};console.log('  old backend from the site: '+n+' → FAILED in '+(Date.now()-a)+'ms: '+e.message+' / '+(c.code||'')+' '+(c.message||'')+' '+((c.errors||[]).map(x=>x.code+' '+x.address).join(', ')))}};
 (async()=>{await t('firestore','https://firestore.googleapis.com/v1/projects/landing-page-8e314/databases/(default)/documents/groups_public/ZZZZ9999?key=AIzaSyDNSjN6mF5R5tVqrVtXeuOu3q6UtUdS39o');await t('functions','https://europe-west1-landing-page-8e314.cloudfunctions.net/leadStats?days=1');})()" 2>&1 | grep -v Warning
@@ -86,7 +88,7 @@ echo "== keys configured (names only): $(grep -oE '^[A-Z_]+=' /etc/airl-landing.
 echo "== data in /var/lib/airl-landing:"
 docker exec airl-landing node -e "
 const s=require('/app/api/store').open(process.env.AIRL_DATA_DIR);
-for(const c of ['leads','express_diagnostics','groups','files'])console.log('  '+c+': '+s.count(c));
+for(const c of ['leads','express_diagnostics','groups','online_registrations','files'])console.log('  '+c+': '+s.count(c));
 (async()=>{const a=await s.doc('config/admin').get();const l=await s.doc('config/legacy_import').get();
 console.log('  panel password: '+(a.exists?'set ('+a.data().set_at+')':'not set yet — set on first login to /stats.html'));
 console.log('  import from Firebase: '+(l.exists?'last '+l.data().last_at:'not run yet'));})()" 2>&1 | grep -v Warning
