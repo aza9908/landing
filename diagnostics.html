@@ -1605,12 +1605,14 @@ function deliver(a, r){
       else fail();
     }, fail);
   var fc = window.AIRL_FIREBASE_CONFIG || {};
-  if (CFG.storeInFirestore && fc.apiKey && fc.projectId) {
+  if (CFG.storeInFirestore) {
     var flat = { name: a.name, company: a.company, position: a.position, industry: a.industry, team_size: a.team_size, contact: a.contact, q1: a.q1, q2: a.q2, q3: a.q3, q4: a.q4, q5: a.q5, q6: a.q6, q7: a.q7, q8: a.q8,
       group_code: window.AIRLDelivery.group.code, score: r.score, level: r.level, priority: r.priority, segment: r.segment.name, tier: r.tier, heat: r.heat, icp: r.icp.verdict, trigger: r.trigger, report_markdown: fullMarkdown(), source: "airl.kz/diagnostics", status: "new", created_at: new Date().toISOString(), bot: "express-diagnostics" };
     var attr = window.AIRL_ATTR ? window.AIRL_ATTR() : {};
     ["utm_source", "utm_medium", "utm_campaign", "referrer", "landing"].forEach(function(k){ if (attr[k]) flat[k] = attr[k]; });
-    fetch("https://firestore.googleapis.com/v1/projects/" + fc.projectId + "/databases/(default)/documents/" + CFG.collection + "?key=" + fc.apiKey, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fields: fsFields(flat) }) }).catch(function(){});
+    // Сначала свой сервер (POST /api/express-diagnostics); если он результаты не хранит (501) или не ответил — прежняя база Firestore.
+    var toFirestore = function(){ if (fc.apiKey && fc.projectId) fetch("https://firestore.googleapis.com/v1/projects/" + fc.projectId + "/databases/(default)/documents/" + CFG.collection + "?key=" + fc.apiKey, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fields: fsFields(flat) }) }).catch(function(){}); };
+    fetch("/api/express-diagnostics", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(flat) }).then(function(res){ if (!res.ok) toFirestore(); }, toFirestore);
   }
 }
 function applyCapsToResult(){
@@ -1760,21 +1762,36 @@ window.AIRLDelivery = (function () {
 
   // Не найден или закрыт — не мешаем человеку пройти диагностику, только
   // помечаем это для менеджера.
+  // Код проверяет свой сервер (GET /api/groups-public/КОД). Если сервер коды
+  // не хранит (501 — сайт ещё на прежнем хостинге) или не ответил, смотрим
+  // в прежнюю базу Firestore.
   var groupReady = !group.code ? Promise.resolve(group) : (function () {
-    var fc = window.AIRL_FIREBASE_CONFIG || {};
-    if (!fc.projectId || !fc.apiKey) { group.status = "unchecked"; return Promise.resolve(group); }
-    return fetch("https://firestore.googleapis.com/v1/projects/" + fc.projectId +
-        "/databases/(default)/documents/groups_public/" + encodeURIComponent(group.code) + "?key=" + fc.apiKey)
-      .then(function (res) {
+    function fromServer() {
+      return fetch("/api/groups-public/" + encodeURIComponent(group.code)).then(function (res) {
         if (res.status === 404) return null;
-        if (!res.ok) throw new Error("groups_public " + res.status);
-        return res.json();
-      })
-      .then(function (doc) {
-        if (!doc) { group.status = "not_found"; return group; }
-        var f = doc.fields || {};
-        group.company = (f.company && f.company.stringValue) || "";
-        group.status = f.active && f.active.booleanValue ? "active" : "closed";
+        if (!res.ok) throw new Error("groups-public " + res.status);
+        return res.json().then(function (d) { return { company: d.company || "", active: d.active === true }; });
+      });
+    }
+    function fromFirestore() {
+      var fc = window.AIRL_FIREBASE_CONFIG || {};
+      if (!fc.projectId || !fc.apiKey) return Promise.reject(new Error("no config"));
+      return fetch("https://firestore.googleapis.com/v1/projects/" + fc.projectId +
+          "/databases/(default)/documents/groups_public/" + encodeURIComponent(group.code) + "?key=" + fc.apiKey)
+        .then(function (res) {
+          if (res.status === 404) return null;
+          if (!res.ok) throw new Error("groups_public " + res.status);
+          return res.json().then(function (doc) {
+            var f = doc.fields || {};
+            return { company: (f.company && f.company.stringValue) || "", active: !!(f.active && f.active.booleanValue) };
+          });
+        });
+    }
+    return fromServer().catch(fromFirestore)
+      .then(function (found) {
+        if (!found) { group.status = "not_found"; return group; }
+        group.company = found.company;
+        group.status = found.active ? "active" : "closed";
         return group;
       })
       .catch(function () { group.status = "unchecked"; return group; });

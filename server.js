@@ -278,7 +278,12 @@ const STATIC_CACHE = [{
   headers: [{ key: 'Cache-Control', value: 'public, max-age=86400, s-maxage=604800' }],
 }];
 
+// ── API: заявки, диагностика, панель (раньше — Firestore и Cloud Functions) ──
+const api = require('./api');
+
 http.createServer(async (req, res) => {
+  const apiPath = (req.url || '/').split('?')[0];
+  if (apiPath === '/api' || apiPath.startsWith('/api/')) return api.handle(req, res, apiPath);
   if (isOnlineHost(req) && ONLINE_PAGE_RE.test(req.url || '/')) req.url = '/online' + (req.url || '/');
   if (LMS_RE.test((req.url || '/').split('?')[0])) return proxyLms(req, res);
   const path = hubPath(req.url || '/');

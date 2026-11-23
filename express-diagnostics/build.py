@@ -59,12 +59,14 @@ function deliver(a, r){
       else fail();
     }, fail);
   var fc = window.AIRL_FIREBASE_CONFIG || {};
-  if (CFG.storeInFirestore && fc.apiKey && fc.projectId) {
+  if (CFG.storeInFirestore) {
     var flat = { name: a.name, company: a.company, position: a.position, industry: a.industry, team_size: a.team_size, contact: a.contact, q1: a.q1, q2: a.q2, q3: a.q3, q4: a.q4, q5: a.q5, q6: a.q6, q7: a.q7, q8: a.q8,
       group_code: window.AIRLDelivery.group.code, score: r.score, level: r.level, priority: r.priority, segment: r.segment.name, tier: r.tier, heat: r.heat, icp: r.icp.verdict, trigger: r.trigger, report_markdown: fullMarkdown(), source: "airl.kz/diagnostics", status: "new", created_at: new Date().toISOString(), bot: "express-diagnostics" };
     var attr = window.AIRL_ATTR ? window.AIRL_ATTR() : {};
     ["utm_source", "utm_medium", "utm_campaign", "referrer", "landing"].forEach(function(k){ if (attr[k]) flat[k] = attr[k]; });
-    fetch("https://firestore.googleapis.com/v1/projects/" + fc.projectId + "/databases/(default)/documents/" + CFG.collection + "?key=" + fc.apiKey, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fields: fsFields(flat) }) }).catch(function(){});
+    // Сначала свой сервер (POST /api/express-diagnostics); если он результаты не хранит (501) или не ответил — прежняя база Firestore.
+    var toFirestore = function(){ if (fc.apiKey && fc.projectId) fetch("https://firestore.googleapis.com/v1/projects/" + fc.projectId + "/databases/(default)/documents/" + CFG.collection + "?key=" + fc.apiKey, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fields: fsFields(flat) }) }).catch(function(){}); };
+    fetch("/api/express-diagnostics", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(flat) }).then(function(res){ if (!res.ok) toFirestore(); }, toFirestore);
   }
 }
 function applyCapsToResult(){''')

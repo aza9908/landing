@@ -12,7 +12,7 @@ git reset -q --hard origin/main
 if echo "$changed" | grep -qE '^package(-lock)?\.json$'; then
   docker run --rm -v "$APP_DIR":/app -w /app node:22-alpine npm ci --omit=dev --no-audit --no-fund --loglevel=error
 fi
-# Сам скрипт тоже обновляется из репозитория.
-install -m 755 "$APP_DIR/deploy/vps/update.sh" /usr/local/bin/airl-landing-update
+# Этот скрипт (он работает от root) из репозитория сам себя не обновляет:
+# новую версию ставит только setup.sh, который запускают вручную.
 docker restart "$NAME" >/dev/null
 echo "deployed $(git log --oneline -1)"

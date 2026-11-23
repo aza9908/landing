@@ -9,6 +9,8 @@ PORT=3160
 IMAGE=node:22-alpine
 SITE=/etc/nginx/sites-available/airl.kz
 WEBROOT=/var/www/certbot
+DATA_DIR=/var/lib/airl-landing     # база заявок (SQLite), файлы агентов, бэкапы
+ENV_FILE=/etc/airl-landing.env     # ключи; в git не попадает
 
 say() { echo "== $*"; }
 
@@ -31,12 +33,35 @@ git -C "$APP_DIR" log --oneline -1
 # 3. Зависимости и контейнер.
 say "npm ci"
 docker run --rm -v "$APP_DIR":/app -w /app "$IMAGE" npm ci --omit=dev --no-audit --no-fund --loglevel=error
+# Данные и ключи живут вне репозитория и вне контейнера.
+install -d -m 750 -o 1000 -g 1000 "$DATA_DIR"
+if [ ! -f "$ENV_FILE" ]; then
+  install -m 600 /dev/null "$ENV_FILE"
+  echo "# airl.kz landing: keys for the API (api/). One NAME=value per line, no quotes." > "$ENV_FILE"
+fi
+chmod 600 "$ENV_FILE"
+# Ключ Anthropic для ИИ-агентов панели: если своего ещё нет, берём тот, что уже
+# лежит на этом сервере у AIRL Hub. Значение нигде не печатается.
+if ! grep -qE '^ANTHROPIC_API_KEY=.{20,}' "$ENV_FILE"; then
+  if grep -qsE '^ANTHROPIC_API_KEY=.{20,}' /opt/hub-airl/.env; then
+    grep -E '^ANTHROPIC_API_KEY=' /opt/hub-airl/.env | head -1 \
+      | sed -E "s/^(ANTHROPIC_API_KEY=)[\"']?([^\"']*)[\"']?\$/\\1\\2/" >> "$ENV_FILE"
+    echo "anthropic key: taken from AIRL Hub config on this server"
+  else
+    echo "anthropic key: NOT SET — add ANTHROPIC_API_KEY=... to $ENV_FILE and re-run setup"
+  fi
+fi
+echo "env file holds: $(grep -oE '^[A-Z_]+=' "$ENV_FILE" | tr -d '=' | tr '\n' ' ')"
+
 if docker inspect "$NAME" >/dev/null 2>&1; then docker rm -f "$NAME" >/dev/null; fi
 say "start container $NAME on 127.0.0.1:$PORT"
 docker run -d --name "$NAME" --restart unless-stopped \
   -p "127.0.0.1:$PORT:8080" -e NODE_ENV=production -e PORT=8080 \
-  -v "$APP_DIR":/app:ro -w /app \
-  --memory 512m --log-opt max-size=10m --log-opt max-file=3 \
+  -e AIRL_DATA_DIR=/data -e NODE_OPTIONS=--disable-warning=ExperimentalWarning \
+  --env-file "$ENV_FILE" \
+  -v "$APP_DIR":/app:ro -v "$DATA_DIR":/data -w /app \
+  --user 1000:1000 --cap-drop ALL --security-opt no-new-privileges \
+  --memory 768m --log-opt max-size=10m --log-opt max-file=3 \
   "$IMAGE" node server.js >/dev/null
 for i in $(seq 1 20); do
   code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/" || true)
@@ -49,8 +74,7 @@ mkdir -p "$WEBROOT"
 if grep -rlsE "server_name([[:space:]]+[^;[:space:]]+)*[[:space:]]+(www\.)?airl\.kz([[:space:]]|;)" /etc/nginx/sites-enabled /etc/nginx/conf.d | grep -v "/airl.kz$"; then
   echo "Another nginx site already claims airl.kz (listed above) — refusing to continue."; exit 1
 fi
-NAMES="airl.kz"
-getent ahostsv4 www.airl.kz >/dev/null && NAMES="airl.kz www.airl.kz"
+NAMES="airl.kz www.airl.kz online.airl.kz"
 PROXY='
     location /.well-known/acme-challenge/ { root '"$WEBROOT"'; }
     location / {
@@ -63,8 +87,8 @@ PROXY='
         proxy_set_header X-Forwarded-Host $host;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection $connection_upgrade_airl;
-        proxy_read_timeout 300s;
-        proxy_send_timeout 300s;
+        proxy_read_timeout 600s;
+        proxy_send_timeout 600s;
     }'
 CERT=/etc/letsencrypt/live/airl.kz/fullchain.pem
 {
@@ -116,6 +140,24 @@ OnUnitActiveSec=1min
 [Install]
 WantedBy=timers.target
 UNIT
+cat > /etc/systemd/system/airl-landing-backup.service <<UNIT
+[Unit]
+Description=Nightly copy of the airl.kz landing database ($DATA_DIR/backups, last 14 kept)
+After=docker.service
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/docker exec $NAME node api/backup.js
+UNIT
+cat > /etc/systemd/system/airl-landing-backup.timer <<UNIT
+[Unit]
+Description=Nightly backup of the airl.kz landing database
+[Timer]
+OnCalendar=*-*-* 03:17:00
+Persistent=true
+[Install]
+WantedBy=timers.target
+UNIT
 systemctl daemon-reload
-systemctl enable --now airl-landing-update.timer >/dev/null 2>&1
-say "auto-deploy timer: $(systemctl is-active airl-landing-update.timer)"
+systemctl enable --now airl-landing-update.timer airl-landing-backup.timer >/dev/null 2>&1
+say "auto-deploy timer: $(systemctl is-active airl-landing-update.timer) · backup timer: $(systemctl is-active airl-landing-backup.timer)"
+say "API: $(curl -s --max-time 10 "http://127.0.0.1:$PORT/api/health")"

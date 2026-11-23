@@ -288,7 +288,26 @@
     return out;
   }
 
+  /* Заявка уходит на свой сервер (POST /api/leads): он сохраняет её, выдаёт
+     код группы и пишет менеджерам в Telegram. Если сервер заявки не хранит
+     (ответ 501 — сайт ещё на прежнем хостинге) или не ответил, заявка пишется
+     в прежнюю базу Firestore, чтобы она не потерялась. */
+  function saveToServer(data) {
+    return fetch("/api/leads", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    }).then(function (r) {
+      if (!r.ok) throw new Error("API " + r.status);
+      return r.json();
+    });
+  }
+
   function save(collection, data) {
+    return saveToServer(data).catch(function () { return saveToFirestore(collection, data); });
+  }
+
+  function saveToFirestore(collection, data) {
     if (!CFG.project || !CFG.key) {
       return Promise.reject(new Error("не заданы data-project и data-key"));
     }

@@ -137,7 +137,12 @@ pre.wa{margin-top:14px;padding:14px;background:var(--ink);border:1px solid var(-
 
 <script>
 /* Базовый адрес функций. Меняется на свой регион и проект. */
-var API = "https://europe-west1-landing-page-8e314.cloudfunctions.net";
+var API = "/api";
+/* Сайт на своём сервере — панель работает с ним (/api). Пока сайт на прежнем
+   хостинге (сервер отвечает store:false), запросы идут в прежние функции. */
+var apiReady = fetch("/api/health").then(function(r){ return r.ok ? r.json() : null; })
+  .then(function(d){ if (!d || !d.store) API = "https://europe-west1-landing-page-8e314.cloudfunctions.net"; })
+  .catch(function(){ API = "https://europe-west1-landing-page-8e314.cloudfunctions.net"; });
 
 var adminLogin = sessionStorage.getItem("airl_login") || "";
 var token = sessionStorage.getItem("airl_token") || "";
@@ -156,11 +161,11 @@ function busy(btn, on, label){
 }
 
 function call(path, body, method){
-  return fetch(API + path, {
+  return apiReady.then(function(){ return fetch(API + path, {
     method: method || "POST",
     headers: { "content-type": "application/json", "x-airl-login": adminLogin, "x-airl-token": token },
     body: method === "GET" ? undefined : JSON.stringify(body || {})
-  }).then(function(r){
+  }); }).then(function(r){
     return r.json().then(function(d){
       if (!r.ok) {
         var err = new Error(d.error || ("Ошибка " + r.status));

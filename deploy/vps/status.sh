@@ -20,10 +20,23 @@ done
 echo "== env files on this server that already hold an Anthropic key (paths only):"
 grep -lsE '^ANTHROPIC_API_KEY=.{20,}' /root/*/.env* /opt/*/.env* /srv/*/.env* /home/*/*/.env* /etc/*.env 2>/dev/null | sed 's/^/  /' || true
 echo "== HTTP checks through local nginx (Host: airl.kz):"
-for p in / /kk/ /en/ /diagnostics /ai-for-work/ /airl-hub/ /lms/ru /event-master-coffee.jpg; do
+for p in / /kk/ /en/ /diagnostics /ai-for-work/ /airl-hub/ /lms/ru /stats.html /event-master-coffee.jpg; do
   printf '  %-26s %s\n' "$p" "$(curl -s -o /dev/null -w '%{http_code} %{size_download}B' -H 'Host: airl.kz' "http://127.0.0.1$p")"
 done
 if [ -f /etc/letsencrypt/live/airl.kz/fullchain.pem ]; then
   printf '  %-26s %s\n' "https /" "$(curl -s -o /dev/null -w '%{http_code}' --resolve airl.kz:443:127.0.0.1 https://airl.kz/)"
 fi
+echo "== own API (through nginx):"
+for p in /api/health /api/groups-public/ZZZZ9999 /api/leadStats; do
+  printf '  %-28s %s\n' "$p" "$(curl -s --max-time 25 -w ' [%{http_code}]' -H 'Host: airl.kz' "http://127.0.0.1$p" | cut -c1-120)"
+done
+echo "== keys configured (names only): $(grep -oE '^[A-Z_]+=' /etc/airl-landing.env 2>/dev/null | tr -d '=' | tr '\n' ' ')"
+echo "== data in /var/lib/airl-landing:"
+docker exec airl-landing node -e "
+const s=require('/app/api/store').open(process.env.AIRL_DATA_DIR);
+for(const c of ['leads','express_diagnostics','groups','files'])console.log('  '+c+': '+s.count(c));
+(async()=>{const a=await s.doc('config/admin').get();const l=await s.doc('config/legacy_import').get();
+console.log('  panel password: '+(a.exists?'set ('+a.data().set_at+')':'not set yet — set on first login to /stats.html'));
+console.log('  import from Firebase: '+(l.exists?'last '+l.data().last_at:'not run yet'));})()" 2>&1 | grep -v Warning
+echo "  backups: $(ls /var/lib/airl-landing/backups 2>/dev/null | tr '\n' ' ')· timer $(systemctl is-active airl-landing-backup.timer 2>/dev/null)"
 echo "== disk: $(df -h / | tail -1 | awk '{print $4" free of "$2}')"
