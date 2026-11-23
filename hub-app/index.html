@@ -193,6 +193,22 @@ pre.cmd{font:12.5px/1.5 var(--mono);background:var(--ink);color:#e8e8f2;border-r
 #fFun{margin-bottom:16px}#fFun button{border-style:dashed}#fFun button[aria-checked="true"]{border-style:solid}
 #lChan{max-height:330px;overflow-y:auto;padding-right:4px}
 .dl .sub2{display:block;font:400 11.5px var(--mono);color:var(--muted)}
+.fl{display:block;font:400 12.5px var(--mono);color:var(--muted);margin-bottom:12px}
+.fl input,.fl textarea{display:block;width:100%;margin-top:6px;border:1px solid var(--line);border-radius:14px;padding:10px 13px;font:15px/1.4 var(--sans);color:var(--ink);background:#fff;outline:none;resize:vertical}
+.fl input[type=file]{padding:9px 10px;font-size:13.5px}
+.fl input:focus,.fl textarea:focus{border-color:var(--c1);box-shadow:0 0 0 3px #7663ea26}
+.ck{display:flex;gap:8px;align-items:flex-start;font-size:14px;margin:4px 0 16px;cursor:pointer}.ck input{margin-top:3px}.ck .small{display:block}
+.go{width:100%;height:48px;border:0;border-radius:24px;background:var(--ink);color:#fff;font:500 16px var(--sans);cursor:pointer}
+.go:disabled{opacity:.5;cursor:default}.go:hover:not(:disabled){background:#2a2a32}
+.vd{display:inline-flex;align-items:center;border-radius:99px;padding:6px 16px;font-size:15px;font-weight:600}
+.vd.y{background:#e3f4ec;color:var(--good)}.vd.p{background:#fdf0dc;color:#9a5b00}.vd.n{background:#fbe6ec;color:var(--bad)}
+.p3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}@media (max-width:700px){.p3{grid-template-columns:1fr}}
+.p3>div{background:var(--soft);border-radius:18px;padding:14px 16px}.p3 b{display:block;font-size:22px;font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin-top:4px}
+.p3 .mid{background:var(--ink);color:#fff}.p3 .mid .eyebrow{color:#c7c7d2}
+.kptxt{white-space:pre-wrap;font:14.5px/1.55 var(--sans);background:var(--soft);border-radius:16px;padding:16px 18px;margin-top:10px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.btns button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:7px 14px;font:500 13px var(--sans);cursor:pointer}
+@media print{body{background:#fff}.bar,.nav,.head,footer,#kpForm,.btns,#kpOut>.card:not(.kpprint){display:none!important}.view:not(#v-kp){display:none!important}.card{box-shadow:none;padding:0}}
 .neg{color:var(--bad)}.pos{color:var(--good)}
 /* attention */
 .att{display:grid;gap:10px}
@@ -257,7 +273,7 @@ footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px
   </div>
 
   <nav class="nav" id="nav" aria-label="Разделы хаба">
-    <a href="#overview" data-v="overview">Обзор</a><a href="#finance" data-v="finance">Финансы <small>1С</small></a><a href="#sales" data-v="sales">Продажи <small>Bitrix24</small></a><a href="#marketing" data-v="marketing">Маркетинг</a><a href="#game" data-v="game">Бонусы</a><a href="#team" data-v="team">ИИ-команда<i class="dotn" id="teamDot" hidden></i></a><a href="#ai" data-v="ai">ИИ-таргетолог</a><a href="#services" data-v="services">Интеграции</a>
+    <a href="#overview" data-v="overview">Обзор</a><a href="#finance" data-v="finance">Финансы <small>1С</small></a><a href="#sales" data-v="sales">Продажи <small>Bitrix24</small></a><a href="#marketing" data-v="marketing">Маркетинг</a><a href="#game" data-v="game">Бонусы</a><a href="#team" data-v="team">ИИ-команда<i class="dotn" id="teamDot" hidden></i></a><a href="#kp" data-v="kp">Агент КП</a><a href="#ai" data-v="ai">ИИ-таргетолог</a><a href="#services" data-v="services">Интеграции</a>
   </nav>
 
   <div class="view" id="v-overview">
@@ -370,6 +386,24 @@ footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px
         <form id="chatForm"><textarea id="chatText" rows="2" maxlength="4000" placeholder="Напишите вопрос…" aria-label="Сообщение"></textarea><button type="submit" id="chatSend" aria-label="Отправить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></button></form>
       </div>
       <div class="s7" id="teamRep"></div>
+    </div>
+  </div>
+
+  <div class="view" id="v-kp" hidden>
+    <div class="sec"><div><h2>Агент КП</h2><p>Загрузите ТЗ клиента — агент скажет, брать ли проект, посчитает цену и напишет черновик предложения</p></div></div>
+    <div class="g">
+      <form class="card s5" id="kpForm" style="align-self:start">
+        <h3>Новый разбор</h3><p class="hint">Файл .docx, .pdf, .txt или .md до 10 МБ. Зачёркнутые пункты .docx в объём не входят</p>
+        <label class="fl">Техническое задание<input type="file" id="kpFile" accept=".docx,.pdf,.txt,.md"></label>
+        <label class="fl">Клиент<input type="text" id="kpClient" maxlength="200" placeholder="Компания или имя"></label>
+        <label class="fl">Боль клиента<textarea id="kpPain" rows="2" maxlength="2000" placeholder="Что у него болит и зачем ему проект"></textarea></label>
+        <label class="fl">Бюджет и сроки<input type="text" id="kpBudget" maxlength="300" placeholder="Если клиент называл"></label>
+        <label class="fl">Ваши вопросы агенту<textarea id="kpQ" rows="2" maxlength="2000" placeholder="Необязательно"></textarea></label>
+        <label class="ck"><input type="checkbox" id="kpDeep"> Искать цены рынка в интернете <span class="small">дороже: примерно 10–30 центов вместо долей цента</span></label>
+        <button class="go" type="submit" id="kpGo">Разобрать ТЗ</button>
+        <p class="small" id="kpMsg" style="margin-top:10px" aria-live="polite"></p>
+      </form>
+      <div class="s7" id="kpOut"><div class="card"><h3>История разборов</h3><p class="hint">Общая для руководителей</p><div class="tw"><table id="kpHist"></table></div></div></div>
     </div>
   </div>
 
@@ -657,7 +691,55 @@ function initTeam(me){
   };
   $('chatText').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('chatForm').requestSubmit()}});
 }
-let VIEWS=['overview','finance','sales','marketing','game','team','ai','services'],CAN_SVC=false,CAN_FIN=false;
+// ---- Агент КП (только руководители)
+function kpHistory(){
+  return getJSON('private/agents/kp/index.json',true).catch(()=>null).then(idx=>{
+    const el=$('kpHist');if(!el)return;
+    table('kpHist',[['Дата'],['Проект'],['Вердикт'],['Цена','num'],['',' ']],(idx||[]).map(r=>[fmtT(r.at),esc(r.title||'—')+(r.client?`<div class="small">${esc(r.client)} · ${esc(r.by)}</div>`:''),`<span class="st ${r.verdict==='берём'?'paid':r.verdict==='не берём'?'open':'partial'}">${esc(r.verdict||'')}</span>`,r.target_kzt?tg(r.target_kzt):'—',`<button class="cp" type="button" data-kp="${esc(r.id)}">Открыть</button>`]));
+    el.querySelectorAll('[data-kp]').forEach(b=>b.onclick=()=>getJSON('private/agents/kp/'+b.dataset.kp+'.json',true).then(r=>r&&kpShow(r)));
+  });
+}
+function kpShow(r){
+  const d=r.result,P=d.price||{},usd=v=>r.usd_kzt?` <span class="small">≈ $${nf.format(Math.round(v/r.usd_kzt))}</span>`:'';
+  const cls={'берём':'y','берём частично':'p','не берём':'n'}[d.verdict]||'p',lst=x=>(x&&x.length)?`<ul class="lst">${x.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>`:'<p class="small">—</p>';
+  const hours=(d.modules||[]).reduce((a,m)=>a+(+m.hours||0),0);
+  $('kpOut').innerHTML=`<div class="card rep kpprint"><div class="who2"><div class="l">${ico('marketer')}<div><h3>${esc(d.title||r.file||'Разбор ТЗ')}</h3><p class="hint" style="margin:0">${esc(r.input.client||'клиент не указан')} · ${fmtT(r.at)} · ${esc(r.by)}</p></div></div><span class="vd ${cls}">${esc(d.verdict)}</span></div>
+    <p class="lede">${esc(d.verdict_reason)}</p>${r.truncated?'<p class="small" style="color:var(--bad)">ТЗ длиннее лимита: агент прочитал только первые '+nf.format(150000)+' знаков.</p>':''}
+    <div class="p3"><div><span class="eyebrow">Минимум</span><b>${tg(P.min_kzt||0)}</b>${usd(P.min_kzt||0)}</div><div class="mid"><span class="eyebrow">Целевая цена</span><b>${tg(P.target_kzt||0)}</b>${usd(P.target_kzt||0)}</div><div><span class="eyebrow">Максимум</span><b>${tg(P.max_kzt||0)}</b>${usd(P.max_kzt||0)}</div></div>
+    <p class="small" style="margin-top:10px">${esc(P.basis||'')}</p></div>
+   <div class="card rep"><h3>Модули</h3><p class="hint">Всего ≈ ${nf.format(hours)} часов</p><div class="tw"><table id="kpMod"></table></div></div>
+   <div class="card rep"><h3>Пути реализации</h3><p class="hint">Варианты, которые можно предложить клиенту</p><div class="tw"><table id="kpPath"></table></div></div>
+   <div class="card rep"><h3>Цены на рынке</h3><p class="hint">${r.deep?'По поиску в интернете':'Оценка модели без проверки по источникам — ориентир, а не справка'}</p><div class="tr3">${[['kz','Казахстан'],['cis','Центральная Азия и СНГ'],['world','Мир']].map(([k,t])=>`<div><h4>${t}</h4><div class="it">${linkify((d.market||{})[k]||'—')}</div></div>`).join('')}</div></div>
+   <div class="g" style="margin-bottom:16px"><div class="card s6"><h3>Риски</h3><p class="hint">Что может пойти не так</p>${lst(d.risks)}</div><div class="card s6"><h3>Вопросы клиенту</h3><p class="hint">Задать до подписания</p>${lst(d.questions)}</div></div>
+   ${(d.answers||[]).length?`<div class="card rep"><h3>Ответы на ваши вопросы</h3>${lst(d.answers)}</div>`:''}
+   <div class="card rep"><h3>Черновик КП</h3><p class="hint">Вычитайте перед отправкой клиенту</p><div class="kptxt" id="kpText">${esc(d.proposal)}</div><div class="btns"><button type="button" id="kpCopy">Скопировать</button><button type="button" id="kpDl">Скачать .txt</button><button type="button" id="kpPrint">Печать</button><button type="button" id="kpBack">← К истории</button></div>
+   <p class="small" style="margin-top:12px">Модель ${esc(r.model)} · расход на разбор ≈ $${(+r.cost_usd).toFixed(r.cost_usd<0.01?4:2)}</p></div>`;
+  table('kpMod',[['Модуль'],['Кто делает'],['Часы','num']],(d.modules||[]).map(m=>[esc(m.name)+`<div class="small">${esc(m.note)}</div>`,`<span class="st ${m.who==='сами'?'paid':m.who==='не берём'?'open':'partial'}">${esc(m.who)}</span>`,nf.format(m.hours||0)]));
+  table('kpPath',[['Вариант'],['Срок'],['Команда'],['Цена','num']],(d.paths||[]).map(x=>[esc(x.name)+`<div class="small">${esc(x.note)}</div>`,pl(Math.round(x.weeks||0),'неделя','недели','недель'),esc(x.team),tg(x.price_kzt||0)]));
+  $('kpCopy').onclick=e=>{(navigator.clipboard?navigator.clipboard.writeText(d.proposal):Promise.reject()).then(()=>e.target.textContent='Скопировано',()=>e.target.textContent='Не удалось')};
+  $('kpDl').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d.proposal],{type:'text/plain;charset=utf-8'}));a.download='КП '+(r.input.client||r.id)+'.txt';a.click();URL.revokeObjectURL(a.href)};
+  $('kpPrint').onclick=()=>print();
+  $('kpBack').onclick=()=>{$('kpOut').innerHTML='<div class="card"><h3>История разборов</h3><p class="hint">Общая для руководителей</p><div class="tw"><table id="kpHist"></table></div></div>';kpHistory()};
+  scrollTo(0,0);
+}
+const linkify=t=>esc(t).replace(/https:\/\/[^\s<)]+[^\s<).,;]/g,u=>`<a href="${u}" target="_blank" rel="noopener noreferrer">${u.replace(/^https:\/\/(www\.)?/,'').slice(0,40)}</a>`);
+function initKP(){
+  kpHistory();
+  $('kpForm').onsubmit=e=>{e.preventDefault();const f=$('kpFile').files[0],msg=$('kpMsg'),go=$('kpGo');
+    if(!f){msg.textContent='Выберите файл с ТЗ.';return}
+    if(f.size>10*1024*1024){msg.textContent='Файл больше 10 МБ.';return}
+    go.disabled=true;go.textContent='Агент читает ТЗ…';msg.textContent=$('kpDeep').checked?'С поиском в интернете это занимает несколько минут.':'Обычно меньше минуты.';
+    const rd=new FileReader();
+    rd.onerror=()=>{msg.textContent='Не удалось прочитать файл.';go.disabled=false;go.textContent='Разобрать ТЗ'};
+    rd.onload=()=>{const b64=String(rd.result).split(',')[1]||'';
+      api('kp',{file_name:f.name,file_b64:b64,client:$('kpClient').value,pain:$('kpPain').value,budget:$('kpBudget').value,questions:$('kpQ').value,deep:$('kpDeep').checked})
+        .then(r=>r.json().catch(()=>({})).then(j=>({ok:r.ok,st:r.status,j})))
+        .then(({ok,st,j})=>{if(ok&&j.report){msg.textContent='';kpShow(j.report)}else msg.textContent=j.error||(st===413?'Файл слишком большой.':st===404?'Агент КП ещё не установлен на сервере.':'Не удалось разобрать ТЗ (код '+st+').')})
+        .catch(()=>{msg.textContent='Нет связи с сервером или разбор занял слишком много времени.'})
+        .finally(()=>{go.disabled=false;go.textContent='Разобрать ТЗ'})};
+    rd.readAsDataURL(f)};
+}
+let VIEWS=['overview','finance','sales','marketing','game','team','kp','ai','services'],CAN_SVC=false,CAN_FIN=false;
 function route(){
   const h=(location.hash||'#overview').slice(1),views=VIEWS;
   const sub=document.getElementById(h);let v=views.includes(h)?h:(sub&&sub.closest('.view')?sub.closest('.view').id.slice(2):'overview');if(!views.includes(v))v='overview';
@@ -733,6 +815,7 @@ function start(me,pub,fin){
   const drop=v=>{VIEWS=VIEWS.filter(x=>x!==v);$('v-'+v).hidden=true;const a=document.querySelector(`#nav a[data-v="${v}"]`);if(a)a.remove()};
   CAN_FIN=!!fin;
   if(!CAN_SVC)drop('services');
+  if(me.role==='user')drop('kp');else initKP();
   renderServices(pub);
   if(fin){
     $('lead').textContent='Финансы, продажи и маркетинг AI Research Labs в одном месте';

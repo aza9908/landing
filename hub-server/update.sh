@@ -26,7 +26,7 @@ install -m 755 "$tmp/agents.py" "$APP/agents.py"
 if [ ! -x "$APP/venv/bin/python" ]; then
   python3 -m venv "$APP/venv" 2>/dev/null || { apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3-venv && python3 -m venv "$APP/venv"; }
 fi
-"$APP/venv/bin/pip" install -q --upgrade anthropic && echo "Библиотека Claude установлена" || echo "!! Не удалось установить библиотеку anthropic — таргетолог не запустится"
+"$APP/venv/bin/pip" install -q --upgrade anthropic pypdf && echo "Библиотека Claude установлена" || echo "!! Не удалось установить библиотеку anthropic — таргетолог не запустится"
 grep -qE '^TARGETOLOG_MODE=' "$ENVF" || echo "TARGETOLOG_MODE=advise" >> "$ENVF"
 cat > /etc/systemd/system/airl-hub-targetolog.service <<UNIT
 [Unit]
@@ -143,8 +143,9 @@ location ^~ /airl-1c-hub/api/ {              # чат с агентами: лю�
     proxy_pass http://unix:/run/airl-hub/agents.sock:/;
     proxy_set_header X-Hub-User $remote_user;
     proxy_set_header Authorization "";
-    proxy_read_timeout 180s;
-    client_max_body_size 32k;
+    proxy_read_timeout 300s;
+    client_max_body_size 16m;                # файл ТЗ для агента КП — до 10 МБ; размер сообщений чата ограничивает сама служба
+    proxy_send_timeout 300s;
     add_header Cache-Control "private, no-store" always;
 }
 location ^~ /airl-1c-hub/ {                  # всё остальное: любой пользователь хаба

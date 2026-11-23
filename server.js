@@ -60,7 +60,7 @@ function upstream(method, path, auth, cb, body) {
   const lib = HUB_UPSTREAM.protocol === 'http:' ? http : https;
   const up = lib.request({
     protocol: HUB_UPSTREAM.protocol, hostname: HUB_UPSTREAM.hostname, port: HUB_UPSTREAM.port || undefined,
-    method, path: encodeURI(path), headers, timeout: body ? 200000 : 20000,   // ответ агента в чате идёт дольше
+    method, path: encodeURI(path), headers, timeout: body ? 290000 : 20000,   // ответ агента в чате идёт дольше
   }, (r) => cb(null, r));
   up.on('timeout', () => up.destroy(new Error('timeout')));
   up.on('error', (e) => cb(e));
@@ -71,8 +71,15 @@ function upstream(method, path, auth, cb, body) {
 // Только JSON и только с этой страницы (cookie SameSite=Strict + проверка типа содержимого).
 function hubApiPost(req, res, path, auth) {
   if (!/^application\/json\b/i.test(req.headers['content-type'] || '')) { res.writeHead(415, NO_STORE); return res.end(); }
-  let body = '', big = false;
-  req.on('data', (c) => { body += c; if (body.length > 20000) { big = true; req.destroy(); } });
+  // обычные сообщения — до 20 КБ; файл ТЗ для агента КП — до 10 МБ (в JSON он занимает на треть больше)
+  const limit = path === HUB_PATH + 'api/kp' ? 15 * 1024 * 1024 : 20000;
+  const chunks = [];
+  let size = 0, big = false;
+  req.on('data', (c) => {
+    size += c.length;
+    if (size > limit) { if (!big) { big = true; res.writeHead(413, NO_STORE); res.end(); req.destroy(); } return; }
+    chunks.push(c);
+  });
   req.on('end', () => {
     if (big) return;
     upstream('POST', UP_PATH + path.slice(HUB_PATH.length), auth, (err, r) => {
@@ -81,7 +88,7 @@ function hubApiPost(req, res, path, auth) {
       for (const h of PASS_HEADERS) if (r.headers[h]) out[h] = r.headers[h];
       res.writeHead(r.statusCode === 401 ? 403 : r.statusCode, out);
       r.pipe(res);
-    }, body || '{}');
+    }, size ? Buffer.concat(chunks) : '{}');
   });
 }
 
