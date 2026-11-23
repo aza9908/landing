@@ -13,6 +13,21 @@ for h in airl.kz www.airl.kz online.airl.kz server.airl.kz; do
 done
 echo "  AAAA airl.kz: $(getent ahostsv6 airl.kz | awk '{print $1}' | sort -u | tr '\n' ' ')"
 echo "  this server: $(curl -s4 --max-time 8 https://api.ipify.org || true)"
+echo "== what each authoritative nameserver answers (all must agree before Let's Encrypt can check a name):"
+for n in $(ns airl.kz); do
+  printf '  %-12s serial %s · airl.kz %s· www %s· online %s\n' "$n" \
+    "$(dig +short +time=4 +tries=1 @"$n" airl.kz SOA 2>/dev/null | awk '{print $3}')" \
+    "$(dig +short +time=4 +tries=1 @"$n" airl.kz A 2>/dev/null | tr '\n' ' ')" \
+    "$(dig +short +time=4 +tries=1 @"$n" www.airl.kz A 2>/dev/null | tr '\n' ' ')" \
+    "$(dig +short +time=4 +tries=1 @"$n" online.airl.kz A 2>/dev/null | tr '\n' ' ')"
+done
+echo "== nginx sites that name airl.kz hosts:"
+grep -rnE 'server_name' /etc/nginx/sites-enabled/ /etc/nginx/conf.d/ 2>/dev/null | grep -E 'airl\.kz' | sed -E 's/[[:space:]]+/ /g' | sed 's/^/  /'
+nginx -t 2>&1 | grep -i 'conflicting' | sed 's/^/  /'
+for h in airl.kz www.airl.kz online.airl.kz; do
+  printf '  port 80, Host %-16s → %s\n' "$h" "$(curl -s -o /dev/null --max-time 10 -w '%{http_code} %{redirect_url}' -H "Host: $h" http://127.0.0.1/)"
+  printf '  port 443, SNI %-16s → %s\n' "$h" "$(curl -sk --max-time 10 --resolve "$h:443:127.0.0.1" "https://$h/" | grep -o '<title>[^<]*' | head -1 | cut -c1-90)"
+done
 echo "== old Firebase backend, seen from here (401 = deployed and asking for the password):"
 for f in leadStats group interview; do
   printf '  %-10s %s\n' "$f" "$(curl -s -o /dev/null --max-time 15 -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d '{}' "https://europe-west1-landing-page-8e314.cloudfunctions.net/$f")"
