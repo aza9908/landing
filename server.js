@@ -281,8 +281,30 @@ const STATIC_CACHE = [{
 // ── API: заявки, диагностика, панель (раньше — Firestore и Cloud Functions) ──
 const api = require('./api');
 
+// ── Переезд на VPS: сертификат заранее ──────────────────────────────────────
+// Пока домен указывает на прежний хостинг, проверочные запросы Let's Encrypt
+// (/.well-known/acme-challenge/…) пересылаются на VPS. Так сертификат airl.kz
+// выпускается там ДО переключения DNS, и сайт переезжает без ошибок HTTPS.
+// На самом VPS (задан AIRL_DATA_DIR) этот адрес отдаёт nginx, сюда он не доходит.
+const ACME_RE = /^\/\.well-known\/acme-challenge\/[A-Za-z0-9_-]{1,200}$/;
+const ACME_HOST = process.env.AIRL_DATA_DIR ? '' : (process.env.ACME_HOST || 'server.airl.kz');
+
+function proxyAcme(res, pathname) {
+  const done = (status) => { if (!res.headersSent) res.writeHead(status, { 'Cache-Control': 'no-store' }); res.end(); };
+  const up = http.request({ host: ACME_HOST, port: 80, path: pathname, method: 'GET',
+    headers: { host: 'airl.kz' }, timeout: 8000 }, (r) => {
+    if (r.statusCode !== 200) { r.resume(); return done(404); }
+    res.writeHead(200, { 'Content-Type': 'text/plain', 'Cache-Control': 'no-store' });
+    r.pipe(res);
+  });
+  up.on('timeout', () => up.destroy(new Error('timeout')));
+  up.on('error', () => done(404));
+  up.end();
+}
+
 http.createServer(async (req, res) => {
   const apiPath = (req.url || '/').split('?')[0];
+  if (ACME_HOST && ACME_RE.test(apiPath)) return proxyAcme(res, apiPath);
   if (apiPath === '/api' || apiPath.startsWith('/api/')) return api.handle(req, res, apiPath);
   if (isOnlineHost(req) && ONLINE_PAGE_RE.test(req.url || '/')) req.url = '/online' + (req.url || '/');
   if (LMS_RE.test((req.url || '/').split('?')[0])) return proxyLms(req, res);

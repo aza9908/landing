@@ -1,22 +1,44 @@
 #!/usr/bin/env bash
-# Сертификат Let's Encrypt для airl.kz. Запускать ПОСЛЕ того, как A-запись airl.kz
-# указывает на этот сервер: иначе Let's Encrypt не сможет проверить домен.
+# Сертификат Let's Encrypt для airl.kz и поддоменов.
+#
+# Работает и ДО переключения DNS: прежний хостинг пересылает проверочные запросы
+# (/.well-known/acme-challenge/…) на этот сервер (см. server.js, proxyAcme), так что
+# сертификат можно выпустить заранее и переключить домен без ошибок HTTPS.
+# В сертификат попадают только те имена, чья проверка реально доходит сюда;
+# когда появится ещё одно (например online.airl.kz), запустите скрипт снова.
 set -euo pipefail
-ME=$(curl -s4 --max-time 10 https://api.ipify.org || hostname -I | awk '{print $1}')
-DNS=$(getent ahostsv4 airl.kz | awk '{print $1}' | sort -u | tr '\n' ' ')
-echo "server IP: $ME · airl.kz → $DNS"
-case " $DNS " in *" $ME "*) ;; *) echo "airl.kz does not point here yet — change the DNS A record first."; exit 1;; esac
-command -v certbot >/dev/null || { apt-get update -qq && apt-get install -y -qq certbot; }
-DOMAINS="-d airl.kz"
-# Поддомены попадают в сертификат, только если уже указывают сюда; когда появится
-# ещё один (например online.airl.kz), запустите скрипт снова — сертификат расширится.
-for sub in www.airl.kz online.airl.kz; do
-  W=$(getent ahostsv4 "$sub" | awk '{print $1}' | sort -u | tr '\n' ' ')
-  case " $W " in *" $ME "*) DOMAINS="$DOMAINS -d $sub";; *) echo "skip $sub (→ ${W:-no record})";; esac
+WEBROOT=/var/www/certbot
+CH="$WEBROOT/.well-known/acme-challenge"
+mkdir -p "$CH"
+
+# Доходит ли проверка для имени $1 до этого сервера: кладём случайный файл и
+# читаем его снаружи. Так мы не тратим попытки Let's Encrypt на заведомый отказ.
+reaches() {
+  local t got
+  t="selftest-$(head -c 12 /dev/urandom | od -An -tx1 | tr -d ' \n')"
+  echo "$t" > "$CH/$t"
+  got=$(curl -sL --max-time 25 "http://$1/.well-known/acme-challenge/$t" || true)
+  rm -f "$CH/$t"
+  [ "$got" = "$t" ]
+}
+
+DOMAINS=""
+for d in airl.kz www.airl.kz online.airl.kz; do
+  dns=$(getent ahostsv4 "$d" | awk '{print $1}' | sort -u | tr '\n' ' ')
+  if [ -n "$dns" ] && reaches "$d"; then
+    DOMAINS="$DOMAINS -d $d"; echo "ok   $d (→ $dns)"
+  else
+    echo "skip $d (→ ${dns:-no DNS record}): the check does not reach this server"
+  fi
 done
-certbot certonly --webroot -w /var/www/certbot $DOMAINS --non-interactive --agree-tos \
+case "$DOMAINS " in *"-d airl.kz "*) ;; *) echo "The check for airl.kz does not reach this server — nothing issued."; exit 1;; esac
+
+command -v certbot >/dev/null || { apt-get update -qq && apt-get install -y -qq certbot >/dev/null; }
+certbot certonly --webroot -w "$WEBROOT" $DOMAINS --non-interactive --agree-tos \
   --register-unsafely-without-email --keep-until-expiring --expand --cert-name airl.kz \
   --deploy-hook "systemctl reload nginx"
+echo "renewal timer: $(systemctl is-active certbot.timer 2>/dev/null || echo 'not active')"
+
 # setup.sh видит сертификат и включает HTTPS-блок.
 bash /opt/airl-landing/deploy/vps/setup.sh
-curl -sS -o /dev/null -w "https://airl.kz/ → HTTP %{http_code}\n" --resolve airl.kz:443:127.0.0.1 https://airl.kz/
+curl -sS -o /dev/null -w "https://airl.kz/ served by this server → HTTP %{http_code}, certificate verified\n" --resolve airl.kz:443:127.0.0.1 https://airl.kz/
