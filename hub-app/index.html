@@ -210,6 +210,13 @@ pre.cmd{font:12.5px/1.5 var(--mono);background:var(--ink);color:#e8e8f2;border-r
 .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .btns button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:7px 14px;font:500 13px var(--sans);cursor:pointer}
 @media print{body{background:#fff}.bar,.nav,.head,footer,#kpForm,.btns,#kpOut>.card:not(.kpprint){display:none!important}.view:not(#v-kp){display:none!important}.card{box-shadow:none;padding:0}}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media (max-width:520px){.row2{grid-template-columns:1fr}}
+#dgAreas button{padding:8px 16px;font-size:14px}
+.dgcard{border:1px solid var(--line);border-left:3px solid var(--c1);border-radius:12px;padding:10px 14px}
+.dgcard .tg{font:500 11px var(--mono);color:var(--c1);text-transform:uppercase;letter-spacing:.06em}
+.dgcard b{display:block;margin:2px 0 3px}.dgcard p{font-size:14px;color:var(--ink2)}
+.dg2{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media (max-width:700px){.dg2{grid-template-columns:1fr}}
+.btns .pri{background:var(--ink);color:#fff;border-color:var(--ink)}
 .neg{color:var(--bad)}.pos{color:var(--good)}
 /* attention */
 .att{display:grid;gap:10px}
@@ -274,7 +281,7 @@ footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px
   </div>
 
   <nav class="nav" id="nav" aria-label="Разделы хаба">
-    <a href="#overview" data-v="overview">Обзор</a><a href="#finance" data-v="finance">Финансы <small>1С</small></a><a href="#sales" data-v="sales">Продажи <small>Bitrix24</small></a><a href="#marketing" data-v="marketing">Маркетинг</a><a href="#game" data-v="game">Бонусы</a><a href="#team" data-v="team">ИИ-команда<i class="dotn" id="teamDot" hidden></i></a><a href="#kp" data-v="kp" id="navKp" hidden>Агент КП</a><a href="#ai" data-v="ai">ИИ-таргетолог</a><a href="#services" data-v="services">Интеграции</a>
+    <a href="#overview" data-v="overview">Обзор</a><a href="#finance" data-v="finance">Финансы <small>1С</small></a><a href="#sales" data-v="sales">Продажи <small>Bitrix24</small></a><a href="#marketing" data-v="marketing">Маркетинг</a><a href="#game" data-v="game">Бонусы</a><a href="#team" data-v="team">ИИ-команда<i class="dotn" id="teamDot" hidden></i></a><a href="#diag" data-v="diag">Диагностика</a><a href="#kp" data-v="kp" id="navKp" hidden>Агент КП</a><a href="#ai" data-v="ai">ИИ-таргетолог</a><a href="#services" data-v="services">Интеграции</a>
   </nav>
 
   <div class="view" id="v-overview">
@@ -387,6 +394,23 @@ footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px
         <form id="chatForm"><textarea id="chatText" rows="2" maxlength="4000" placeholder="Напишите вопрос…" aria-label="Сообщение"></textarea><button type="submit" id="chatSend" aria-label="Отправить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></button></form>
       </div>
       <div class="s7" id="teamRep"></div>
+    </div>
+  </div>
+
+  <div class="view" id="v-diag" hidden>
+    <div class="sec"><div><h2>Диагностика</h2><p>Пять коротких вопросов клиенту — и готовый отчёт по задаче в PDF</p></div></div>
+    <div class="g">
+      <form class="card s5" id="dgForm" style="align-self:start">
+        <h3>Новая диагностика</h3><p class="hint">Заполните со слов клиента. Отчёт занимает одну-две страницы</p>
+        <label class="fl">Из какой вы компании?<input type="text" id="dgCompany" maxlength="200" required placeholder="Название компании"></label>
+        <div class="row2"><label class="fl">Отдел<input type="text" id="dgDept" maxlength="120" placeholder="Например, отдел продаж"></label><label class="fl">Должность<input type="text" id="dgPos" maxlength="120" placeholder="Например, руководитель"></label></div>
+        <div class="fl" style="margin-bottom:6px">Для какой команды нужна помощь?</div>
+        <div class="flt" id="dgAreas" role="group" aria-label="Направления"></div>
+        <label class="fl" style="margin-top:8px">Что у вас болит?<textarea id="dgPain" rows="4" maxlength="3000" required placeholder="Своими словами: что мешает, на что уходит время, чего не хватает"></textarea></label>
+        <button class="go" type="submit" id="dgGo">Составить отчёт</button>
+        <p class="small" id="dgMsg" style="margin-top:10px" aria-live="polite"></p>
+      </form>
+      <div class="s7" id="dgOut"></div>
     </div>
   </div>
 
@@ -740,7 +764,46 @@ function initKP(){
         .finally(()=>{go.disabled=false;go.textContent='Разобрать ТЗ'})};
     rd.readAsDataURL(f)};
 }
-let VIEWS=['overview','finance','sales','marketing','game','team','ai','services'],CAN_SVC=false,CAN_FIN=false;
+// ---- Экспресс-диагностика: короткая анкета → отчёт в PDF
+const DG={areas:new Set()};
+function dgPdf(id,company){return fetch('api/diag/'+id+'.pdf',{credentials:'same-origin'}).then(r=>{if(!r.ok)throw 0;return r.blob()}).then(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='Диагностика '+(company||id)+'.pdf';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)})}
+function dgHistory(){
+  return getJSON('api/diag',true).catch(()=>null).then(d=>{
+    const idx=d&&d.index;
+    $('dgOut').innerHTML='<div class="card"><h3>История диагностик</h3><p class="hint">'+(CAN_FIN?'Все отчёты команды':'Ваши отчёты')+'</p><div class="tw"><table id="dgHist"></table></div></div>';
+    if(!d){$('dgOut').innerHTML='<div class="card"><h3>Диагностика ещё не установлена</h3><p class="hint" style="margin:6px 0 0">Раздел заработает после обновления сервера.</p></div>';return}
+    table('dgHist',[['Дата'],['Компания'],['Направления'],['','']],(idx||[]).map(r=>[fmtT(r.at),esc(r.company)+`<div class="small">${esc(r.who||'')}${r.by?' · '+esc(r.by):''}</div>`,esc((r.areas||[]).join(', ')),`<span class="btns" style="margin:0"><button type="button" data-open="${esc(r.id)}">Открыть</button><button type="button" data-pdf="${esc(r.id)}" data-c="${esc(r.company)}">PDF</button></span>`]));
+    $('dgHist').querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>getJSON('api/diag/'+b.dataset.open,true).then(r=>r&&dgShow(r)));
+    $('dgHist').querySelectorAll('[data-pdf]').forEach(b=>b.onclick=()=>dgPdf(b.dataset.pdf,b.dataset.c).catch(()=>{b.textContent='Не удалось'}));
+  });
+}
+function dgShow(r){
+  const d=r.result,i=r.input,lst=x=>(x&&x.length)?`<ul class="lst">${x.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`:'';
+  $('dgOut').innerHTML=`<div class="card rep"><div class="who2"><div class="l">${ico('marketer')}<div><h3>${esc(d.title)}</h3><p class="hint" style="margin:0">${esc(i.company)} · ${esc([i.department,i.position].filter(Boolean).join(', ')||'должность не указана')} · ${esc((i.areas||[]).join(', '))}</p></div></div></div>
+    <p class="lede">${esc(d.summary)}</p><div class="btns" style="margin-top:0"><button type="button" class="pri" id="dgDl">Скачать PDF</button><button type="button" id="dgBack">← К истории</button></div></div>
+   <div class="card rep"><h3>Что болит</h3><p class="hint">Со слов клиента</p>${lst(d.pains)}<p class="kptxt" style="margin-top:12px;font-weight:500">${esc(d.goal)}</p></div>
+   <div class="card rep"><h3>Что предлагаем</h3><p class="hint">Решения под выбранные направления</p><div class="dg2">${(d.solutions||[]).map(x=>`<div class="dgcard"><span class="tg">${esc(x.area)}</span><b>${esc(x.title)}</b><p>${esc(x.what)}</p><p style="color:var(--ink);font-weight:500;margin-top:4px">${esc(x.result)}</p></div>`).join('')}</div></div>
+   <div class="card rep"><h3>Как пойдёт работа</h3><p class="hint">Шаги до запуска</p>${(d.steps||[]).map((x,n)=>`<div class="rec"><b>${n+1}. ${esc(x.title)}</b><p>${esc(x.what)}</p></div>`).join('')}</div>
+   <div class="g" style="margin-bottom:16px"><div class="card s6"><h3>Что нужно от клиента</h3><p class="hint">Для старта</p>${lst(d.needs)}</div><div class="card s6"><h3>Вопросы на созвон</h3><p class="hint">Чтобы назвать сроки и объём</p>${lst(d.questions)}</div></div>
+   <p class="small">Отчёт составил ИИ по ответам анкеты. Прочитайте перед отправкой клиенту. Расход ≈ $${(+r.cost_usd||0).toFixed(4)}</p>`;
+  $('dgDl').onclick=e=>{e.target.textContent='Готовлю файл…';dgPdf(r.id,i.company).then(()=>e.target.textContent='Скачать PDF',()=>e.target.textContent='Не удалось скачать')};
+  $('dgBack').onclick=dgHistory;scrollTo(0,0);
+}
+function initDiag(){
+  const box=$('dgAreas');
+  box.innerHTML=['HR','Финансы','Продажи','Маркетинг'].map(a=>`<button type="button" aria-pressed="false" data-a="${a}">${a}</button>`).join('');
+  box.querySelectorAll('button').forEach(b=>b.onclick=()=>{const on=!DG.areas.has(b.dataset.a);on?DG.areas.add(b.dataset.a):DG.areas.delete(b.dataset.a);b.setAttribute('aria-pressed',on);b.setAttribute('aria-checked',on)});
+  dgHistory();
+  $('dgForm').onsubmit=e=>{e.preventDefault();const msg=$('dgMsg'),go=$('dgGo');
+    if(!DG.areas.size){msg.textContent='Выберите хотя бы одно направление.';return}
+    go.disabled=true;go.textContent='Составляю отчёт…';msg.textContent='Обычно меньше минуты.';
+    api('diag',{company:$('dgCompany').value,department:$('dgDept').value,position:$('dgPos').value,areas:[...DG.areas],pain:$('dgPain').value})
+      .then(r=>r.json().catch(()=>({})).then(j=>({ok:r.ok,st:r.status,j})))
+      .then(({ok,st,j})=>{if(ok&&j.report){msg.textContent='';dgShow(j.report)}else msg.textContent=j.error||(st===404?'Диагностика ещё не установлена на сервере: нужно обновить сервер.':'Не удалось составить отчёт (код '+st+'). Попробуйте ещё раз.')})
+      .catch(()=>{msg.textContent='Нет связи с сервером. Попробуйте ещё раз.'})
+      .finally(()=>{go.disabled=false;go.textContent='Составить отчёт'})};
+}
+let VIEWS=['overview','finance','sales','marketing','game','team','diag','ai','services'],CAN_SVC=false,CAN_FIN=false;
 function route(){
   const h=(location.hash||'#overview').slice(1),views=VIEWS;
   const sub=document.getElementById(h);let v=views.includes(h)?h:(sub&&sub.closest('.view')?sub.closest('.view').id.slice(2):'overview');if(!views.includes(v))v='overview';
@@ -834,7 +897,7 @@ function start(me,pub,fin){
       tile('Дела менеджеров',nf.format(bk.activities_open),bk.activities_overdue?'просрочено: '+bk.activities_overdue:'просроченных нет',bk.activities_overdue?'neg':''),
     ].join('')}
   }
-  renderSales(pub.bitrix);renderMarketing(pub);renderGame(pub.bitrix&&pub.bitrix.game);initTeam(me);
+  renderSales(pub.bitrix);renderMarketing(pub);renderGame(pub.bitrix&&pub.bitrix.game);initTeam(me);initDiag();
   fetch('targetolog.json?'+Date.now(),{credentials:'same-origin'}).then(r=>r.ok?r.json():null).catch(()=>null).then(renderAI);
   route();
 }

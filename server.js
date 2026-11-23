@@ -16,7 +16,7 @@ const HUB_PATH = '/airl-hub/';
 const UP_PATH = '/airl-1c-hub/';   // путь хаба на сервере AIRL (исторический)
 // латинская c/C и кириллическая с/С в адресе — все варианты ведут в хаб
 const HUB_RE = /^\/airl-(1[cCсС]-)?hub(\/.*)?$/i;   // и прежний адрес /airl-1c-hub/ — он перенаправляется
-const PASS_HEADERS = ['content-type', 'content-length', 'last-modified', 'etag'];
+const PASS_HEADERS = ['content-type', 'content-length', 'last-modified', 'etag', 'content-disposition'];
 
 function hubPath(url) {
   let path;

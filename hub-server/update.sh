@@ -27,7 +27,15 @@ install -m 755 "$tmp/agents.py" "$APP/agents.py"
 if [ ! -x "$APP/venv/bin/python" ]; then
   python3 -m venv "$APP/venv" 2>/dev/null || { apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3-venv && python3 -m venv "$APP/venv"; }
 fi
-"$APP/venv/bin/pip" install -q --upgrade anthropic pypdf && echo "Библиотека Claude установлена" || echo "!! Не удалось установить библиотеку anthropic — таргетолог не запустится"
+# отчёты в PDF: библиотека вёрстки, её системные зависимости, логотип и шрифт
+if ! python3 -c "import ctypes.util,sys; sys.exit(0 if ctypes.util.find_library('pango-1.0') else 1)" 2>/dev/null; then
+  apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0 >/dev/null || echo "!! Не удалось установить библиотеки для PDF"
+fi
+mkdir -p "$APP/pdf"
+for f in airl-logo.png NunitoSans-400.ttf NunitoSans-600.ttf NunitoSans-700.ttf NunitoSans-800.ttf; do
+  curl -fsSL "$RAW/pdf/$f" -o "$APP/pdf/$f"
+done
+"$APP/venv/bin/pip" install -q --upgrade anthropic pypdf weasyprint && echo "Библиотека Claude установлена" || echo "!! Не удалось установить библиотеку anthropic — таргетолог не запустится"
 grep -qE '^TARGETOLOG_MODE=' "$ENVF" || echo "TARGETOLOG_MODE=advise" >> "$ENVF"
 cat > /etc/systemd/system/airl-hub-targetolog.service <<UNIT
 [Unit]
@@ -174,6 +182,7 @@ if systemctl start airl-1c-hub-sync; then
   journalctl -u airl-1c-hub-sync -n 8 --no-pager -o cat | tail -6
   grep -q "client_max_body_size 16m" /etc/nginx/snippets/airl-1c-hub.conf && echo "Агент КП: приём файлов до 10 МБ включён" || echo "!! Агент КП: настройка nginx не обновилась"
   systemctl is-active --quiet airl-hub-agents-api.service && echo "Служба агентов работает" || echo "!! Служба агентов не работает"
+  "$APP/venv/bin/python" -c "import weasyprint" 2>/dev/null && echo "Отчёты в PDF: готово" || echo "!! Отчёты в PDF: библиотека не установилась, диагностика не сможет собрать файл"
   echo "Готово: https://airl.kz/airl-hub/"
 else
   journalctl -u airl-1c-hub-sync -n 15 --no-pager -o cat
