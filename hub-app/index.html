@@ -53,6 +53,7 @@ section{scroll-margin-top:84px}
 .nav a{flex:none;text-decoration:none;font-size:14px;font-weight:500;color:var(--ink2);padding:9px 16px;border-radius:22px;white-space:nowrap;transition:background .15s,color .15s}
 .nav a:hover{background:var(--soft)}
 .nav a.on{background:var(--ink);color:#fff}
+.nav a[hidden]{display:none}
 .groups{display:grid;gap:16px;grid-template-rows:1fr 1fr}
 .groups>div{display:flex;flex-direction:column}.groups .tiles{flex:1}
 .glabel{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin:0 0 8px 6px}
@@ -273,7 +274,7 @@ footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px
   </div>
 
   <nav class="nav" id="nav" aria-label="Разделы хаба">
-    <a href="#overview" data-v="overview">Обзор</a><a href="#finance" data-v="finance">Финансы <small>1С</small></a><a href="#sales" data-v="sales">Продажи <small>Bitrix24</small></a><a href="#marketing" data-v="marketing">Маркетинг</a><a href="#game" data-v="game">Бонусы</a><a href="#team" data-v="team">ИИ-команда<i class="dotn" id="teamDot" hidden></i></a><a href="#kp" data-v="kp">Агент КП</a><a href="#ai" data-v="ai">ИИ-таргетолог</a><a href="#services" data-v="services">Интеграции</a>
+    <a href="#overview" data-v="overview">Обзор</a><a href="#finance" data-v="finance">Финансы <small>1С</small></a><a href="#sales" data-v="sales">Продажи <small>Bitrix24</small></a><a href="#marketing" data-v="marketing">Маркетинг</a><a href="#game" data-v="game">Бонусы</a><a href="#team" data-v="team">ИИ-команда<i class="dotn" id="teamDot" hidden></i></a><a href="#kp" data-v="kp" id="navKp" hidden>Агент КП</a><a href="#ai" data-v="ai">ИИ-таргетолог</a><a href="#services" data-v="services">Интеграции</a>
   </nav>
 
   <div class="view" id="v-overview">
@@ -403,7 +404,7 @@ footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px
         <button class="go" type="submit" id="kpGo">Разобрать ТЗ</button>
         <p class="small" id="kpMsg" style="margin-top:10px" aria-live="polite"></p>
       </form>
-      <div class="s7" id="kpOut"><div class="card"><h3>История разборов</h3><p class="hint">Общая для руководителей</p><div class="tw"><table id="kpHist"></table></div></div></div>
+      <div class="s7" id="kpOut"><div class="card"><h3>История разборов</h3><p class="hint">Общая для всех, у кого есть доступ к агенту</p><div class="tw"><table id="kpHist"></table></div></div></div>
     </div>
   </div>
 
@@ -693,10 +694,10 @@ function initTeam(me){
 }
 // ---- Агент КП (только руководители)
 function kpHistory(){
-  return getJSON('private/agents/kp/index.json',true).catch(()=>null).then(idx=>{
+  return getJSON('api/kp',true).catch(()=>null).then(d=>{const idx=d&&d.index;
     const el=$('kpHist');if(!el)return;
     table('kpHist',[['Дата'],['Проект'],['Вердикт'],['Цена','num'],['',' ']],(idx||[]).map(r=>[fmtT(r.at),esc(r.title||'—')+(r.client?`<div class="small">${esc(r.client)} · ${esc(r.by)}</div>`:''),`<span class="st ${r.verdict==='берём'?'paid':r.verdict==='не берём'?'open':'partial'}">${esc(r.verdict||'')}</span>`,r.target_kzt?tg(r.target_kzt):'—',`<button class="cp" type="button" data-kp="${esc(r.id)}">Открыть</button>`]));
-    el.querySelectorAll('[data-kp]').forEach(b=>b.onclick=()=>getJSON('private/agents/kp/'+b.dataset.kp+'.json',true).then(r=>r&&kpShow(r)));
+    el.querySelectorAll('[data-kp]').forEach(b=>b.onclick=()=>getJSON('api/kp/'+b.dataset.kp,true).then(r=>r&&kpShow(r)));
   });
 }
 function kpShow(r){
@@ -719,7 +720,7 @@ function kpShow(r){
   $('kpCopy').onclick=e=>{(navigator.clipboard?navigator.clipboard.writeText(d.proposal):Promise.reject()).then(()=>e.target.textContent='Скопировано',()=>e.target.textContent='Не удалось')};
   $('kpDl').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d.proposal],{type:'text/plain;charset=utf-8'}));a.download='КП '+(r.input.client||r.id)+'.txt';a.click();URL.revokeObjectURL(a.href)};
   $('kpPrint').onclick=()=>print();
-  $('kpBack').onclick=()=>{$('kpOut').innerHTML='<div class="card"><h3>История разборов</h3><p class="hint">Общая для руководителей</p><div class="tw"><table id="kpHist"></table></div></div>';kpHistory()};
+  $('kpBack').onclick=()=>{$('kpOut').innerHTML='<div class="card"><h3>История разборов</h3><p class="hint">Общая для всех, у кого есть доступ к агенту</p><div class="tw"><table id="kpHist"></table></div></div>';kpHistory()};
   scrollTo(0,0);
 }
 const linkify=t=>esc(t).replace(/https:\/\/[^\s<)]+[^\s<).,;]/g,u=>`<a href="${u}" target="_blank" rel="noopener noreferrer">${u.replace(/^https:\/\/(www\.)?/,'').slice(0,40)}</a>`);
@@ -734,12 +735,12 @@ function initKP(){
     rd.onload=()=>{const b64=String(rd.result).split(',')[1]||'';
       api('kp',{file_name:f.name,file_b64:b64,client:$('kpClient').value,pain:$('kpPain').value,budget:$('kpBudget').value,questions:$('kpQ').value,deep:$('kpDeep').checked})
         .then(r=>r.json().catch(()=>({})).then(j=>({ok:r.ok,st:r.status,j})))
-        .then(({ok,st,j})=>{if(ok&&j.report){msg.textContent='';kpShow(j.report)}else msg.textContent=j.error||(st===413||st===404?'Агент КП ещё не установлен на сервере: нужно выполнить команду обновления сервера. С файлом всё в порядке.':st===403?'Раздел доступен только руководителям.':'Не удалось разобрать ТЗ (код '+st+'). Попробуйте ещё раз.')})
+        .then(({ok,st,j})=>{if(ok&&j.report){msg.textContent='';kpShow(j.report)}else msg.textContent=j.error||(st===413||st===404?'Агент КП ещё не установлен на сервере: нужно выполнить команду обновления сервера. С файлом всё в порядке.':st===403?'У вас нет доступа к агенту КП.':'Не удалось разобрать ТЗ (код '+st+'). Попробуйте ещё раз.')})
         .catch(()=>{msg.textContent='Нет связи с сервером или разбор занял слишком много времени.'})
         .finally(()=>{go.disabled=false;go.textContent='Разобрать ТЗ'})};
     rd.readAsDataURL(f)};
 }
-let VIEWS=['overview','finance','sales','marketing','game','team','kp','ai','services'],CAN_SVC=false,CAN_FIN=false;
+let VIEWS=['overview','finance','sales','marketing','game','team','ai','services'],CAN_SVC=false,CAN_FIN=false;
 function route(){
   const h=(location.hash||'#overview').slice(1),views=VIEWS;
   const sub=document.getElementById(h);let v=views.includes(h)?h:(sub&&sub.closest('.view')?sub.closest('.view').id.slice(2):'overview');if(!views.includes(v))v='overview';
@@ -815,7 +816,7 @@ function start(me,pub,fin){
   const drop=v=>{VIEWS=VIEWS.filter(x=>x!==v);$('v-'+v).hidden=true;const a=document.querySelector(`#nav a[data-v="${v}"]`);if(a)a.remove()};
   CAN_FIN=!!fin;
   if(!CAN_SVC)drop('services');
-  if(me.role==='user')drop('kp');else initKP();
+  fetch('api/kp',{credentials:'same-origin'}).then(r=>{if(!r.ok)return;VIEWS.push('kp');$('navKp').hidden=false;initKP();if(location.hash==='#kp')route()}).catch(()=>{});
   renderServices(pub);
   if(fin){
     $('lead').textContent='Финансы, продажи и маркетинг AI Research Labs в одном месте';

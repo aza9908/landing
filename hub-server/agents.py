@@ -313,7 +313,26 @@ def daily():
 # ---------------------------------------------------------------- агент КП: разбор ТЗ клиента
 
 KP_MODEL = os.environ.get("KP_MODEL", "").strip() or "claude-haiku-5-5"   # самая дешёвая модель: разбор стоит доли цента
-KP_DIR = os.path.join(PRIV, "kp")                                         # история разборов — только руководителям
+KP_DIR = os.path.join(STATE, "kp")                                        # история разборов; наружу отдаёт только служба, по списку доступа
+KP_ACCESS = os.path.join(STATE, "kp_access.json")                         # логины с доступом к агенту КП (правит: airl-hub kp allow/deny)
+
+
+def kp_allowed(user, role):
+    """Агент КП: суперадмин всегда, остальные — только из списка доступа."""
+    return role == "superadmin" or user in (read_json(KP_ACCESS, []) or [])
+
+
+def kp_migrate():
+    """Разборы прежней версии лежали в private/ и были видны всем руководителям — переносим под список доступа."""
+    old = os.path.join(PRIV, "kp")
+    if os.path.isdir(old):
+        os.makedirs(KP_DIR, exist_ok=True)
+        for f in os.listdir(old):
+            if not os.path.exists(os.path.join(KP_DIR, f)):
+                os.replace(os.path.join(old, f), os.path.join(KP_DIR, f))
+            else:
+                os.remove(os.path.join(old, f))
+        os.rmdir(old)
 KP_MAX_FILE = 10 * 1024 * 1024
 KP_MAX_CHARS = 150_000
 
@@ -569,7 +588,16 @@ class Api(BaseHTTPRequestHandler):
         user, role = self.who()
         if not user:
             return self.send(401, {})
-        if self.path.split("?")[0].endswith("/chat"):
+        path = self.path.split("?")[0]
+        m = re.search(r"/kp(?:/(\d{8}-\d{6}))?$", path)
+        if m:                                         # история разборов КП — по списку доступа
+            if not kp_allowed(user, role):
+                return self.send(403, dict(error="Нет доступа к агенту КП"))
+            if m.group(1):
+                rep = read_json(os.path.join(KP_DIR, m.group(1) + ".json"))
+                return self.send(200, rep) if rep else self.send(404, {})
+            return self.send(200, dict(index=read_json(os.path.join(KP_DIR, "index.json"), [])))
+        if path.endswith("/chat"):
             return self.send(200, dict(user=user, role=role, messages=self.timeline(user, role),
                                        agents={k: dict(name=v[0], what=v[1]) for k, v in AGENTS.items()}))
         self.send(404, {})
@@ -588,8 +616,8 @@ class Api(BaseHTTPRequestHandler):
         except Exception:  # noqa
             return self.send(400, {})
         if is_kp:                                     # разбор ТЗ: только руководители
-            if role not in ("admin", "superadmin"):
-                return self.send(403, dict(error="Раздел доступен только руководителям"))
+            if not kp_allowed(user, role):
+                return self.send(403, dict(error="Нет доступа к агенту КП"))
             try:
                 return self.send(200, dict(report=kp_analyze(user, body)))
             except Exception as e:  # noqa
@@ -649,6 +677,7 @@ class UnixServer(ThreadingHTTPServer):
 
 def serve():
     sock = os.environ.get("AGENTS_SOCKET", "/run/airl-hub/agents.sock")
+    kp_migrate()
     print(f"agents: чат слушает {sock}", flush=True)
     UnixServer(sock, Api).serve_forever()
 

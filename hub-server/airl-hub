@@ -6,6 +6,7 @@
 #   airl-hub sync                обновить данные сейчас
 #   airl-hub targetolog status|demo|dry|run|auto|advise|off|undo   ИИ-таргетолог
 #   airl-hub agents status|run|pause|resume   ИИ-агенты: состояние / запустить сейчас / остановить и включить автозапуск
+#   airl-hub kp list | allow ЛОГИН | deny ЛОГИН   кто видит агента КП (суперадмин — всегда)
 #   airl-hub user list | add ЛОГИН РОЛЬ | role ЛОГИН РОЛЬ | passwd ЛОГИН | del ЛОГИН
 #        роли: superadmin (разработчик), admin (руководитель), user (сотрудник, без данных 1С)
 set -euo pipefail
@@ -54,6 +55,26 @@ case "${1:-status}" in
       resume) rm -f /etc/airl-1c-hub/agents-paused; systemctl enable --now airl-hub-agents-daily.timer >/dev/null 2>&1; echo "Ежедневный автозапуск агентов включён (08:00 по Астане)." ;;
       *) echo "airl-hub agents status|run|pause|resume" ;;
     esac ;;
+  kp)   # кто может пользоваться агентом КП (суперадмин — всегда)
+    F=/var/lib/airl-1c-hub/agents/kp_access.json
+    install -d -o airl-hub -g airl-hub /var/lib/airl-1c-hub/agents
+    [ -f "$F" ] || echo '[]' > "$F"
+    edit() { python3 - "$F" "$1" "$2" <<'PY'
+import json, sys
+path, op, user = sys.argv[1:4]
+try: users = json.load(open(path))
+except Exception: users = []
+users = [u for u in users if u != user] + ([user] if op == "allow" else [])
+json.dump(sorted(users), open(path, "w"))
+PY
+      chown airl-hub: "$F"; }
+    case "${2:-list}" in
+      allow) u="${3:-}"; grep -qE "^$u:" /etc/airl-1c-hub/htpasswd || { echo "Нет пользователя $u (создать: airl-hub user add $u user)"; exit 1; }
+             edit allow "$u"; echo "$u теперь видит агента КП" ;;
+      deny)  edit deny "${3:-}"; echo "${3:-} больше не видит агента КП" ;;
+      list)  echo "Доступ к агенту КП: суперадмин и $(python3 -c "import json,sys; print(', '.join(json.load(open(sys.argv[1]))) or 'никто больше')" "$F")" ;;
+      *) echo "airl-hub kp list | allow ЛОГИН | deny ЛОГИН" ;;
+    esac ;;
   user)
     C=/etc/airl-1c-hub; ROLES=$C/roles; ALL=$C/htpasswd; ADM=$C/htpasswd-admin; PRIV=/opt/airl-1c-hub/web/private
     touch "$ROLES" "$ALL"
@@ -98,5 +119,5 @@ case "${1:-status}" in
       rebuild) rebuild ;;
       *) echo "airl-hub user list | add ЛОГИН РОЛЬ | role ЛОГИН РОЛЬ | passwd ЛОГИН | del ЛОГИН" ;;
     esac ;;
-  *) sed -n '2,10p' "$0" ;;
+  *) sed -n '2,11p' "$0" ;;
 esac
