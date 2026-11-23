@@ -9,7 +9,7 @@ echo "== certificate:"; (openssl x509 -in /etc/letsencrypt/live/airl.kz/fullchai
 ns() { (dig +short NS "$1" 2>/dev/null || host -t ns "$1" 2>/dev/null | awk '{print $NF}' || nslookup -type=ns "$1" 2>/dev/null | awk '/nameserver/{print $NF}') | tr '\n' ' '; }
 echo "== DNS provider (NS of airl.kz): $(ns airl.kz)"
 for h in airl.kz www.airl.kz online.airl.kz server.airl.kz; do
-  printf '  %-18s → %s\n' "$h" "$(getent ahostsv4 "$h" | awk '{print $1}' | sort -u | tr '\n' ' ')"
+  printf '  %-18s → %s\n' "$h" "$( (getent ahostsv4 "$h" || true) | awk '{print $1}' | sort -u | tr '\n' ' ')"
 done
 echo "  AAAA airl.kz: $(getent ahostsv6 airl.kz | awk '{print $1}' | sort -u | tr '\n' ' ')"
 echo "  this server: $(curl -s4 --max-time 8 https://api.ipify.org || true)"

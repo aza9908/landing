@@ -18,17 +18,21 @@ reaches() {
   t="selftest-$(head -c 12 /dev/urandom | od -An -tx1 | tr -d ' \n')"
   echo "$t" > "$CH/$t"
   got=$(curl -sL --max-time 25 "http://$1/.well-known/acme-challenge/$t" || true)
+  if [ "$got" != "$t" ]; then
+    WHY=$(curl -sL --max-time 25 -o /dev/null -w 'HTTP %{http_code} at %{url_effective}' "http://$1/.well-known/acme-challenge/$t" 2>&1 || true)
+  fi
   rm -f "$CH/$t"
   [ "$got" = "$t" ]
 }
 
 DOMAINS=""
 for d in airl.kz www.airl.kz online.airl.kz; do
-  dns=$(getent ahostsv4 "$d" | awk '{print $1}' | sort -u | tr '\n' ' ')
+  dns=$( (getent ahostsv4 "$d" || true) | awk '{print $1}' | sort -u | tr '\n' ' ')
+  WHY=""
   if [ -n "$dns" ] && reaches "$d"; then
     DOMAINS="$DOMAINS -d $d"; echo "ok   $d (→ $dns)"
   else
-    echo "skip $d (→ ${dns:-no DNS record}): the check does not reach this server"
+    echo "skip $d (→ ${dns:-no DNS record}): the check does not reach this server${WHY:+ — $WHY}"
   fi
 done
 case "$DOMAINS " in *"-d airl.kz "*) ;; *) echo "The check for airl.kz does not reach this server — nothing issued."; exit 1;; esac
