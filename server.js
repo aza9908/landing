@@ -4,6 +4,12 @@
 // Данные хаба в этом репозитории не хранятся: они лежат на сервере и
 // отдаются только после ввода логина и пароля (проверяет сам сервер).
 // Форма входа — hub-login.html.
+// Исходящие запросы сайта (Telegram, Anthropic, хаб, LMS). По умолчанию Node
+// перебирает адреса хоста (IPv6 и IPv4) и даёт каждому всего 250 мс на соединение.
+// С сервера в Казахстане IPv4 до зарубежных API иногда не укладывается, а IPv6 там
+// нет — запрос падал с ETIMEDOUT. Берём IPv4 первым и даём на соединение 5 секунд.
+require('dns').setDefaultResultOrder('ipv4first');
+require('net').setDefaultAutoSelectFamilyAttemptTimeout(5000);
 const http = require('http');
 const https = require('https');
 const { promisify } = require('util');
