@@ -33,9 +33,11 @@ if ! python3 -c "import ctypes.util,sys; sys.exit(0 if ctypes.util.find_library(
 fi
 mkdir -p "$APP/pdf"
 for f in airl-logo.png NunitoSans-400.ttf NunitoSans-600.ttf NunitoSans-700.ttf NunitoSans-800.ttf; do
-  curl -fsSL "$RAW/pdf/$f" -o "$APP/pdf/$f"
+  curl -fsSL "$RAW/pdf/$f" -o "$APP/pdf/$f" || echo "!! Не скачался файл оформления PDF: $f"
 done
-"$APP/venv/bin/pip" install -q --upgrade anthropic pypdf weasyprint && echo "Библиотека Claude установлена" || echo "!! Не удалось установить библиотеку anthropic — таргетолог не запустится"
+"$APP/venv/bin/pip" install -q --upgrade anthropic && echo "Библиотека Claude установлена" || echo "!! Не удалось установить библиотеку anthropic — агенты не запустятся"
+"$APP/venv/bin/pip" install -q --upgrade pypdf || echo "!! Не установилась библиотека pypdf — агент КП не прочитает PDF"
+"$APP/venv/bin/pip" install -q --upgrade weasyprint || echo "!! Не установилась библиотека weasyprint — диагностика не соберёт PDF"
 grep -qE '^TARGETOLOG_MODE=' "$ENVF" || echo "TARGETOLOG_MODE=advise" >> "$ENVF"
 cat > /etc/systemd/system/airl-hub-targetolog.service <<UNIT
 [Unit]
@@ -182,6 +184,9 @@ if systemctl start airl-1c-hub-sync; then
   journalctl -u airl-1c-hub-sync -n 8 --no-pager -o cat | tail -6
   grep -q "client_max_body_size 16m" /etc/nginx/snippets/airl-1c-hub.conf && echo "Агент КП: приём файлов до 10 МБ включён" || echo "!! Агент КП: настройка nginx не обновилась"
   systemctl is-active --quiet airl-hub-agents-api.service && echo "Служба агентов работает" || echo "!! Служба агентов не работает"
+  # самопроверка новой версии: спрашиваем службу напрямую, как это делает nginx
+  code=$(curl -s -o /dev/null -w '%{http_code}' --unix-socket /run/airl-hub/agents.sock -H 'X-Hub-User: self-check' http://localhost/diag || true)
+  [ "$code" = 200 ] && echo "Диагностика: служба отвечает" || { echo "!! Диагностика не отвечает (код $code). Журнал службы:"; journalctl -u airl-hub-agents-api -n 12 --no-pager -o cat; }
   "$APP/venv/bin/python" -c "import weasyprint" 2>/dev/null && echo "Отчёты в PDF: готово" || echo "!! Отчёты в PDF: библиотека не установилась, диагностика не сможет собрать файл"
   echo "Готово: https://airl.kz/airl-hub/"
 else
