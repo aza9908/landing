@@ -36,6 +36,7 @@ for d in airl.kz www.airl.kz online.airl.kz; do
   fi
 done
 case "$DOMAINS " in *"-d airl.kz "*) ;; *) echo "The check for airl.kz does not reach this server — nothing issued."; exit 1;; esac
+echo "certificate will cover:$(echo "$DOMAINS" | sed 's/ -d / /g')"
 
 command -v certbot >/dev/null || { apt-get update -qq && apt-get install -y -qq certbot >/dev/null; }
 certbot certonly --webroot -w "$WEBROOT" $DOMAINS --non-interactive --agree-tos \

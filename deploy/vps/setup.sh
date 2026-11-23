@@ -96,7 +96,8 @@ CERT=/etc/letsencrypt/live/airl.kz/fullchain.pem
     echo '    location / { return 301 https://airl.kz$request_uri; }'
     echo "}"
     echo "server {"
-    echo "    listen 443 ssl http2; listen [::]:443 ssl http2;"
+    # [::]:443 без http2 — как у остальных сайтов сервера: опции сокета общие на всех.
+    echo "    listen 443 ssl http2; listen [::]:443 ssl;"
     echo "    server_name $NAMES;"
     echo "    client_max_body_size 25m;"
     echo "    ssl_certificate $CERT;"
@@ -150,7 +151,28 @@ Persistent=true
 [Install]
 WantedBy=timers.target
 UNIT
+# Сертификат сам расширяется на поддомены (www, online), когда их DNS начинает
+# указывать на этот сервер: проверка раз в 10 минут, выпуск не чаще раза в час.
+install -m 755 "$APP_DIR/deploy/vps/cert-watch.sh" /usr/local/bin/airl-landing-cert-watch
+install -m 755 "$APP_DIR/deploy/vps/enable-https.sh" /usr/local/bin/airl-landing-enable-https
+cat > /etc/systemd/system/airl-landing-cert.service <<UNIT
+[Unit]
+Description=Add airl.kz subdomains to the certificate once their DNS points here
+After=network-online.target
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/airl-landing-cert-watch
+UNIT
+cat > /etc/systemd/system/airl-landing-cert.timer <<UNIT
+[Unit]
+Description=Watch DNS of airl.kz subdomains for the certificate
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=10min
+[Install]
+WantedBy=timers.target
+UNIT
 systemctl daemon-reload
-systemctl enable --now airl-landing-update.timer airl-landing-backup.timer >/dev/null 2>&1
+systemctl enable --now airl-landing-update.timer airl-landing-backup.timer airl-landing-cert.timer >/dev/null 2>&1
 say "auto-deploy timer: $(systemctl is-active airl-landing-update.timer) · backup timer: $(systemctl is-active airl-landing-backup.timer)"
 say "API: $(curl -s --max-time 10 "http://127.0.0.1:$PORT/api/health")"
