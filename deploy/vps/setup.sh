@@ -50,7 +50,8 @@ if docker inspect "$NAME" >/dev/null 2>&1; then docker rm -f "$NAME" >/dev/null;
 say "start container $NAME on 127.0.0.1:$PORT"
 docker run -d --name "$NAME" --restart unless-stopped \
   -p "127.0.0.1:$PORT:8080" -e NODE_ENV=production -e PORT=8080 \
-  -e AIRL_DATA_DIR=/data -e NODE_OPTIONS=--disable-warning=ExperimentalWarning \
+  -e AIRL_DATA_DIR=/data \
+  -e "NODE_OPTIONS=--disable-warning=ExperimentalWarning --dns-result-order=ipv4first --network-family-autoselection-attempt-timeout=5000" \
   --env-file "$ENV_FILE" \
   -v "$APP_DIR":/app:ro -v "$DATA_DIR":/data -w /app \
   --user 1000:1000 --cap-drop ALL --security-opt no-new-privileges \
