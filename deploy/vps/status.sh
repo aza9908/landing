@@ -17,17 +17,24 @@ echo "== old Firebase backend, seen from here (401 = deployed and asking for the
 for f in leadStats group interview; do
   printf '  %-10s %s\n' "$f" "$(curl -s -o /dev/null --max-time 15 -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d '{}' "https://europe-west1-landing-page-8e314.cloudfunctions.net/$f")"
 done
-echo "== HTTP checks through local nginx (Host: airl.kz):"
-for p in / /kk/ /en/ /diagnostics /ai-for-work/ /airl-hub/ /lms/ru /stats.html /event-master-coffee.jpg; do
-  printf '  %-26s %s\n' "$p" "$(curl -s -o /dev/null -w '%{http_code} %{size_download}B' -H 'Host: airl.kz' "http://127.0.0.1$p")"
-done
+# Запросы идут в nginx этого сервера, минуя DNS: так видно, что сервер отдаст
+# посетителям, даже пока домен ещё указывает на прежний хостинг.
 if [ -f /etc/letsencrypt/live/airl.kz/fullchain.pem ]; then
-  printf '  %-26s %s\n' "https /" "$(curl -s -o /dev/null -w '%{http_code}' --resolve airl.kz:443:127.0.0.1 https://airl.kz/)"
+  BASE="https://airl.kz"; VIA="--resolve airl.kz:443:127.0.0.1"
+  echo "== pages served by this server over HTTPS (certificate verified by curl):"
+else
+  BASE="http://airl.kz"; VIA="--resolve airl.kz:80:127.0.0.1"
+  echo "== pages served by this server over HTTP (no certificate yet):"
 fi
-echo "== own API (through nginx):"
-for p in /api/health /api/groups-public/ZZZZ9999 /api/leadStats; do
-  printf '  %-28s %s\n' "$p" "$(curl -s --max-time 25 -w ' [%{http_code}]' -H 'Host: airl.kz' "http://127.0.0.1$p" | cut -c1-120)"
+for p in / /kk/ /en/ /diagnostics /ai-for-work/ /airl-hub/ /lms/ru /stats /admin /event-master-coffee.jpg; do
+  printf '  %-26s %s\n' "$p" "$(curl -s $VIA -o /dev/null --max-time 25 -w '%{http_code} %{size_download}B' "$BASE$p")"
 done
+printf '  %-26s %s\n' "http → https redirect" "$(curl -s --resolve airl.kz:80:127.0.0.1 -o /dev/null -w '%{http_code} %{redirect_url}' http://airl.kz/kk/)"
+echo "== own API:"
+for p in /api/health /api/groups-public/ZZZZ9999 /api/leadStats; do
+  printf '  %-28s %s\n' "$p" "$(curl -s $VIA --max-time 25 -w ' [%{http_code}]' "$BASE$p" | cut -c1-120)"
+done
+echo "== timers: deploy $(systemctl is-active airl-landing-update.timer) · backup $(systemctl is-active airl-landing-backup.timer) · cert-watch $(systemctl is-active airl-landing-cert.timer 2>/dev/null) · certbot renew $(systemctl is-active certbot.timer 2>/dev/null)"
 echo "== keys configured (names only): $(grep -oE '^[A-Z_]+=' /etc/airl-landing.env 2>/dev/null | tr -d '=' | tr '\n' ' ')"
 echo "== data in /var/lib/airl-landing:"
 docker exec airl-landing node -e "
