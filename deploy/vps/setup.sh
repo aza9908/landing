@@ -40,17 +40,10 @@ if [ ! -f "$ENV_FILE" ]; then
   echo "# airl.kz landing: keys for the API (api/). One NAME=value per line, no quotes." > "$ENV_FILE"
 fi
 chmod 600 "$ENV_FILE"
-# Ключ Anthropic для ИИ-агентов панели: если своего ещё нет, берём тот, что уже
-# лежит на этом сервере у AIRL Hub. Значение нигде не печатается.
-if ! grep -qE '^ANTHROPIC_API_KEY=.{20,}' "$ENV_FILE"; then
-  if grep -qsE '^ANTHROPIC_API_KEY=.{20,}' /opt/hub-airl/.env; then
-    grep -E '^ANTHROPIC_API_KEY=' /opt/hub-airl/.env | head -1 \
-      | sed -E "s/^(ANTHROPIC_API_KEY=)[\"']?([^\"']*)[\"']?\$/\\1\\2/" >> "$ENV_FILE"
-    echo "anthropic key: taken from AIRL Hub config on this server"
-  else
-    echo "anthropic key: NOT SET — add ANTHROPIC_API_KEY=... to $ENV_FILE and re-run setup"
-  fi
-fi
+# Ключ Anthropic для ИИ-агентов панели скрипт сам ниоткуда не берёт: его добавляет
+# владелец строкой ANTHROPIC_API_KEY=... в этот файл. Без ключа работает всё,
+# кроме агентов «Портрет боли», «Урок 1» и чат-анкеты.
+grep -qE '^ANTHROPIC_API_KEY=.{20,}' "$ENV_FILE" || echo "anthropic key: not set yet (AI agents of the panel are off until it is added to $ENV_FILE)"
 echo "env file holds: $(grep -oE '^[A-Z_]+=' "$ENV_FILE" | tr -d '=' | tr '\n' ' ')"
 
 if docker inspect "$NAME" >/dev/null 2>&1; then docker rm -f "$NAME" >/dev/null; fi

@@ -19,7 +19,8 @@
 
 * `/var/lib/airl-landing/airl.sqlite` — база; `files/` — Excel и презентации агентов;
   `backups/` — ночные копии базы (таймер `airl-landing-backup`, последние 14).
-* `/etc/airl-landing.env` — ключи (`ANTHROPIC_API_KEY`), доступен только root.
+* `/etc/airl-landing.env` — ключи, доступен только root. `ANTHROPIC_API_KEY=...` добавляет владелец
+  (нужен ИИ-агентам панели), затем `setup` ещё раз.
 * Пароль панели (`/admin.html`, `/stats.html`) хранится в базе в виде хэша. При первом
   входе он сверяется со старой функцией в Firebase, поэтому остаётся прежним; тогда же
   переносится история заявок. Задать пароль явно: `AIRL_ADMIN_TOKEN=...` в env-файле.

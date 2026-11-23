@@ -17,8 +17,6 @@ echo "== old Firebase backend, seen from here (401 = deployed and asking for the
 for f in leadStats group interview; do
   printf '  %-10s %s\n' "$f" "$(curl -s -o /dev/null --max-time 15 -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d '{}' "https://europe-west1-landing-page-8e314.cloudfunctions.net/$f")"
 done
-echo "== env files on this server that already hold an Anthropic key (paths only):"
-grep -lsE '^ANTHROPIC_API_KEY=.{20,}' /root/*/.env* /opt/*/.env* /srv/*/.env* /home/*/*/.env* /etc/*.env 2>/dev/null | sed 's/^/  /' || true
 echo "== HTTP checks through local nginx (Host: airl.kz):"
 for p in / /kk/ /en/ /diagnostics /ai-for-work/ /airl-hub/ /lms/ru /stats.html /event-master-coffee.jpg; do
   printf '  %-26s %s\n' "$p" "$(curl -s -o /dev/null -w '%{http_code} %{size_download}B' -H 'Host: airl.kz' "http://127.0.0.1$p")"
