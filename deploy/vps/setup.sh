@@ -93,7 +93,8 @@ CERT=/etc/letsencrypt/live/airl.kz/fullchain.pem
   echo "    client_max_body_size 25m;"
   if [ -f "$CERT" ]; then
     echo '    location /.well-known/acme-challenge/ { root '"$WEBROOT"'; }'
-    echo '    location / { return 301 https://airl.kz$request_uri; }'
+    # $host, а не airl.kz: http://online.airl.kz должен попасть на https://online.airl.kz
+    echo '    location / { return 301 https://$host$request_uri; }'
     echo "}"
     echo "server {"
     # [::]:443 без http2 — как у остальных сайтов сервера: опции сокета общие на всех.

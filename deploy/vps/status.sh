@@ -21,13 +21,12 @@ for n in $(ns airl.kz); do
     "$(dig +short +time=4 +tries=1 @"$n" www.airl.kz A 2>/dev/null | tr '\n' ' ')" \
     "$(dig +short +time=4 +tries=1 @"$n" online.airl.kz A 2>/dev/null | tr '\n' ' ')"
 done
-echo "== nginx sites that name airl.kz hosts:"
-grep -rnE 'server_name' /etc/nginx/sites-enabled/ /etc/nginx/conf.d/ 2>/dev/null | grep -E 'airl\.kz' | sed -E 's/[[:space:]]+/ /g' | sed 's/^/  /'
-nginx -t 2>&1 | grep -i 'conflicting' | sed 's/^/  /'
+echo "== each name as a visitor gets it (certificate verified strictly, no -k):"
 for h in airl.kz www.airl.kz online.airl.kz; do
-  printf '  port 80, Host %-16s → %s\n' "$h" "$(curl -s -o /dev/null --max-time 10 -w '%{http_code} %{redirect_url}' -H "Host: $h" http://127.0.0.1/)"
-  printf '  port 443, SNI %-16s → %s\n' "$h" "$(curl -sk --max-time 10 --resolve "$h:443:127.0.0.1" "https://$h/" | grep -o '<title>[^<]*' | head -1 | cut -c1-90)"
+  printf '  http://%-16s → %s\n' "$h" "$(curl -s -o /dev/null --max-time 10 -w '%{http_code} %{redirect_url}' --resolve "$h:80:127.0.0.1" "http://$h/")"
+  printf '  https://%-15s → %s\n' "$h" "$(curl -sS --max-time 10 --resolve "$h:443:127.0.0.1" -o /tmp/.airl-page -w '%{http_code} %{redirect_url}' "https://$h/" 2>&1 | tail -1) $(grep -o '<title>[^<]*' /tmp/.airl-page 2>/dev/null | head -1 | cut -c8-70)"
 done
+rm -f /tmp/.airl-page
 echo "== old Firebase backend, seen from here (401 = deployed and asking for the password):"
 for f in leadStats group interview; do
   printf '  %-10s %s\n' "$f" "$(curl -s -o /dev/null --max-time 15 -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d '{}' "https://europe-west1-landing-page-8e314.cloudfunctions.net/$f")"
@@ -50,6 +49,14 @@ for p in /api/health /api/groups-public/ZZZZ9999 /api/leadStats; do
   printf '  %-28s %s\n' "$p" "$(curl -s $VIA --max-time 25 -w ' [%{http_code}]' "$BASE$p" | cut -c1-120)"
 done
 echo "== timers: deploy $(systemctl is-active airl-landing-update.timer) · backup $(systemctl is-active airl-landing-backup.timer) · cert-watch $(systemctl is-active airl-landing-cert.timer 2>/dev/null) · certbot renew $(systemctl is-active certbot.timer 2>/dev/null)"
+printf '  %-28s %s\n' "POST /api/leads {} (no lead)" "$(curl -s $VIA --max-time 25 -w ' [%{http_code}]' -X POST -H 'Content-Type: application/json' -d '{}' "$BASE/api/leads" | cut -c1-120)"
+echo "== production path checks (nothing is sent or created):"
+docker exec airl-landing node -e "
+const s=require('/app/api/store').open(process.env.AIRL_DATA_DIR);
+s.doc('config/selftest').set({at:new Date().toISOString()}).then(()=>console.log('  database: writable by the site')).catch(e=>console.log('  database: NOT writable: '+e.message))
+ .then(()=>fetch('https://api.telegram.org/',{signal:AbortSignal.timeout(10000)})).then(r=>console.log('  telegram: reachable from the site (HTTP '+r.status+')')).catch(e=>console.log('  telegram: NOT reachable from the site: '+e.message))" 2>&1 | grep -v Warning
+echo "  site log, last errors: $(docker logs --since 24h airl-landing 2>&1 | grep -ci 'error\|failed') line(s) in 24h"
+docker logs --since 24h airl-landing 2>&1 | grep -i 'error\|failed' | tail -3 | cut -c1-160 | sed 's/^/    /'
 echo "== keys configured (names only): $(grep -oE '^[A-Z_]+=' /etc/airl-landing.env 2>/dev/null | tr -d '=' | tr '\n' ' ')"
 echo "== data in /var/lib/airl-landing:"
 docker exec airl-landing node -e "
