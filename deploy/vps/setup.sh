@@ -84,6 +84,58 @@ PROXY='
         proxy_read_timeout 600s;
         proxy_send_timeout 600s;
     }'
+# LMS (репозиторий aza9908/CRM-vibecoding) работает на этом же сервере: страницы —
+# контейнер lms-web-1 (127.0.0.1:3001, путь /lms), API и сокеты — lms-api-1
+# (127.0.0.1:3002), файлы уроков — MinIO (127.0.0.1:9000, бакет lms-storage).
+# Отдаём их под airl.kz напрямую, чтобы LMS не зависела от адресов
+# lms.magauin.kz и lms-api.magauin.kz:
+#   https://airl.kz/lms/…          страницы
+#   https://airl.kz/lms-api/…      API (префикс срезается: API видит те же пути, что и раньше)
+#   https://airl.kz/lms-storage/…  файлы; путь без изменений — он входит в подпись ссылок MinIO
+# Лимиты запросов те же, что у прежнего адреса API (зоны из conf.d/lms-hardening.conf).
+LMS=""
+if docker inspect lms-web-1 >/dev/null 2>&1 && docker inspect lms-api-1 >/dev/null 2>&1; then
+  LIMITS=""
+  if grep -qs 'zone=lms_api_req' /etc/nginx/conf.d/lms-hardening.conf; then
+    LIMITS='
+        limit_req zone=lms_api_req burst=1500 nodelay;
+        limit_conn lms_api_conn 600;'
+  fi
+  LMS='
+    location ^~ /lms {
+        proxy_pass http://127.0.0.1:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade_airl;
+        proxy_buffering off;
+    }
+    location ^~ /lms-api/ {'"$LIMITS"'
+        proxy_pass http://127.0.0.1:3002/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade_airl;
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+    }
+    location ^~ /lms-storage/ {'"$LIMITS"'
+        proxy_pass http://127.0.0.1:9000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        client_max_body_size 60m;
+    }'
+  echo "LMS found on this server: /lms, /lms-api/ and /lms-storage/ are served under airl.kz"
+fi
 CERT=/etc/letsencrypt/live/airl.kz/fullchain.pem
 {
   echo "# Managed by landing/deploy/vps/setup.sh — edits are overwritten."
@@ -107,13 +159,20 @@ CERT=/etc/letsencrypt/live/airl.kz/fullchain.pem
     [ -f /etc/letsencrypt/options-ssl-nginx.conf ] && echo "    include /etc/letsencrypt/options-ssl-nginx.conf;"
     echo '    if ($host = www.airl.kz) { return 301 https://airl.kz$request_uri; }'
   fi
+  echo "$LMS"
   echo "$PROXY"
   echo "}"
 } > "$SITE.new"
+[ -f "$SITE" ] && cp "$SITE" "$SITE.prev"
 mv "$SITE.new" "$SITE"
 ln -sf "$SITE" /etc/nginx/sites-enabled/airl.kz
 say "nginx -t"
-if ! nginx -t 2>&1; then rm -f /etc/nginx/sites-enabled/airl.kz; echo "nginx config invalid — site disabled, nothing reloaded"; exit 1; fi
+if ! nginx -t 2>&1; then
+  # Рабочий сайт не трогаем: возвращаем прежний конфиг (или убираем новый, если прежнего не было).
+  if [ -f "$SITE.prev" ]; then cp "$SITE.prev" "$SITE"; echo "nginx config invalid — previous config restored, nothing reloaded"
+  else rm -f /etc/nginx/sites-enabled/airl.kz; echo "nginx config invalid — site not enabled, nothing reloaded"; fi
+  exit 1
+fi
 systemctl reload nginx
 echo "nginx site: $NAMES $( [ -f "$CERT" ] && echo '(HTTPS)' || echo '(HTTP only until enable-https.sh)')"
 

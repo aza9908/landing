@@ -5,6 +5,7 @@
   Без пароля:
     POST /api/leads                  заявка с формы → код группы → Telegram
     POST /api/express-diagnostics    результат экспресс-диагностики
+    POST /api/online-registrations   регистрация на онлайн-урок (копия уходит в Google-таблицу)
     GET  /api/groups-public/{code}   есть ли такой код и активен ли он
     POST /api/interview              чат-агент диагностики (с лимитами)
     GET  /api/files/{key}/{name}     файл агента по ссылке со сроком действия
@@ -12,7 +13,7 @@
 
   С паролем панели (заголовки x-airl-login, x-airl-token) — те же имена,
   что были у Cloud Functions, поэтому admin.html и stats.html меняют только адрес:
-    GET  /api/leadStats   GET|POST /api/group
+    GET  /api/leadStats   GET|POST /api/group   GET /api/onlineRegistrations[?format=csv]
     POST /api/diagnostics   POST /api/lesson1   POST /api/closeGroup
 
   Данные лежат в папке AIRL_DATA_DIR (SQLite + файлы). Если переменная не
@@ -25,8 +26,8 @@ const DATA_DIR = process.env.AIRL_DATA_DIR || '';
 const ORIGIN = (process.env.AIRL_PUBLIC_ORIGIN || 'https://airl.kz').replace(/\/+$/, '');
 const ADMIN_LOGIN = 'admin';
 
-const ROUTE_RE = new RegExp('^/api/(health|leads|express-diagnostics|groups-public/[^/]+|interview|' +
-  'leadStats|group|diagnostics|lesson1|closeGroup|files/[^/]+/[^/]+)$');
+const ROUTE_RE = new RegExp('^/api/(health|leads|express-diagnostics|online-registrations|groups-public/[^/]+|' +
+  'interview|leadStats|onlineRegistrations|group|diagnostics|lesson1|closeGroup|files/[^/]+/[^/]+)$');
 
 class HttpError extends Error {
   constructor(status, message) { super(message); this.status = status; }
@@ -118,6 +119,7 @@ function init() {
   };
   files.sweep().catch((e) => console.error('files sweep:', e.message));
   setInterval(() => files.sweep().catch(() => {}), DAY).unref();
+  setInterval(() => retryOnlineForwards().catch((e) => console.error('online forward:', e.message)), 60000).unref();
   return ctx;
 }
 
@@ -234,6 +236,152 @@ async function createDiagnostics(req, res) {
   const { store } = init();
   const ref = await store.collection('express_diagnostics').add(compact(doc));
   send(res, 200, { ok: true, id: ref.id });
+}
+
+/* --- регистрация на онлайн-урок -----------------------------------------
+   Страница online.airl.kz раньше отправляла регистрацию из браузера прямо в
+   Google Apps Script. Теперь её принимает и хранит этот сервер, а в Google
+   уходит копия: скрипт по-прежнему пишет строку в таблицу и создаёт сделку
+   в Битриксе (воронка «Вебинар»). Если Google недоступен, регистрация всё
+   равно сохранена, а копия досылается позже. Отключить копию:
+   AIRL_ONLINE_FORWARD_URL=off в /etc/airl-landing.env. */
+const ONLINE_FORWARD_URL = (() => {
+  const v = process.env.AIRL_ONLINE_FORWARD_URL;
+  if (v === undefined || v === '') {
+    return 'https://script.google.com/macros/s/AKfycbwUzcJovHizktKKgPKnBjWKrOtmVdOreT6N9-hL-wqGW1OuubTy9y-WUA1tgq2kXAzqZA/exec';
+  }
+  return /^https:\/\//.test(v) ? v : '';
+})();
+const ONLINE_UTM = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+const ONLINE_KEYS = ['name', 'phone', 'page', 'website'].concat(ONLINE_UTM);
+const ONLINE_MAX_ATTEMPTS = 30;
+
+/* Телефон к виду 7XXXXXXXXXX — так же, как это делает страница. */
+function phoneDigits(v) {
+  let d = String(v || '').replace(/\D/g, '');
+  if (d[0] === '8') d = '7' + d.slice(1);
+  if (d && d[0] !== '7') d = '7' + d;
+  return d.slice(0, 11);
+}
+
+async function createOnlineRegistration(req, res) {
+  limit(req, 'online', 30, 5000);
+  const b = await readJson(req, 8 * 1024);
+  onlyKeys(b, ONLINE_KEYS);
+  // Скрытое поле заполняют только боты: отвечаем «принято» и ничего не сохраняем.
+  if (text(b, 'website', 200)) return send(res, 200, { ok: true });
+  const name = text(b, 'name', 120, 2);
+  const phone = text(b, 'phone', 40, 1);
+  const digits = phoneDigits(phone);
+  if (digits.length !== 11) throw new HttpError(400, 'Проверьте номер телефона.');
+
+  const { store } = init();
+  const now = new Date();
+  // Повтор того же номера в течение двух минут — не новая регистрация.
+  const same = await store.collection('online_registrations')
+    .where('phone_digits', '==', digits).orderBy('created_at', 'desc').limit(1).get();
+  if (!same.empty && now - new Date(same.docs[0].data().created_at) < 120000) {
+    return send(res, 200, { ok: true, id: same.docs[0].id });
+  }
+  const reg = compact({
+    form: 'online',
+    name,
+    phone,
+    phone_digits: digits,
+    page: text(b, 'page', 300),
+    ...Object.fromEntries(ONLINE_UTM.map((k) => [k, text(b, k, 200)])),
+    created_at: now.toISOString(),
+    forward_status: ONLINE_FORWARD_URL ? 'pending' : 'off',
+    forward_attempts: 0
+  });
+  const ref = await store.collection('online_registrations').add(reg);
+  send(res, 200, { ok: true, id: ref.id });
+  forwardOnline(ref).catch((e) => console.error('online forward:', e.message));
+}
+
+/* Копия в Google Apps Script: то же тело формы, что раньше слал браузер.
+   Скрипт отвечает на успешный POST переадресацией, поэтому 2xx и 3xx — успех. */
+const forwarding = new Set();
+async function forwardOnline(ref) {
+  if (!ONLINE_FORWARD_URL || forwarding.has(ref.id)) return;
+  forwarding.add(ref.id);
+  try {
+    const snap = await ref.get();
+    if (!snap.exists || snap.data().forward_status !== 'pending') return;
+    const r = snap.data();
+    const body = new URLSearchParams({ form: 'online', name: r.name, phone: r.phone, page: r.page || '', website: '' });
+    ONLINE_UTM.forEach((k) => { if (r[k]) body.set(k, r[k]); });
+    const attempts = (r.forward_attempts || 0) + 1;
+    let error = '';
+    try {
+      const resp = await fetch(ONLINE_FORWARD_URL, { method: 'POST', body, redirect: 'manual',
+        signal: AbortSignal.timeout(30000) });
+      if (resp.status < 200 || resp.status >= 400) error = `HTTP ${resp.status}`;
+    } catch (e) {
+      error = (e.cause && e.cause.code) || e.message || 'failed';
+    }
+    const tried = new Date();
+    if (!error) {
+      await ref.update({ forward_status: 'ok', forward_attempts: attempts, forwarded_at: tried.toISOString(), forward_error: '' });
+    } else {
+      // Пауза растёт: 1, 2, 4… минут, но не больше часа; после 30 попыток сдаёмся.
+      const waitMin = Math.min(60, Math.pow(2, attempts - 1));
+      await ref.update({
+        forward_status: attempts >= ONLINE_MAX_ATTEMPTS ? 'failed' : 'pending',
+        forward_attempts: attempts,
+        forward_error: String(error).slice(0, 200),
+        forward_next_try: new Date(tried.getTime() + waitMin * 60000).toISOString()
+      });
+    }
+  } finally {
+    forwarding.delete(ref.id);
+  }
+}
+
+async function retryOnlineForwards() {
+  if (!ONLINE_FORWARD_URL) return;
+  const { store } = init();
+  const now = new Date().toISOString();
+  const due = await store.collection('online_registrations').where('forward_status', '==', 'pending').get();
+  for (const d of due.docs) {
+    const next = d.data().forward_next_try;
+    if (!next || next <= now) await forwardOnline(d.ref);
+  }
+}
+
+const ONLINE_FIELDS = ['created_at', 'name', 'phone', 'page'].concat(ONLINE_UTM, ['forward_status']);
+
+function csvCell(v) {
+  let t = v === undefined || v === null ? '' : String(v);
+  // Чтобы Excel не принял текст за формулу; номер телефона (+7 701 …) формулой не станет.
+  if (/^[=+\-@]/.test(t) && !/^\+[\d ()-]+$/.test(t)) t = "'" + t;
+  return '"' + t.replace(/"/g, '""') + '"';
+}
+
+async function onlineRegistrations(req, res, query) {
+  await guard(req);
+  const { store } = init();
+  const all = await store.collection('online_registrations').orderBy('created_at', 'desc').limit(20000).get();
+  const rows = all.docs.map((d) => pickFields(d, ONLINE_FIELDS));
+  if (query.get('format') === 'csv') {
+    const head = ['Дата', 'Имя', 'Телефон', 'Страница'].concat(ONLINE_UTM, ['Копия в Google-таблицу']);
+    const lines = [head.map(csvCell).join(';')].concat(rows.map((r) => ONLINE_FIELDS.map((f) => csvCell(r[f])).join(';')));
+    const body = Buffer.from('\ufeff' + lines.join('\r\n') + '\r\n', 'utf8');
+    res.writeHead(200, {
+      'Content-Type': 'text/csv; charset=utf-8',
+      'Content-Length': body.length,
+      'Content-Disposition': 'attachment; filename="online-registrations.csv"',
+      'Cache-Control': 'no-store'
+    });
+    return res.end(body);
+  }
+  send(res, 200, {
+    generated_at: new Date().toISOString(),
+    forward: ONLINE_FORWARD_URL ? 'google-sheet' : 'off',
+    total: rows.length,
+    not_forwarded: rows.filter((r) => r.forward_status === 'pending' || r.forward_status === 'failed').length,
+    registrations: rows
+  });
 }
 
 /* --- витрина кода группы ----------------------------------------------- */
@@ -476,6 +624,8 @@ async function route(req, res, pathname) {
   const query = new URLSearchParams((req.url || '').split('?')[1] || '');
   if (name === 'leads') { method(req, 'POST'); return createLead(req, res); }
   if (name === 'express-diagnostics') { method(req, 'POST'); return createDiagnostics(req, res); }
+  if (name === 'online-registrations') { method(req, 'POST'); return createOnlineRegistration(req, res); }
+  if (name === 'onlineRegistrations') { method(req, 'GET'); return onlineRegistrations(req, res, query); }
   if (name.startsWith('groups-public/')) { method(req, 'GET'); return groupPublic(req, res, name.split('/')[1]); }
   if (name === 'interview') { method(req, 'POST'); return interview(req, res); }
   if (name === 'leadStats') { method(req, 'GET'); return leadStats(req, res, query); }

@@ -1,10 +1,13 @@
 // Онлайн-урок (online.airl.kz): форма регистрации, нижняя кнопка на телефоне, тень у шапки.
 // Форма и проверки — как на странице воркшопа, но без поля «Город».
-// Регистрация уходит в Google Apps Script «Заявки с сайта воркшопа» (form=online):
-// он пишет её в таблицу «Онлайн-урок 19 ноября — регистрации» и создаёт сделку
-// в Битриксе, воронка «Вебинар», этап «Регистрации».
+// Регистрацию принимает и хранит свой сервер (POST /api/online-registrations).
+// Он же отправляет копию в Google Apps Script «Заявки с сайта воркшопа» (form=online):
+// тот пишет её в таблицу «Онлайн-урок — регистрации» и создаёт сделку в Битриксе,
+// воронка «Вебинар», этап «Регистрации». Если свой сервер не ответил, страница
+// отправляет регистрацию в Google сама, как раньше, — заявка не теряется.
 // После регистрации — страница «Спасибо», оттуда переход в сообщество WhatsApp.
 (function () {
+  var OWN = '/api/online-registrations';
   var ENDPOINT = 'https://script.google.com/macros/s/AKfycbwUzcJovHizktKKgPKnBjWKrOtmVdOreT6N9-hL-wqGW1OuubTy9y-WUA1tgq2kXAzqZA/exec';
   // Страница открыта на online.airl.kz/ или как airl.kz/online/ — «Спасибо» лежит рядом
   var base = location.pathname.indexOf('/online') === 0 ? '/online' : '';
@@ -89,17 +92,15 @@
     });
     if (first) { first.focus(); return; }
     if (submit.disabled) return;
-    var body = new URLSearchParams(Object.assign({
-      form: 'online',
+    var data = Object.assign({
       name: field('name').value.trim(),
       phone: pretty(phone.value),
       page: location.origin + location.pathname,
       website: field('website').value,
-    }, utm));
+    }, utm);
     submit.disabled = true;
     submit.textContent = 'Отправляем…';
-    // Ответ скрипта Google страница прочитать не может (no-cors), поэтому ждём окончания
-    // отправки, но не дольше 4 секунд, и переходим на «Спасибо»
+    // Ждём окончания отправки, но не дольше 4 секунд, и переходим на «Спасибо»
     var done = false;
     var next = function () {
       if (done) return;
@@ -109,7 +110,15 @@
       location.href = base + '/thankpage/';
     };
     setTimeout(next, 4000);
-    fetch(ENDPOINT, { method: 'POST', mode: 'no-cors', body: body, keepalive: true }).then(next, next);
+    // Запасной путь — прямо в Google (его ответ страница прочитать не может: no-cors)
+    var toGoogle = function () {
+      return fetch(ENDPOINT, { method: 'POST', mode: 'no-cors', keepalive: true,
+        body: new URLSearchParams(Object.assign({ form: 'online' }, data)) });
+    };
+    fetch(OWN, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data), keepalive: true })
+      .then(function (r) { if (!r.ok) throw new Error('api ' + r.status); })
+      .catch(toGoogle)
+      .then(next, next);
   });
   // Вернулись кнопкой «Назад» со страницы «Спасибо» — форма снова готова
   addEventListener('pageshow', function () { submit.disabled = false; submit.textContent = 'Зарегистрироваться'; });

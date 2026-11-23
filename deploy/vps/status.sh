@@ -48,6 +48,22 @@ echo "== own API:"
 for p in /api/health /api/groups-public/ZZZZ9999 /api/leadStats; do
   printf '  %-28s %s\n' "$p" "$(curl -s $VIA --max-time 25 -w ' [%{http_code}]' "$BASE$p" | cut -c1-120)"
 done
+if docker inspect lms-api-1 >/dev/null 2>&1; then
+  echo "== LMS under airl.kz (must match the answers under the old names):"
+  OLDWEB="--resolve lms.magauin.kz:443:127.0.0.1"; OLDAPI="--resolve lms-api.magauin.kz:443:127.0.0.1"
+  c() { curl -s -o /dev/null --max-time 25 -w '%{http_code}' "$@"; }
+  printf '  %-34s %s (old name: %s)\n' "/lms/ru/login" "$(c $VIA "$BASE/lms/ru/login")" "$(c $OLDWEB -H 'x-airl-lms-proxy: 1' https://lms.magauin.kz/lms/ru/login)"
+  printf '  %-34s %s (old name: %s)\n' "/lms-api/lessons (no login)" "$(c $VIA "$BASE/lms-api/lessons")" "$(c $OLDAPI https://lms-api.magauin.kz/lessons)"
+  printf '  %-34s %s (old name: %s)\n' "/lms-api/auth/login (wrong pass)" "$(c $VIA -X POST -H 'content-type: application/json' -d '{"email":"nobody@example.com","password":"x"}' "$BASE/lms-api/auth/login")" "$(c $OLDAPI -X POST -H 'content-type: application/json' -d '{"email":"nobody@example.com","password":"x"}' https://lms-api.magauin.kz/auth/login)"
+  printf '  %-34s %s (old name: %s)\n' "/lms-api/socket.io handshake" "$(curl -s $VIA --max-time 25 "$BASE/lms-api/socket.io/?EIO=4&transport=polling" | cut -c1-7)" "$(curl -s $OLDAPI --max-time 25 'https://lms-api.magauin.kz/socket.io/?EIO=4&transport=polling' | cut -c1-7)"
+  KEY=$(docker exec lms-db-1 psql -U lms -d lms -tAc "select substring(image_url from '/lms-storage/.*') from lesson_blocks where image_url like '%/lms-storage/%' limit 1" 2>/dev/null | head -1)
+  if [ -n "$KEY" ]; then
+    printf '  %-34s %s (old name: %s)\n' "/lms-storage/<a lesson picture>" "$(c $VIA "$BASE$KEY")" "$(c $OLDAPI "https://lms-api.magauin.kz$KEY")"
+  fi
+  echo "  LMS built for: $(docker exec lms-web-1 sh -c 'grep -rhoE "https://[a-z0-9.-]+(/lms-api)?/auth/login|https://(lms-api\.magauin\.kz|airl\.kz/lms-api)" /app 2>/dev/null | sort | uniq -c | sort -rn | head -3' | tr -s ' ' | tr '\n' ';')"
+  echo "  pictures in lessons still on the old name: $(docker exec lms-db-1 psql -U lms -d lms -tAc "select count(*) from lesson_blocks where image_url like '%magauin.kz%'" 2>/dev/null) · on airl.kz: $(docker exec lms-db-1 psql -U lms -d lms -tAc "select count(*) from lesson_blocks where image_url like 'https://airl.kz/%'" 2>/dev/null)"
+  echo "  live lessons right now: $(docker exec lms-db-1 psql -U lms -d lms -tAc "select count(*) from live_sessions where status = 'live'" 2>/dev/null)"
+fi
 echo "== timers: deploy $(systemctl is-active airl-landing-update.timer) · backup $(systemctl is-active airl-landing-backup.timer) · cert-watch $(systemctl is-active airl-landing-cert.timer 2>/dev/null) · certbot renew $(systemctl is-active certbot.timer 2>/dev/null)"
 printf '  %-28s %s\n' "POST /api/leads {} (no lead)" "$(curl -s $VIA --max-time 25 -w ' [%{http_code}]' -X POST -H 'Content-Type: application/json' -d '{}' "$BASE/api/leads" | cut -c1-120)"
 echo "== production path checks (nothing is sent or created):"

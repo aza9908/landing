@@ -116,6 +116,13 @@ td a{text-decoration:none}
     </div>
     <div class="msg err" id="loadMsg"></div>
 
+    <section class="card hidden" id="onlineCard">
+      <div class="chart-head"><h2>Регистрации на онлайн-урок</h2><span class="note" id="onlineNote"></span></div>
+      <p style="margin:6px 0 12px"><b id="onlineTotal">—</b> всего · <b id="onlineWeek">—</b> за 7 дней
+        <button class="ghost" id="onlineCsv" style="margin-left:12px">Скачать CSV</button></p>
+      <details><summary>Последние 50</summary><div class="scroll" id="tOnline"></div></details>
+    </section>
+
     <div id="board">
       <div class="kpis">
         <div class="kpi"><div class="l">Заявки с сайта</div><div class="v" id="kLeads">—</div><div class="d" id="dLeads"></div></div>
@@ -202,8 +209,42 @@ function fetchStats(){
       return d;
     }); });
 }
+/* --- регистрации на онлайн-урок: хранит свой сервер (на прежнем хостинге блока нет) --- */
+function onlineHeaders(){ return { "x-airl-login": adminLogin, "x-airl-token": token }; }
+function loadOnline(){
+  return apiReady.then(function(){
+    if (API !== "/api") return;
+    return fetch(API + "/onlineRegistrations", { headers: onlineHeaders() }).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+      if (!d) return;
+      var weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+      $("onlineCard").classList.remove("hidden");
+      $("onlineTotal").textContent = d.total;
+      $("onlineWeek").textContent = d.registrations.filter(function(x){ return x.created_at >= weekAgo; }).length;
+      $("onlineNote").textContent = d.forward === "off" ? "копия в Google-таблицу выключена"
+        : (d.not_forwarded ? "в Google-таблицу ещё не доставлено: " + d.not_forwarded : "копия уходит в Google-таблицу и Битрикс");
+      var esc = function(t){ return String(t == null ? "" : t).replace(/[&<>"]/g, function(c){ return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+      $("tOnline").innerHTML = "<table><thead><tr><th>Дата</th><th>Имя</th><th>Телефон</th><th>Источник</th></tr></thead><tbody>" +
+        d.registrations.slice(0, 50).map(function(x){
+          return "<tr><td>" + esc(new Date(x.created_at).toLocaleString("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })) +
+            "</td><td>" + esc(x.name) + "</td><td>" + esc(x.phone) + "</td><td>" + esc(x.utm_source || "") + "</td></tr>";
+        }).join("") + "</tbody></table>";
+    });
+  }).catch(function(){});
+}
+$("onlineCsv").addEventListener("click", function(){
+  var b = this; b.disabled = true;
+  fetch(API + "/onlineRegistrations?format=csv", { headers: onlineHeaders() })
+    .then(function(r){ if (!r.ok) throw new Error("Ошибка " + r.status); return r.blob(); })
+    .then(function(blob){
+      var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "online-registrations.csv";
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+    }).catch(function(e){ say("loadMsg", "Не удалось скачать: " + e.message); })
+    .then(function(){ b.disabled = false; });
+});
+
 function load(){
   $("board").classList.add("loading"); $("reload").disabled = true; say("loadMsg", "");
+  loadOnline();
   return fetchStats().then(function(d){
     DATA = d; render();
     $("updated").textContent = "Обновлено " + new Date(d.generated_at).toLocaleString("ru-RU", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
@@ -219,7 +260,7 @@ $("login").addEventListener("click", function(){
   fetchStats().then(function(d){
     sessionStorage.setItem("airl_login", adminLogin); sessionStorage.setItem("airl_token", token);
     $("auth").classList.add("hidden"); $("app").classList.remove("hidden");
-    DATA = d; render(); $("updated").textContent = "Обновлено только что";
+    DATA = d; render(); $("updated").textContent = "Обновлено только что"; loadOnline();
   }).catch(function(e){ say("authMsg", e.status === 401 ? "Логин или пароль не подошли" : "Ошибка: " + e.message); })
     .then(function(){ b.disabled = false; b.textContent = "Войти"; });
 });
