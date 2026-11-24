@@ -7,7 +7,8 @@
 #   airl-hub targetolog status|demo|dry|run|auto|advise|off|undo   ИИ-таргетолог
 #   airl-hub agents status|run|pause|resume   ИИ-агенты: состояние / запустить сейчас / остановить и включить автозапуск
 #   airl-hub kp list | allow ЛОГИН | deny ЛОГИН   кто видит агента КП (суперадмин — всегда)
-#   airl-hub user list | add ЛОГИН РОЛЬ | role ЛОГИН РОЛЬ | passwd ЛОГИН | del ЛОГИН
+#   airl-hub user list | add ЛОГИН РОЛЬ | set ЛОГИН РОЛЬ | role ЛОГИН РОЛЬ | passwd ЛОГИН | del ЛОГИН
+#        set — создать, а если логин уже есть, поставить этот пароль и роль
 #        роли: superadmin (разработчик), admin (руководитель), user (сотрудник, без данных 1С)
 set -euo pipefail
 ENVF=/etc/airl-1c-hub/env
@@ -55,69 +56,11 @@ case "${1:-status}" in
       resume) rm -f /etc/airl-1c-hub/agents-paused; systemctl enable --now airl-hub-agents-daily.timer >/dev/null 2>&1; echo "Ежедневный автозапуск агентов включён (08:00 по Астане)." ;;
       *) echo "airl-hub agents status|run|pause|resume" ;;
     esac ;;
-  kp)   # кто может пользоваться агентом КП (суперадмин — всегда)
-    F=/var/lib/airl-1c-hub/agents/kp_access.json
-    install -d -o airl-hub -g airl-hub /var/lib/airl-1c-hub/agents
-    [ -f "$F" ] || echo '[]' > "$F"
-    edit() { python3 - "$F" "$1" "$2" <<'PY'
-import json, sys
-path, op, user = sys.argv[1:4]
-try: users = json.load(open(path))
-except Exception: users = []
-users = [u for u in users if u != user] + ([user] if op == "allow" else [])
-json.dump(sorted(users), open(path, "w"))
-PY
-      chown airl-hub: "$F"; }
-    case "${2:-list}" in
-      allow) u="${3:-}"; grep -qE "^$u:" /etc/airl-1c-hub/htpasswd || { echo "Нет пользователя $u (создать: airl-hub user add $u user)"; exit 1; }
-             edit allow "$u"; echo "$u теперь видит агента КП" ;;
-      deny)  edit deny "${3:-}"; echo "${3:-} больше не видит агента КП" ;;
-      list)  echo "Доступ к агенту КП: суперадмин и $(python3 -c "import json,sys; print(', '.join(json.load(open(sys.argv[1]))) or 'никто больше')" "$F")" ;;
-      *) echo "airl-hub kp list | allow ЛОГИН | deny ЛОГИН" ;;
-    esac ;;
-  user)
-    C=/etc/airl-1c-hub; ROLES=$C/roles; ALL=$C/htpasswd; ADM=$C/htpasswd-admin; PRIV=/opt/airl-1c-hub/web/private
-    touch "$ROLES" "$ALL"
-    role_ok() { case "$1" in superadmin|admin|user) ;; *) echo "Роль должна быть superadmin, admin или user"; exit 1 ;; esac; }
-    name_ok() { echo "$1" | grep -qE '^[a-z0-9][a-z0-9._-]{1,30}$' || { echo "Логин: латинские буквы, цифры, . _ - (от 2 знаков)"; exit 1; }; }
-    has() { grep -qE "^$1:" "$ALL"; }
-    ask_pass() { local a b; read -r -s -p "Пароль для $1: " a; echo >&2; read -r -s -p "Ещё раз: " b; echo >&2
-                 [ -n "$a" ] && [ "$a" = "$b" ] || { echo "Пароли пустые или не совпали" >&2; exit 1; }
-                 printf '%s' "$a"; }
-    pw_ok() { [ ${#1} -ge 8 ] || { echo "Пароль должен быть не короче 8 знаков"; exit 1; }; }
-    rebuild() {   # htpasswd-admin и roles.json собираются из списка ролей
-      local lu lr sep
-      : > "$ADM.tmp"
-      while IFS=: read -r lu lr; do
-        case "$lr" in superadmin|admin) grep -E "^$lu:" "$ALL" >> "$ADM.tmp" || true ;; esac
-      done < "$ROLES"
-      mv "$ADM.tmp" "$ADM"
-      for f in "$ALL" "$ADM"; do chown root:www-data "$f" 2>/dev/null || chown root:nginx "$f" 2>/dev/null || true; chmod 640 "$f"; done
-      chmod 600 "$ROLES"
-      install -d -o airl-hub -g airl-hub -m 755 "$PRIV"
-      { printf '{'; sep=''; while IFS=: read -r lu lr; do printf '%s"%s":"%s"' "$sep" "$lu" "$lr"; sep=','; done < "$ROLES"; printf '}\n'; } > "$PRIV/roles.json"
-      chown airl-hub: "$PRIV/roles.json"
-    }
-    set_role() { sed -i "/^$1:/d" "$ROLES"; echo "$1:$2" >> "$ROLES"; }
-    admins_left() { grep -cE ':(superadmin|admin)$' "$ROLES" || true; }
-    case "${2:-list}" in
-      list) printf '%-20s %s\n' ЛОГИН РОЛЬ; while IFS=: read -r lu _; do printf '%-20s %s\n' "$lu" "$(grep -E "^$lu:" "$ROLES" | cut -d: -f2 || true)"; done < "$ALL" ;;
-      add)  u="${3:-}"; r="${4:-user}"; name_ok "$u"; role_ok "$r"; has "$u" && { echo "Пользователь $u уже есть (смена роли: airl-hub user role $u РОЛЬ)"; exit 1; }
-            pw="${HUB_NEW_PASSWORD:-}"; [ -n "$pw" ] || pw="$(ask_pass "$u")"; pw_ok "$pw"
-            printf '%s:%s\n' "$u" "$(openssl passwd -apr1 "$pw")" >> "$ALL"; set_role "$u" "$r"; rebuild; echo "Добавлен $u с ролью $r" ;;
-      role) u="${3:-}"; r="${4:-}"; role_ok "$r"; has "$u" || { echo "Нет пользователя $u"; exit 1; }
-            old=$(grep -E "^$u:" "$ROLES" | cut -d: -f2 || true); set_role "$u" "$r"
-            [ "$(admins_left)" -ge 1 ] || { set_role "$u" "$old"; echo "Нельзя: не останется ни одного руководителя"; exit 1; }
-            rebuild; echo "$u теперь $r" ;;
-      passwd) u="${3:-}"; has "$u" || { echo "Нет пользователя $u"; exit 1; }
-            pw="${HUB_NEW_PASSWORD:-}"; [ -n "$pw" ] || pw="$(ask_pass "$u")"; pw_ok "$pw"
-            sed -i "/^$u:/d" "$ALL"; printf '%s:%s\n' "$u" "$(openssl passwd -apr1 "$pw")" >> "$ALL"; rebuild; echo "Пароль $u изменён" ;;
-      del)  u="${3:-}"; has "$u" || { echo "Нет пользователя $u"; exit 1; }
-            cp "$ROLES" "$ROLES.bak"; sed -i "/^$u:/d" "$ROLES"
-            [ "$(admins_left)" -ge 1 ] || { mv "$ROLES.bak" "$ROLES"; echo "Нельзя: не останется ни одного руководителя"; exit 1; }
-            rm -f "$ROLES.bak"; sed -i "/^$u:/d" "$ALL"; rebuild; echo "Удалён $u" ;;
-      rebuild) rebuild ;;
-      *) echo "airl-hub user list | add ЛОГИН РОЛЬ | role ЛОГИН РОЛЬ | passwd ЛОГИН | del ЛОГИН" ;;
-    esac ;;
-  *) sed -n '2,11p' "$0" ;;
+  user|kp)   # пользователи, роли и доступ к агенту КП — тот же код, что в разделе «Пользователи» хаба
+    PY=/opt/airl-1c-hub/venv/bin/python; [ -x "$PY" ] || PY=python3
+    [ -f /opt/airl-1c-hub/users.py ] || { echo "Нет /opt/airl-1c-hub/users.py — запустите обновление сервера"; exit 1; }
+    # от имени службы: файлы паролей принадлежат ей, и права на них не сбиваются
+    exec runuser -u airl-hub -- env HUB_NEW_PASSWORD="${HUB_NEW_PASSWORD:-}" HUB_AUTH_DIR=/etc/airl-1c-hub \
+      HUB_WEB_DIR=/opt/airl-1c-hub/web HUB_DATA_DIR=/var/lib/airl-1c-hub "$PY" /opt/airl-1c-hub/users.py "$@" ;;
+  *) sed -n '2,12p' "$0" ;;
 esac

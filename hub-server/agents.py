@@ -20,6 +20,9 @@
 import datetime as dt, glob, gzip, json, os, re, sys, threading, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import users as U   # пользователи и роли: общий код с командой airl-hub user
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.environ.get("HUB_DATA_DIR", os.path.join(HERE, "data"))
 WEB_DIR = os.environ.get("HUB_WEB_DIR", os.path.join(HERE, "web"))
@@ -727,6 +730,13 @@ class Api(BaseHTTPRequestHandler):
         if not user:
             return self.send(401, {})
         path = self.path.split("?")[0]
+        if path.endswith("/users"):                   # список пользователей — только суперадмину
+            if role != "superadmin":
+                return self.send(403, dict(error="Раздел доступен только суперадмину"))
+            try:
+                return self.send(200, dict(users=U.list_users(), me=user))
+            except U.UserError as e:
+                return self.send(500, dict(error=str(e)))
         m = re.search(r"/kp(?:/(\d{8}-\d{6}))?$", path)
         if m:                                         # история разборов КП — по списку доступа
             if not kp_allowed(user, role):
@@ -776,6 +786,34 @@ class Api(BaseHTTPRequestHandler):
             body = json.loads(self.rfile.read(n).decode("utf-8") or "{}")
         except Exception:  # noqa
             return self.send(400, {})
+        if path.endswith("/users") or path.endswith("/password"):
+            try:
+                if path.endswith("/password"):        # любой пользователь меняет свой пароль
+                    U.passwd(user, str(body.get("password") or ""))
+                    U.audit(user, "self-passwd", user)
+                    return self.send(200, dict(ok=True))
+                if role != "superadmin":              # всё остальное — только суперадмин
+                    return self.send(403, dict(error="Раздел доступен только суперадмину"))
+                act, target = body.get("action"), str(body.get("user") or "").strip().lower()
+                if act == "add":
+                    U.add(target, body.get("role") or "user", str(body.get("password") or ""))
+                elif act == "passwd":
+                    U.passwd(target, str(body.get("password") or ""))
+                elif act == "role":
+                    U.set_role(target, body.get("role"))
+                elif act == "del":
+                    U.delete(target)
+                elif act == "kp":
+                    U.set_kp(target, bool(body.get("allow")))
+                else:
+                    raise U.UserError("Неизвестное действие.")
+                U.audit(user, act, target, body.get("role") if act in ("add", "role") else None)
+                return self.send(200, dict(ok=True, users=U.list_users()))
+            except U.UserError as e:
+                return self.send(400, dict(error=str(e)))
+            except Exception as e:  # noqa
+                print("agents: пользователи — ошибка:", e, flush=True)
+                return self.send(500, dict(error="Не удалось сохранить изменения на сервере."))
         if path.endswith("/diag"):                    # экспресс-диагностика: любой пользователь хаба
             with LOCK:
                 seen = read_json(os.path.join(STATE, "diag_rate.json"), {})

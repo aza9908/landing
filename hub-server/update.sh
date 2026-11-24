@@ -15,13 +15,15 @@ curl -fsSL "$RAW/sync.py" -o "$tmp/sync.py"
 curl -fsSL "$RAW/airl-hub" -o "$tmp/airl-hub"
 curl -fsSL "$RAW/targetolog.py" -o "$tmp/targetolog.py"
 curl -fsSL "$RAW/agents.py" -o "$tmp/agents.py"
-python3 -m py_compile "$tmp/sync.py" "$tmp/targetolog.py" "$tmp/agents.py"   # не ставим скрипт, который не запускается
+curl -fsSL "$RAW/users.py" -o "$tmp/users.py"
+python3 -m py_compile "$tmp/sync.py" "$tmp/targetolog.py" "$tmp/agents.py" "$tmp/users.py"   # не ставим скрипт, который не запускается
 bash -n "$tmp/airl-hub"
 cp -a "$APP/sync.py" "$APP/sync.py.bak" 2>/dev/null || true
 install -m 755 "$tmp/sync.py" "$APP/sync.py"
 install -m 755 "$tmp/airl-hub" /usr/local/bin/airl-hub
 install -m 755 "$tmp/targetolog.py" "$APP/targetolog.py"
 install -m 755 "$tmp/agents.py" "$APP/agents.py"
+install -m 755 "$tmp/users.py" "$APP/users.py"
 
 # ИИ-таргетолог: библиотека Claude в отдельном окружении и запуск раз в день
 if [ ! -x "$APP/venv/bin/python" ]; then
@@ -69,8 +71,21 @@ Persistent=true
 WantedBy=timers.target
 UNIT
 
+# Пользователи. Первое включение ролей: прежние логины становятся руководителями, чтобы никто не потерял доступ.
+C=/etc/airl-1c-hub
+if [ ! -f "$C/roles" ]; then
+  cut -d: -f1 "$C/htpasswd" | sed 's/$/:admin/' > "$C/roles"
+fi
+# Файлами паролей теперь владеет служба хаба: так суперадмин может заводить людей прямо в хабе.
+# Группа остаётся прежней (её читает nginx), меняется только владелец.
+[ -f "$C/htpasswd-admin" ] || install -m 640 -o root -g "$(stat -c %G "$C/htpasswd")" /dev/null "$C/htpasswd-admin"
+chown airl-hub "$C/htpasswd" "$C/htpasswd-admin" "$C/roles"
+chmod 640 "$C/htpasswd" "$C/htpasswd-admin"; chmod 600 "$C/roles"
+install -d -o airl-hub -g airl-hub -m 755 "$APP/web/private" /var/lib/airl-1c-hub/agents
+airl-hub user rebuild || echo "!! Не удалось пересобрать список пользователей"
+
 # Команда ИИ-агентов: ежедневная цепочка, почасовые напоминания и постоянно работающий чат
-unit() {   # имя, описание, тип запуска, аргумент agents.py
+unit() {   # имя, описание, тип запуска, аргумент agents.py, дополнительный каталог на запись
   cat > /etc/systemd/system/airl-hub-agents-$1.service <<UNIT
 [Unit]
 Description=AIRL Hub: $2
@@ -86,7 +101,7 @@ NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=true
 PrivateTmp=true
-ReadWritePaths=/var/lib/airl-1c-hub $APP/web
+ReadWritePaths=/var/lib/airl-1c-hub $APP/web ${5:-}
 UNIT
 }
 timer() {  # имя, расписание
@@ -108,7 +123,7 @@ unit tick "ИИ-агенты, напоминания" "Type=oneshot" tick
 unit api "ИИ-агенты, чат хаба" "Restart=always
 RestartSec=5
 RuntimeDirectory=airl-hub
-RuntimeDirectoryMode=0755" serve
+RuntimeDirectoryMode=0755" serve -/etc/airl-1c-hub
 timer daily "*-*-* 08:00:00 Asia/Almaty"
 timer tick "*-*-* *:05:00"
 printf '\n[Install]\nWantedBy=multi-user.target\n' >> /etc/systemd/system/airl-hub-agents-api.service
@@ -128,12 +143,6 @@ if [ -n "${BITRIX_WEBHOOK:-}" ]; then
   echo "BITRIX_WEBHOOK=$BITRIX_WEBHOOK" >> "$ENVF"
   echo "Вебхук Bitrix24 сохранён"
 fi
-# Роли: все прежние пользователи становятся руководителями (admin), чтобы никто не потерял доступ.
-C=/etc/airl-1c-hub
-if [ ! -f "$C/roles" ]; then
-  cut -d: -f1 "$C/htpasswd" | sed 's/$/:admin/' > "$C/roles"
-fi
-airl-hub user rebuild
 # nginx: данные 1С (private/) отдаются только руководителям — по отдельному списку паролей
 SNIP=/etc/nginx/snippets/airl-1c-hub.conf
 cp -a "$SNIP" "$SNIP.bak"
@@ -184,6 +193,7 @@ if systemctl start airl-1c-hub-sync; then
   journalctl -u airl-1c-hub-sync -n 8 --no-pager -o cat | tail -6
   grep -q "client_max_body_size 16m" /etc/nginx/snippets/airl-1c-hub.conf && echo "Агент КП: приём файлов до 10 МБ включён" || echo "!! Агент КП: настройка nginx не обновилась"
   systemctl is-active --quiet airl-hub-agents-api.service && echo "Служба агентов работает" || echo "!! Служба агентов не работает"
+  runuser -u airl-hub -- test -w /etc/airl-1c-hub/htpasswd && echo "Пользователи: управление из хаба включено" || echo "!! Служба не может менять пароли: управление пользователями из хаба не заработает"
   # самопроверка новой версии: спрашиваем службу напрямую, как это делает nginx
   code=$(curl -s -o /dev/null -w '%{http_code}' --unix-socket /run/airl-hub/agents.sock -H 'X-Hub-User: self-check' http://localhost/diag || true)
   [ "$code" = 200 ] && echo "Диагностика: служба отвечает" || { echo "!! Диагностика не отвечает (код $code). Журнал службы:"; journalctl -u airl-hub-agents-api -n 12 --no-pager -o cat; }
