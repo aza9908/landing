@@ -53,8 +53,11 @@ function hubAuth(req) {
   return m ? 'Basic ' + m[1] : null;
 }
 
-function loginPage(res, status, error, extra) {
-  const html = LOGIN_HTML.replace('<!--ERROR-->', error ? `<p class="err" role="alert">${error}</p>` : '');
+function loginPage(res, status, error, extra, user) {
+  // введённый логин возвращаем в поле, чтобы после ошибки не набирать его заново
+  const safe = String(user || '').replace(/[^a-z0-9._-]/g, '').slice(0, 31);
+  const html = LOGIN_HTML.replace('<!--ERROR-->', error ? `<p class="err" role="alert">${error}</p>` : '')
+    .replace('name="username"', `name="username" value="${safe}"`);
   res.writeHead(status, { ...NO_STORE, 'Content-Type': 'text/html; charset=utf-8', ...extra });
   res.end(html);
 }
@@ -109,21 +112,30 @@ function hubLogin(req, res) {
   req.on('data', (c) => { body += c; if (body.length > 4096) req.destroy(); });
   req.on('end', () => {
     const f = new URLSearchParams(body);
-    const user = (f.get('username') || '').trim(), pass = f.get('password') || '';
-    if (!user || !pass || user.includes(':')) return loginPage(res, 401, 'Введите логин и пароль.');
-    const token = Buffer.from(`${user}:${pass}`).toString('base64');
-    upstream('HEAD', UP_PATH, 'Basic ' + token, (err, r) => {
-      if (err) return unavailable(res);
-      r.resume();
-      if (r.statusCode === 200) {
-        res.writeHead(303, { ...NO_STORE, Location: HUB_PATH,
-          'Set-Cookie': `${COOKIE}=${token}; Max-Age=${SESSION_SECONDS}; ${COOKIE_ATTRS}` });
-        return res.end();
-      }
-      if (r.statusCode !== 401) return unavailable(res);
-      // небольшая пауза затрудняет перебор паролей
-      setTimeout(() => loginPage(res, 401, 'Неверный логин или пароль.'), 1200);
-    });
+    // логины в хабе только строчные: телефон и автозаполнение любят ставить заглавную букву
+    const user = (f.get('username') || '').trim().toLowerCase(), pass = f.get('password') || '';
+    if (!user || !pass || user.includes(':')) return loginPage(res, 401, 'Введите логин и пароль.', null, user);
+    // пароль, вставленный из мессенджера, часто приходит с пробелом или переносом на краю:
+    // сначала пробуем как есть, при отказе — без пробелов по краям
+    const tries = [pass];
+    if (pass.trim() && pass.trim() !== pass) tries.push(pass.trim());
+    const attempt = (i) => {
+      const token = Buffer.from(`${user}:${tries[i]}`).toString('base64');
+      upstream('HEAD', UP_PATH, 'Basic ' + token, (err, r) => {
+        if (err) return unavailable(res);
+        r.resume();
+        if (r.statusCode === 200) {
+          res.writeHead(303, { ...NO_STORE, Location: HUB_PATH,
+            'Set-Cookie': `${COOKIE}=${token}; Max-Age=${SESSION_SECONDS}; ${COOKIE_ATTRS}` });
+          return res.end();
+        }
+        if (r.statusCode !== 401) return unavailable(res);
+        if (i + 1 < tries.length) return attempt(i + 1);
+        // небольшая пауза затрудняет перебор паролей
+        setTimeout(() => loginPage(res, 401, 'Неверный логин или пароль. Логин пишется маленькими латинскими буквами.', null, user), 1200);
+      });
+    };
+    attempt(0);
   });
 }
 
