@@ -734,7 +734,7 @@ class Api(BaseHTTPRequestHandler):
             if role != "superadmin":
                 return self.send(403, dict(error="Раздел доступен только суперадмину"))
             try:
-                return self.send(200, dict(users=U.list_users(), me=user))
+                return self.send(200, dict(users=U.list_users(), me=user, audit=U.recent_audit()))
             except U.UserError as e:
                 return self.send(500, dict(error=str(e)))
         m = re.search(r"/kp(?:/(\d{8}-\d{6}))?$", path)
@@ -808,7 +808,7 @@ class Api(BaseHTTPRequestHandler):
                 else:
                     raise U.UserError("Неизвестное действие.")
                 U.audit(user, act, target, body.get("role") if act in ("add", "role") else None)
-                return self.send(200, dict(ok=True, users=U.list_users()))
+                return self.send(200, dict(ok=True, users=U.list_users(), audit=U.recent_audit()))
             except U.UserError as e:
                 return self.send(400, dict(error=str(e)))
             except Exception as e:  # noqa

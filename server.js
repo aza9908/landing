@@ -46,7 +46,7 @@ const NO_STORE = { 'Cache-Control': 'private, no-store', 'X-Robots-Tag': 'noinde
 // Имя __session — единственное, которое гарантированно пропускает хостинг Firebase.
 const COOKIE = '__session';
 const COOKIE_ATTRS = `Path=${HUB_PATH}; HttpOnly; Secure; SameSite=Strict`;
-const SESSION_SECONDS = 7 * 24 * 3600;
+const SESSION_SECONDS = 90 * 24 * 3600;   // вход помнится 90 дней и продлевается при каждом открытии хаба
 
 function hubAuth(req) {
   const m = (req.headers.cookie || '').match(/(?:^|;\s*)__session=([A-Za-z0-9+/=_-]+)/);
@@ -107,20 +107,50 @@ function unavailable(res) {
   res.end('Хаб временно недоступен');
 }
 
+// Набор в русской или казахской раскладке → те же клавиши в латинской (ЙЦУКЕН → QWERTY).
+// Казахская раскладка ставит буквы на цифровой ряд: ә і ң ғ ү ұ қ ө һ → 2 3 4 5 8 9 0 - =.
+const LAYOUT = (() => {
+  const ru = 'йцукенгшщзхъфывапролджэячсмитьбюёЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮЁ';
+  const en = "qwertyuiop[]asdfghjkl;'zxcvbnm,.`QWERTYUIOP{}ASDFGHJKL:\"ZXCVBNM<>~";
+  const m = {};
+  [...ru].forEach((c, i) => { m[c] = en[i]; });
+  Object.assign(m, { 'ә': '2', 'і': '3', 'ң': '4', 'ғ': '5', 'ү': '8', 'ұ': '9', 'қ': '0', 'ө': '-', 'һ': '=' });
+  return m;
+})();
+const CYR = /[\u0400-\u04FF]/;
+const fixLayout = (t) => [...t].map((c) => LAYOUT[c] || c).join('');
+const invertCase = (t) => [...t].map((c) => (c === c.toLowerCase() ? c.toUpperCase() : c.toLowerCase())).join('');
+
+function loginVariants(user, pass) {
+  const users = [user.trim().toLowerCase()];
+  if (CYR.test(user)) users.push(fixLayout(user.trim()).toLowerCase());
+  const p = pass.trim() || pass, base = [pass, p];
+  if (CYR.test(p)) base.push(fixLayout(p));
+  const out = [];
+  for (const u of users) for (const b of base) for (const v of [b, invertCase(b)]) {   // invertCase — нажатый Caps Lock
+    const k = u + '\n' + v;
+    if (u && v && !u.includes(':') && !out.some((o) => o.k === k)) out.push({ k, u, v });
+  }
+  return out.slice(0, 8);
+}
+
 function hubLogin(req, res) {
   let body = '';
   req.on('data', (c) => { body += c; if (body.length > 4096) req.destroy(); });
   req.on('end', () => {
     const f = new URLSearchParams(body);
-    // логины в хабе только строчные: телефон и автозаполнение любят ставить заглавную букву
-    const user = (f.get('username') || '').trim().toLowerCase(), pass = f.get('password') || '';
-    if (!user || !pass || user.includes(':')) return loginPage(res, 401, 'Введите логин и пароль.', null, user);
-    // пароль, вставленный из мессенджера, часто приходит с пробелом или переносом на краю:
-    // сначала пробуем как есть, при отказе — без пробелов по краям
-    const tries = [pass];
-    if (pass.trim() && pass.trim() !== pass) tries.push(pass.trim());
+    const rawUser = f.get('username') || '', pass = f.get('password') || '';
+    const shown = rawUser.trim().toLowerCase();
+    if (!rawUser.trim() || !pass) return loginPage(res, 401, 'Введите логин и пароль.', null, shown);
+    // Пароль проверяет сервер AIRL. Здесь только пробуем частые опечатки ввода по очереди:
+    // заглавная буква в логине, пробел по краям, русская или казахская раскладка, нажатый Caps Lock.
+    const tries = loginVariants(rawUser, pass);
     const attempt = (i) => {
-      const token = Buffer.from(`${user}:${tries[i]}`).toString('base64');
+      if (i >= tries.length) {
+        // небольшая пауза затрудняет перебор паролей
+        return setTimeout(() => loginPage(res, 401, 'Неверный логин или пароль. Если браузер сам подставил пароль, сотрите его и введите заново: он мог запомнить старый.', null, tries[0] ? tries[0].u : shown), 1200);
+      }
+      const token = Buffer.from(`${tries[i].u}:${tries[i].v}`).toString('base64');
       upstream('HEAD', UP_PATH, 'Basic ' + token, (err, r) => {
         if (err) return unavailable(res);
         r.resume();
@@ -130,9 +160,7 @@ function hubLogin(req, res) {
           return res.end();
         }
         if (r.statusCode !== 401) return unavailable(res);
-        if (i + 1 < tries.length) return attempt(i + 1);
-        // небольшая пауза затрудняет перебор паролей
-        setTimeout(() => loginPage(res, 401, 'Неверный логин или пароль. Логин пишется маленькими латинскими буквами.', null, user), 1200);
+        attempt(i + 1);
       });
     };
     attempt(0);
@@ -202,7 +230,7 @@ function proxyHub(req, res, path) {
     }
     if (r.statusCode === 401) {   // пароль сменили или cookie испорчена
       r.resume();
-      if (isPage) return loginPage(res, 200, '', clear);
+      if (isPage) return loginPage(res, 200, 'Пароль был изменён. Войдите с новым паролем.', clear, Buffer.from(auth.slice(6), 'base64').toString('utf8').split(':')[0]);
       res.writeHead(401, { ...NO_STORE, ...clear });
       return res.end();
     }
@@ -210,7 +238,8 @@ function proxyHub(req, res, path) {
     if (local) {
       r.resume();
       if (r.statusCode !== 200) return unavailable(res);
-      res.writeHead(200, { ...NO_STORE, 'Content-Type': local[0], 'Content-Length': local[1].length });
+      const renew = path === HUB_PATH ? { 'Set-Cookie': `${COOKIE}=${auth.slice(6)}; Max-Age=${SESSION_SECONDS}; ${COOKIE_ATTRS}` } : {};
+      res.writeHead(200, { ...NO_STORE, ...renew, 'Content-Type': local[0], 'Content-Length': local[1].length });
       return res.end(req.method === 'HEAD' ? undefined : local[1]);
     }
     const out = { ...NO_STORE };

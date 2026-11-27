@@ -256,6 +256,16 @@ def audit(by, action, user, role=None):
         pass
 
 
+def recent_audit(n=20):
+    """Последние изменения пользователей, новые сверху."""
+    try:
+        with open(os.path.join(STATE, "users_audit.jsonl"), encoding="utf-8") as f:
+            rows = [json.loads(x) for x in f.readlines()[-n:] if x.strip()]
+        return rows[::-1]
+    except Exception:  # noqa
+        return []
+
+
 # ---------------------------------------------------------------- команда на сервере
 
 def _ask_password(user):

@@ -33,6 +33,7 @@ button svg{width:18px;height:18px}
 .err{background:#fff;border:1px solid #e9b8c9;color:#a3274f;border-radius:18px;padding:12px 18px;font-size:14px;margin-bottom:22px}
 .show{display:flex;align-items:center;gap:8px;margin:-6px 0 14px 18px;font-family:'Inter Tight',system-ui,sans-serif;font-size:13.5px;color:#4a4a58;cursor:pointer}
 .show input{width:auto;height:auto;margin:0}
+.warn{background:#fdf0dc;color:#7a4700;border-radius:14px;padding:9px 14px;font-size:13.5px;margin:-4px 0 14px}
 .note{font-family:'Victor Mono',ui-monospace,monospace;color:#8a8a96;font-size:12px;margin-top:22px;text-align:center}
 @media (prefers-reduced-motion:reduce){button,input{transition:none}}
 </style>
@@ -49,6 +50,8 @@ button svg{width:18px;height:18px}
     <label for="p">Пароль</label>
     <input id="p" name="password" type="password" autocomplete="current-password" required>
     <label class="show"><input type="checkbox" id="sh"> Показать пароль</label>
+    <p class="warn" id="wl" hidden>Включена русская или казахская раскладка. Логин и пароль набираются латиницей.</p>
+    <p class="warn" id="wc" hidden>Включён Caps Lock.</p>
     <button type="submit">Войти <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></button>
     <p class="note">Только для внутреннего использования</p>
   </form>
@@ -57,6 +60,9 @@ button svg{width:18px;height:18px}
 document.getElementById('sh').onchange=function(){document.getElementById('p').type=this.checked?'text':'password'};
 var u=document.getElementById('u');if(u.value)document.getElementById('p').focus();
 u.addEventListener('blur',function(){u.value=u.value.trim().toLowerCase()});
+var p=document.getElementById('p'),wl=document.getElementById('wl'),wc=document.getElementById('wc');
+function chk(e){wl.hidden=!/[\u0400-\u04FF]/.test(u.value+p.value);if(e&&e.getModifierState)wc.hidden=!e.getModifierState('CapsLock')}
+[u,p].forEach(function(x){x.addEventListener('input',chk);x.addEventListener('keydown',chk);x.addEventListener('keyup',chk)});
 </script>
 </body>
 </html>

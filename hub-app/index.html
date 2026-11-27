@@ -470,7 +470,8 @@ footer{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:28px
         </form>
         <div class="card" id="usCred" hidden style="margin-top:16px"></div>
       </div>
-      <div class="card s7"><h3>Все пользователи</h3><p class="hint">Изменения действуют сразу</p><div class="tw"><table id="usTable"></table></div></div>
+      <div class="s7"><div class="card"><h3>Все пользователи</h3><p class="hint">Изменения действуют сразу</p><div class="tw"><table id="usTable"></table></div></div>
+        <div class="card" style="margin-top:16px"><h3>Журнал изменений</h3><p class="hint">Кто, когда и что менял. Паролей здесь нет</p><div class="tw"><table id="usAudit"></table></div></div></div>
     </div>
   </div>
 
@@ -849,6 +850,11 @@ function usCred(user,pass,what){
   el.hidden=false;el.innerHTML=`<h3>${what}</h3><p class="hint">Пароль показан один раз: в хабе он не хранится</p><div class="cred">${esc(text)}</div><div class="btns"><button type="button" class="pri" id="usCopy">Скопировать</button></div>`;
   $('usCopy').onclick=e=>{(navigator.clipboard?navigator.clipboard.writeText(text):Promise.reject()).then(()=>e.target.textContent='Скопировано',()=>e.target.textContent='Не удалось, выделите вручную')};
 }
+const AUD={add:'создал пользователя',set:'задал пароль и роль (команда на сервере)',passwd:'задал новый пароль','self-passwd':'сменил свой пароль',role:'сменил роль',del:'удалил пользователя',kp:'изменил доступ к агенту КП','kp-allow':'открыл агента КП','kp-deny':'закрыл агента КП'};
+function usAudit(rows){
+  if(!$('usAudit'))return;
+  table('usAudit',[['Когда'],['Кто'],['Что сделал'],['С кем']],(rows||[]).map(a=>[fmtT(a.at),esc(a.by==='сервер'?'команда на сервере':a.by),esc(AUD[a.action]||a.action)+(a.role?` <span class="small">${esc(ROLE[a.role]||a.role)}</span>`:''),`<b>${esc(a.user)}</b>`]));
+}
 function usRender(list,me){
   const opts=r=>Object.entries(ROLE).map(([k,v])=>`<option value="${k}"${k===r?' selected':''}>${v}</option>`).join('');
   table('usTable',[['Логин'],['Роль'],['Агент КП'],['','']],list.map(u=>[
@@ -856,7 +862,7 @@ function usRender(list,me){
     `<select data-role="${esc(u.user)}" aria-label="Роль ${esc(u.user)}">${opts(u.role)}</select>`,
     u.role==='superadmin'?'<span class="small">всегда</span>':`<input type="checkbox" data-kp="${esc(u.user)}"${u.kp?' checked':''} aria-label="Агент КП для ${esc(u.user)}">`,
     `<span class="btns"><button type="button" data-pw="${esc(u.user)}">Новый пароль</button>${u.user===me?'':`<button type="button" class="del" data-del="${esc(u.user)}">Удалить</button>`}</span>`]));
-  const msg=$('usMsg'),run=(body,ok)=>usCall(body).then(j=>{msg.textContent=ok;usRender(j.users,me);return j}).catch(e=>{msg.textContent=e.message;usLoad()});
+  const msg=$('usMsg'),run=(body,ok)=>usCall(body).then(j=>{msg.textContent=ok;usRender(j.users,me);usAudit(j.audit);return j}).catch(e=>{msg.textContent=e.message;usLoad()});
   const T=$('usTable');
   T.querySelectorAll('[data-role]').forEach(x=>x.onchange=()=>run({action:'role',user:x.dataset.role,role:x.value},x.dataset.role+': роль изменена на «'+ROLE[x.value]+'».'));
   T.querySelectorAll('[data-kp]').forEach(x=>x.onchange=()=>run({action:'kp',user:x.dataset.kp,allow:x.checked},x.dataset.kp+(x.checked?' теперь видит агента КП.':' больше не видит агента КП.')));
@@ -864,7 +870,7 @@ function usRender(list,me){
     run({action:'passwd',user:u,password:p},u+': пароль изменён.').then(j=>{if(j)usCred(u,p,'Новый пароль для '+esc(u))})});
   T.querySelectorAll('[data-del]').forEach(x=>x.onclick=()=>{const u=x.dataset.del;if(confirm('Удалить пользователя '+u+'? Он сразу потеряет доступ к хабу.'))run({action:'del',user:u},u+' удалён.')});
 }
-function usLoad(){return getJSON('api/users',true).catch(()=>null).then(d=>{if(d&&d.users)usRender(d.users,d.me);else $('usTable').innerHTML='<tbody><tr><td class="small">Список появится после обновления сервера.</td></tr></tbody>'})}
+function usLoad(){return getJSON('api/users',true).catch(()=>null).then(d=>{if(d&&d.users){usRender(d.users,d.me);usAudit(d.audit)}else $('usTable').innerHTML='<tbody><tr><td class="small">Список появится после обновления сервера.</td></tr></tbody>'})}
 function initUsers(){
   $('usPass').value=genPw();$('usGen').onclick=()=>{$('usPass').value=genPw()};
   $('usLogin').addEventListener('input',e=>{e.target.value=e.target.value.toLowerCase().replace(/\s+/g,'')});
@@ -872,7 +878,7 @@ function initUsers(){
   $('usForm').onsubmit=e=>{e.preventDefault();const u=$('usLogin').value.trim(),p=$('usPass').value,role=$('usRole').value,kp=$('usKp').checked,msg=$('usMsg'),go=$('usGo');
     go.disabled=true;msg.textContent='';
     usCall({action:'add',user:u,role,password:p}).then(j=>kp&&role!=='superadmin'?usCall({action:'kp',user:u,allow:true}):j)
-      .then(j=>{usRender(j.users,TEAM.me&&TEAM.me.user);usCred(u,p,'Передайте пользователю '+esc(u));msg.textContent='Пользователь '+u+' создан.';$('usLogin').value='';$('usPass').value=genPw();$('usKp').checked=false})
+      .then(j=>{usRender(j.users,TEAM.me&&TEAM.me.user);usAudit(j.audit);usCred(u,p,'Передайте пользователю '+esc(u));msg.textContent='Пользователь '+u+' создан.';$('usLogin').value='';$('usPass').value=genPw();$('usKp').checked=false})
       .catch(er=>{msg.textContent=er.message}).finally(()=>{go.disabled=false})};
 }
 function initPassword(){
